@@ -178,9 +178,15 @@ class DcloudConfigController extends ControllerBase {
     $next_base_url = $next_config->get('base_url') ?: 'http://localhost:3000';
     $revalidate_secret = $next_config->get('revalidate_secret');
 
-    // Show placeholder if no secret exists
+    // Generate revalidation secret if it doesn't exist
     if (empty($revalidate_secret) || $revalidate_secret === 'not-set') {
-      $revalidate_secret = '[click Generate Secret button below]';
+      $random = new Random();
+      $revalidate_secret = $random->word(32);
+
+      // Save the new revalidation secret
+      $next_config_editable = $this->configFactory->getEditable('next.settings');
+      $next_config_editable->set('revalidate_secret', $revalidate_secret);
+      $next_config_editable->save();
     }
 
     // Get current site URL.
@@ -236,11 +242,11 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
 
         <h3>2. Quick Start with Next.js</h3>
         <p>Get started quickly using our pre-configured Next.js starter project:</p>
-        
+
         <div class="dcloud-config-tip">
           <p><strong>🚀 Next.js Starter Project:</strong> <a href="https://github.com/nextagencyio/drupal-cloud-starter" target="_blank">https://github.com/nextagencyio/drupal-cloud-starter</a></p>
         </div>
-        
+
         ' . $this->createCodeBlock("# Clone the starter project
 git clone https://github.com/nextagencyio/drupal-cloud-starter.git my-frontend
 cd my-frontend
@@ -251,7 +257,7 @@ npm install
 # Copy the environment variables above to .env.local
 # Then start the development server
 npm run dev", 'bash', 'Quick Start Commands') . '
-        
+
         <p><strong>Alternative:</strong> If you have an existing Next.js project, just add the environment variables above to your <code>.env.local</code> file and start your development server:</p>
         ' . $this->createCodeBlock($npm_run_dev, 'bash', 'Existing Project') . '
 
@@ -417,6 +423,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
       'success' => false,
       'client_secret' => '',
       'client_id' => '',
+      'revalidate_secret' => '',
       'message' => ''
     ];
 
@@ -425,28 +432,38 @@ npm run dev", 'bash', 'Quick Start Commands') . '
       $consumer_storage = $this->entityTypeManager->getStorage('consumer');
       $consumer_storage->resetCache();
       $consumers = $consumer_storage->loadByProperties(['label' => 'Next.js Frontend']);
-      
+
       if (!empty($consumers)) {
         $consumer = reset($consumers);
         $response_data['client_id'] = $consumer->getClientId();
-        
+
         // Generate new client secret
         $random = new Random();
         $client_secret = $random->word(8);
-        
+
         $consumer->set('secret', $client_secret);
         $consumer->save();
-        
+
         // Clear cache
         $consumer_storage->resetCache([$consumer->id()]);
-        
+
+        // Also generate new revalidation secret
+        $random_revalidate = new Random();
+        $revalidate_secret = $random_revalidate->word(32);
+
+        // Save the new revalidation secret
+        $next_config_editable = $this->configFactory->getEditable('next.settings');
+        $next_config_editable->set('revalidate_secret', $revalidate_secret);
+        $next_config_editable->save();
+
         $response_data['client_secret'] = $client_secret;
+        $response_data['revalidate_secret'] = $revalidate_secret;
         $response_data['success'] = true;
-        $response_data['message'] = 'New client secret generated successfully!';
+        $response_data['message'] = 'New client secret and revalidation secret generated successfully!';
       } else {
         $response_data['error'] = 'OAuth consumer not found';
       }
-      
+
     } catch (\Exception $e) {
       \Drupal::logger('dcloud_config')->error('AJAX secret generation failed: @message', ['@message' => $e->getMessage()]);
       $response_data['error'] = 'Failed to generate client secret: ' . $e->getMessage();

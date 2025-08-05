@@ -131,8 +131,8 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Update the client secret in the code block
-          updateClientSecret(data.client_secret);
+          // Update both secrets in the code block
+          updateSecrets(data.client_secret, data.revalidate_secret);
 
           // Show success message
           showMessage(data.message, 'success');
@@ -169,15 +169,18 @@
   }
 
   /**
-   * Update client secret in the code block.
-   */
-  function updateClientSecret(clientSecret) {
+ * Update both client secret and revalidation secret in the code block.
+ */
+  function updateSecrets(clientSecret, revalidateSecret) {
     const codeBlock = document.querySelector('.dcloud-config-code-block pre');
     if (codeBlock) {
       let content = codeBlock.textContent;
 
       // Update client secret
       content = content.replace(/DRUPAL_CLIENT_SECRET=.*$/m, `DRUPAL_CLIENT_SECRET=${clientSecret}`);
+
+      // Update revalidation secret
+      content = content.replace(/DRUPAL_REVALIDATE_SECRET=.*$/m, `DRUPAL_REVALIDATE_SECRET=${revalidateSecret}`);
 
       codeBlock.textContent = content;
     }
