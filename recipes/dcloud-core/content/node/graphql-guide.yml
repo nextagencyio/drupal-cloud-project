@@ -53,4 +53,4 @@ default:
 
         <p>Visit the <a href="/graphql/explorer">GraphQL Explorer</a> to test queries interactively.</p>
       format: basic_html
-      summary: 'Learn how to use GraphQL with DCloud for efficient data querying and API integration.'
+      summary: 'Learn how to use GraphQL with Drupal Cloud for efficient data querying and API integration.'

@@ -1,5 +1,5 @@
-name: 'DCloud Core'
-description: 'DCloud headless CMS configuration with GraphQL, OAuth, and modern content tools.'
+name: 'Drupal Cloud Core'
+description: 'Drupal Cloud headless CMS configuration with GraphQL, OAuth, and modern content tools.'
 type: 'Site'
 recipes:
   - core/recipes/basic_block_type

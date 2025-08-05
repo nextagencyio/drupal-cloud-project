@@ -1,0 +1,17 @@
+dcloud_usage.usage_stats:
+  path: '/api/dcloud/usage'
+  defaults:
+    _controller: '\Drupal\dcloud_usage\Controller\UsageController::getUsageStats'
+    _title: 'Usage Statistics'
+  requirements:
+    _permission: 'access content'
+  methods: [GET]
+
+dcloud_usage.detailed_usage:
+  path: '/api/dcloud/usage/detailed'
+  defaults:
+    _controller: '\Drupal\dcloud_usage\Controller\UsageController::getDetailedUsage'
+    _title: 'Detailed Usage Statistics'
+  requirements:
+    _permission: 'access content'
+  methods: [GET]

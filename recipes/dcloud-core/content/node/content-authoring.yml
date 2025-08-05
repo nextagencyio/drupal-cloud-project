@@ -37,7 +37,7 @@ default:
   body:
     -
       value: |
-        <p>DCloud includes the Paragraphs module for creating rich, structured content with reusable components.</p>
+        <p>Drupal Cloud includes the Paragraphs module for creating rich, structured content with reusable components.</p>
 
         <h3>Benefits of Paragraphs</h3>
         <ul>
@@ -57,4 +57,4 @@ default:
 
         <p>This approach gives you the flexibility of a page builder with the structure needed for API consumption.</p>
       format: basic_html
-      summary: 'Learn how to create rich, structured content using the Paragraphs module in DCloud.'
+      summary: 'Learn how to create rich, structured content using the Paragraphs module in Drupal Cloud.'

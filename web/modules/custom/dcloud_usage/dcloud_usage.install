@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the dcloud_usage module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function dcloud_usage_install() {
+  // Log installation
+  \Drupal::logger('dcloud_usage')->info('Drupal Cloud Usage module has been installed.');
+  
+  // Set module weight to ensure it loads after core modules
+  module_set_weight('dcloud_usage', 10);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function dcloud_usage_uninstall() {
+  // Clean up any configuration
+  \Drupal::configFactory()->getEditable('dcloud_usage.settings')->delete();
+  
+  // Log uninstallation
+  \Drupal::logger('dcloud_usage')->info('Drupal Cloud Usage module has been uninstalled.');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function dcloud_usage_requirements($phase) {
+  $requirements = [];
+
+  if ($phase == 'runtime') {
+    $requirements['dcloud_usage'] = [
+      'title' => t('Drupal Cloud Usage'),
+      'value' => t('Module is active and tracking usage'),
+      'severity' => REQUIREMENT_OK,
+      'description' => t('The Drupal Cloud Usage module is properly installed and functioning.'),
+    ];
+  }
+
+  return $requirements;
+}

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Description: Install a new multisite in DCloud
+## Description: Install a new multisite in Drupal Cloud
 ## Usage: ddev installsite [site-name] [db-name] [site-title]
 ## Example: ddev installsite foobar foobar_db "Foobar Site"
 
@@ -8,7 +8,7 @@ set -eu -o pipefail
 
 SITE_NAME="${1:-}"
 DB_NAME="${2:-}"
-SITE_TITLE="${3:-New DCloud Site}"
+SITE_TITLE="${3:-New Drupal Cloud Site}"
 
 if [ -z "$SITE_NAME" ] || [ -z "$DB_NAME" ]; then
     echo "Usage: ddev installsite [site-name] [db-name] [site-title]"
@@ -16,7 +16,7 @@ if [ -z "$SITE_NAME" ] || [ -z "$DB_NAME" ]; then
     exit 1
 fi
 
-echo "Installing DCloud multisite: $SITE_NAME"
+echo "Installing Drupal Cloud multisite: $SITE_NAME"
 echo "Title: $SITE_TITLE"
 
 # Convert hyphens to underscores for directory name
@@ -52,7 +52,7 @@ cat > "web/sites/$DIRECTORY_NAME/settings.php" << EOF
  * @file
  * Settings for $SITE_TITLE ($SITE_NAME).
  *
- * Generated automatically by DCloud installsite script.
+ * Generated automatically by Drupal Cloud installsite script.
  */
 
 // Database configuration with SQLite.
@@ -111,9 +111,9 @@ ddev drush --uri="$HOSTNAME" site:install minimal \
     --account-pass=admin \
     --verbose -y
 
-echo "Applying DCloud configuration recipe..."
+echo "Applying Drupal Cloud configuration recipe..."
 
-# Apply the DCloud recipe for complete configuration
+# Apply the Drupal Cloud recipe for complete configuration
 ddev drush --uri="$HOSTNAME" recipe ../recipes/dcloud-core -y
 
 # Clear cache
@@ -125,7 +125,7 @@ echo "Configuring GraphQL and OAuth integration..."
 ddev drush --uri="$HOSTNAME" scr ../scripts/consumers-next.php
 
 echo ""
-echo "✅ DCloud multisite installation complete!"
+echo "✅ Drupal Cloud multisite installation complete!"
 echo ""
 echo "🌐 Site URL: https://$HOSTNAME"
 echo "👤 Admin login: admin / admin"

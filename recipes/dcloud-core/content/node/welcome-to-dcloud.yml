@@ -16,7 +16,7 @@ default:
       target_id: 1
   title:
     -
-      value: 'Welcome to DCloud'
+      value: 'Welcome to Drupal Cloud'
   created:
     -
       value: 1723000000
@@ -37,9 +37,9 @@ default:
   body:
     -
       value: |
-        <p>Welcome to your new DCloud headless CMS! This powerful platform combines the flexibility of Drupal with modern headless architecture.</p>
+        <p>Welcome to your new Drupal Cloud headless CMS! This powerful platform combines the flexibility of Drupal with modern headless architecture.</p>
 
-        <h3>What makes DCloud special?</h3>
+        <h3>What makes Drupal Cloud special?</h3>
         <ul>
           <li><strong>GraphQL API</strong> - Modern, efficient data querying</li>
           <li><strong>SQLite Database</strong> - Lightweight, file-based storage</li>
@@ -50,4 +50,4 @@ default:
 
         <p>Start building your content and explore the GraphQL API at <code>/graphql/explorer</code>.</p>
       format: basic_html
-      summary: 'Welcome to your new DCloud headless CMS! This powerful platform combines the flexibility of Drupal with modern headless architecture.'
+      summary: 'Welcome to your new Drupal Cloud headless CMS! This powerful platform combines the flexibility of Drupal with modern headless architecture.'

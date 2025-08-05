@@ -1,14 +1,14 @@
 #!/bin/bash
 
-## Description: Install DCloud on a single site (non-multisite) setup
+## Description: Install Drupal Cloud on a single site (non-multisite) setup
 ## Usage: ddev install [site-title]
-## Example: ddev install "My DCloud Site"
+## Example: ddev install "My Drupal Cloud Site"
 
 set -eu -o pipefail
 
-SITE_TITLE="${1:-DCloud Site}"
+SITE_TITLE="${1:-Drupal Cloud Site}"
 
-echo "Starting DCloud installation..."
+echo "Starting Drupal Cloud installation..."
 echo "Site title: $SITE_TITLE"
 
 # Start DDEV and install dependencies
@@ -26,7 +26,7 @@ ddev drush site:install minimal \
 
 echo "Applying Drupal Cloud configuration recipe..."
 
-# Apply the DCloud recipe for complete configuration
+# Apply the Drupal Cloud recipe for complete configuration
 ddev drush recipe recipes/dcloud-core -y
 
 # Clear cache
@@ -38,7 +38,7 @@ echo "Configuring GraphQL and OAuth integration..."
 ddev drush scr scripts/consumers-next.php
 
 echo ""
-echo "✅ DCloud installation complete!"
+echo "✅ Drupal Cloud installation complete!"
 echo ""
 echo "🌐 Site URL: $(ddev describe | grep "https://" | head -1 | awk '{print $1}')"
 echo "👤 Admin login: admin / admin"

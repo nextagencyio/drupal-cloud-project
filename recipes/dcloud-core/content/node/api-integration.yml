@@ -37,7 +37,7 @@ default:
   body:
     -
       value: |
-        <p>DCloud provides secure OAuth2 authentication for your headless applications along with multiple API options.</p>
+        <p>Drupal Cloud provides secure OAuth2 authentication for your headless applications along with multiple API options.</p>
 
         <h3>Available APIs</h3>
         <ul>
@@ -55,6 +55,6 @@ default:
         </ul>
 
         <h3>Next.js Integration</h3>
-        <p>DCloud includes configuration helpers for Next.js applications. Check the admin interface for generated environment variables and setup instructions.</p>
+        <p>Drupal Cloud includes configuration helpers for Next.js applications. Check the admin interface for generated environment variables and setup instructions.</p>
       format: basic_html
-      summary: 'Learn about API integration and OAuth2 authentication options available in DCloud.'
+      summary: 'Learn about API integration and OAuth2 authentication options available in Drupal Cloud.'
