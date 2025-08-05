@@ -83,8 +83,9 @@ install:
   - admin_toolbar
   - admin_toolbar_tools
 
-  # Next.js configuration
-  - nextjs_config
+  # DCloud configuration and usage tracking
+  - dcloud_config
+  - dcloud_usage
 
 config:
   import:

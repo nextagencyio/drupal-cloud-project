@@ -2,24 +2,24 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the nextjs_config module.
+ * Install, update and uninstall functions for the dcloud_config module.
  */
 
 /**
  * Implements hook_install().
  */
-function nextjs_config_install() {
+function dcloud_config_install() {
   // Set this module as the front page
   \Drupal::configFactory()
     ->getEditable('system.site')
-    ->set('page.front', '/nextjs-config')
+    ->set('page.front', '/dcloud-config')
     ->save();
 }
 
 /**
  * Implements hook_uninstall().
  */
-function nextjs_config_uninstall() {
+function dcloud_config_uninstall() {
   // Reset front page to default
   \Drupal::configFactory()
     ->getEditable('system.site')

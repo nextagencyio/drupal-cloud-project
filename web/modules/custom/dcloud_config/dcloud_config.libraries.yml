@@ -1,10 +1,10 @@
-nextjs_config:
+dcloud_config:
   version: 1.0
   css:
     theme:
-      css/nextjs-config.css: {}
+      css/dcloud-config.css: {}
   js:
-    js/nextjs-config.js: {}
+    js/dcloud-config.js: {}
   dependencies:
     - core/drupal
     - core/once

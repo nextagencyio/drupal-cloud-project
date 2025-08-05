@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\nextjs_config\Controller;
+namespace Drupal\dcloud_config\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -14,9 +14,9 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Random;
 
 /**
- * Controller for Next.js configuration page.
+ * Controller for DCloud configuration page.
  */
-class NextjsConfigController extends ControllerBase {
+class DcloudConfigController extends ControllerBase {
 
   /**
    * The entity type manager.
@@ -33,7 +33,7 @@ class NextjsConfigController extends ControllerBase {
   protected $configFactory;
 
   /**
-   * Constructs a NextjsConfigController object.
+   * Constructs a DcloudConfigController object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
@@ -82,13 +82,13 @@ class NextjsConfigController extends ControllerBase {
    */
   private function createCodeBlock($code, $language = '', $title = '') {
     $id = 'code-' . uniqid();
-    $title_html = $title ? '<div class="nextjs-config-code-title">' . $title . '</div>' : '';
+    $title_html = $title ? '<div class="dcloud-config-code-title">' . $title . '</div>' : '';
     $has_title_class = $title ? ' has-title' : '';
-    return '<div class="nextjs-config-code-block' . $has_title_class . '">
+    return '<div class="dcloud-config-code-block' . $has_title_class . '">
       ' . $title_html . '
-      <div class="nextjs-config-code-content">
+      <div class="dcloud-config-code-content">
         <pre id="' . $id . '">' . htmlspecialchars($code) . '</pre>
-        <button class="nextjs-config-copy-button" data-target="' . $id . '" title="Copy to clipboard">
+        <button class="dcloud-config-copy-button" data-target="' . $id . '" title="Copy to clipboard">
           📋 Copy
         </button>
       </div>
@@ -105,7 +105,7 @@ class NextjsConfigController extends ControllerBase {
     $build = [];
 
     // Attach the custom library for styling and JavaScript.
-    $build['#attached']['library'][] = 'nextjs_config/nextjs_config';
+    $build['#attached']['library'][] = 'dcloud_config/dcloud_config';
 
     // Get or create Next.js consumer information.
     $client_id = '';
@@ -206,13 +206,13 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
 
     $build['instructions'] = [
       '#type' => 'markup',
-      '#markup' => '<div class="nextjs-config-container">
-        <div class="nextjs-config-header">
+      '#markup' => '<div class="dcloud-config-container">
+        <div class="dcloud-config-header">
           <h1>🚀 Drupal Cloud</h1>
           <p>Your headless CMS is ready! Follow the steps below to connect your Next.js frontend.</p>
         </div>
 
-        <div class="nextjs-config-tip">
+        <div class="dcloud-config-tip">
           <p>💡 <strong>Pro Tip:</strong> All code blocks below have copy buttons (📋) in the top-right corner. Click to copy instantly!</p>
         </div>
 
@@ -224,10 +224,10 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
 
         ' . $this->createCodeBlock($env_content, 'env', '.env.local') . '
 
-        <div class="nextjs-config-generate-secret">
-          <form method="post" action="/nextjs-config/generate-secret" style="display: inline;">
-            <input type="hidden" name="form_token" value="' . \Drupal::csrfToken()->get('nextjs_config_generate_secret') . '">
-            <button type="submit" class="nextjs-config-generate-button">
+        <div class="dcloud-config-generate-secret">
+          <form method="post" action="/dcloud-config/generate-secret" style="display: inline;">
+            <input type="hidden" name="form_token" value="' . \Drupal::csrfToken()->get('dcloud_config_generate_secret') . '">
+            <button type="submit" class="dcloud-config-generate-button">
               🔑&nbsp;&nbsp;Generate Client Secret
             </button>
           </form>
@@ -237,7 +237,7 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
         <h3>2. Quick Start with Next.js</h3>
         <p>Get started quickly using our pre-configured Next.js starter project:</p>
         
-        <div class="nextjs-config-tip">
+        <div class="dcloud-config-tip">
           <p><strong>🚀 Next.js Starter Project:</strong> <a href="https://github.com/nextagencyio/drupal-cloud-starter" target="_blank">https://github.com/nextagencyio/drupal-cloud-starter</a></p>
         </div>
         
@@ -255,7 +255,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
         <p><strong>Alternative:</strong> If you have an existing Next.js project, just add the environment variables above to your <code>.env.local</code> file and start your development server:</p>
         ' . $this->createCodeBlock($npm_run_dev, 'bash', 'Existing Project') . '
 
-        <div class="nextjs-config-status">
+        <div class="dcloud-config-status">
           <h4>✅ Configuration Status</h4>
           <ul>
             <li><strong>OAuth Consumer:</strong> ✅ Configured</li>
@@ -333,7 +333,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
       return $consumer;
     }
     catch (\Exception $e) {
-      \Drupal::logger('nextjs_config')->error('Failed to create OAuth consumer: @message', ['@message' => $e->getMessage()]);
+      \Drupal::logger('dcloud_config')->error('Failed to create OAuth consumer: @message', ['@message' => $e->getMessage()]);
       return NULL;
     }
   }
@@ -350,9 +350,9 @@ npm run dev", 'bash', 'Quick Start Commands') . '
   public function generateSecret(Request $request) {
     // Verify CSRF token
     $token = $request->request->get('form_token');
-    if (!\Drupal::csrfToken()->validate($token, 'nextjs_config_generate_secret')) {
+    if (!\Drupal::csrfToken()->validate($token, 'dcloud_config_generate_secret')) {
       \Drupal::messenger()->addError('Invalid form token. Please try again.');
-      return new RedirectResponse(Url::fromRoute('nextjs_config.homepage')->toString());
+      return new RedirectResponse(Url::fromRoute('dcloud_config.homepage')->toString());
     }
 
     // Generate new revalidation secret
@@ -383,18 +383,18 @@ npm run dev", 'bash', 'Quick Start Commands') . '
         $consumer_storage->resetCache([$consumer->id()]);
         \Drupal::entityTypeManager()->clearCachedDefinitions();
 
-        \Drupal::logger('nextjs_config')->info('Generated new OAuth client secret: @secret', ['@secret' => $client_secret]);
+        \Drupal::logger('dcloud_config')->info('Generated new OAuth client secret: @secret', ['@secret' => $client_secret]);
       }
     }
     catch (\Exception $e) {
-      \Drupal::logger('nextjs_config')->error('Failed to update OAuth consumer secret: @message', ['@message' => $e->getMessage()]);
+      \Drupal::logger('dcloud_config')->error('Failed to update OAuth consumer secret: @message', ['@message' => $e->getMessage()]);
     }
 
     // Add success message
     \Drupal::messenger()->addStatus('New secrets generated successfully!');
 
     // Redirect back to the configuration page
-    return new RedirectResponse(Url::fromRoute('nextjs_config.homepage')->toString());
+    return new RedirectResponse(Url::fromRoute('dcloud_config.homepage')->toString());
   }
 
   /**
@@ -409,7 +409,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
   public function generateSecretAjax(Request $request) {
     // Verify CSRF token
     $token = $request->request->get('form_token');
-    if (!\Drupal::csrfToken()->validate($token, 'nextjs_config_generate_secret')) {
+    if (!\Drupal::csrfToken()->validate($token, 'dcloud_config_generate_secret')) {
       return new JsonResponse(['error' => 'Invalid form token'], 403);
     }
 
@@ -448,7 +448,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
       }
       
     } catch (\Exception $e) {
-      \Drupal::logger('nextjs_config')->error('AJAX secret generation failed: @message', ['@message' => $e->getMessage()]);
+      \Drupal::logger('dcloud_config')->error('AJAX secret generation failed: @message', ['@message' => $e->getMessage()]);
       $response_data['error'] = 'Failed to generate client secret: ' . $e->getMessage();
     }
 
