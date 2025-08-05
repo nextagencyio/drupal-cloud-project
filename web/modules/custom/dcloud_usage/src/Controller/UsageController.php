@@ -460,14 +460,17 @@ class UsageController extends ControllerBase {
       $by_type = [
         'graphql' => [
           'gb' => isset($by_type_results['graphql']) ? round($by_type_results['graphql']->total_bytes / 1024 / 1024 / 1024, 3) : 0,
+          'mb' => isset($by_type_results['graphql']) ? round($by_type_results['graphql']->total_bytes / 1024 / 1024, 2) : 0,
           'requests' => isset($by_type_results['graphql']) ? (int) $by_type_results['graphql']->requests : 0,
         ],
         'jsonapi' => [
           'gb' => isset($by_type_results['jsonapi']) ? round($by_type_results['jsonapi']->total_bytes / 1024 / 1024 / 1024, 3) : 0,
+          'mb' => isset($by_type_results['jsonapi']) ? round($by_type_results['jsonapi']->total_bytes / 1024 / 1024, 2) : 0,
           'requests' => isset($by_type_results['jsonapi']) ? (int) $by_type_results['jsonapi']->requests : 0,
         ],
         'rest' => [
           'gb' => isset($by_type_results['rest']) ? round($by_type_results['rest']->total_bytes / 1024 / 1024 / 1024, 3) : 0,
+          'mb' => isset($by_type_results['rest']) ? round($by_type_results['rest']->total_bytes / 1024 / 1024, 2) : 0,
           'requests' => isset($by_type_results['rest']) ? (int) $by_type_results['rest']->requests : 0,
         ],
       ];
@@ -478,6 +481,7 @@ class UsageController extends ControllerBase {
 
       return [
         'monthly_gb' => round($total_bytes / 1024 / 1024 / 1024, 3),
+        'monthly_mb' => round($total_bytes / 1024 / 1024, 2),
         'daily_average_mb' => $daily_average_mb,
         'total_requests' => (int) $total_requests,
         'by_type' => $by_type,
