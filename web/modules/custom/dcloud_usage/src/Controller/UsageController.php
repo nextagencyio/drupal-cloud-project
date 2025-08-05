@@ -85,11 +85,20 @@ class UsageController extends ControllerBase {
         'timestamp' => time(),
       ];
 
-      return new JsonResponse($stats);
+      $response = new JsonResponse($stats);
+      $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      $response->headers->set('Pragma', 'no-cache');
+      $response->headers->set('Expires', '0');
+      return $response;
     }
     catch (\Exception $e) {
-      \Drupal::logger('dcloud_usage')->error('Error fetching usage stats: @message', ['@message' => $e->getMessage()]);
-      return new JsonResponse(['error' => 'Failed to fetch usage statistics'], 500);
+      $response = new JsonResponse([
+        'error' => 'Failed to fetch usage statistics',
+        'message' => $e->getMessage(),
+        'timestamp' => time(),
+      ], 500);
+      $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return $response;
     }
   }
 
@@ -113,17 +122,24 @@ class UsageController extends ControllerBase {
         'storage' => $this->getStorageStats(),
         'storage_details' => $this->getStorageDetails(),
         'bandwidth' => $this->getBandwidthStats(),
+        'bandwidth_details' => $this->getBandwidthDetails(),
         'users' => $this->getUserCount(),
         'user_details' => $this->getUserDetails(),
         'system_info' => $this->getSystemInfo(),
         'timestamp' => time(),
       ];
 
-      return new JsonResponse($stats);
+      $response = new JsonResponse($stats);
+      $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      $response->headers->set('Pragma', 'no-cache');
+      $response->headers->set('Expires', '0');
+      return $response;
     }
     catch (\Exception $e) {
       \Drupal::logger('dcloud_usage')->error('Error fetching detailed usage stats: @message', ['@message' => $e->getMessage()]);
-      return new JsonResponse(['error' => 'Failed to fetch detailed usage statistics'], 500);
+      $response = new JsonResponse(['error' => 'Failed to fetch detailed usage statistics'], 500);
+      $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return $response;
     }
   }
 
@@ -266,17 +282,65 @@ class UsageController extends ControllerBase {
    *   Array with API request stats.
    */
   protected function getApiRequestStats() {
-    // For now, return placeholder data
-    // In a full implementation, this would track actual API requests
-    return [
-      'total_monthly' => 0,
-      'by_type' => [
-        'graphql' => 0,
-        'jsonapi' => 0,
-        'rest' => 0,
-      ],
-      'daily_average' => 0,
-    ];
+    try {
+      // Check if table exists
+      if (!$this->database->schema()->tableExists('dcloud_usage_api_requests')) {
+        return [
+          'total_monthly' => 0,
+          'by_type' => [
+            'graphql' => 0,
+            'jsonapi' => 0,
+            'rest' => 0,
+          ],
+          'daily_average' => 0,
+        ];
+      }
+
+      // Get current month's requests
+      $month_start = strtotime('first day of this month 00:00:00');
+      $total_monthly = $this->database->select('dcloud_usage_api_requests', 'r')
+        ->condition('timestamp', $month_start, '>=')
+        ->countQuery()
+        ->execute()
+        ->fetchField();
+
+      // Get requests by type for current month
+      $by_type_query = $this->database->select('dcloud_usage_api_requests', 'r')
+        ->fields('r', ['api_type'])
+        ->condition('timestamp', $month_start, '>=');
+      $by_type_query->addExpression('COUNT(*)', 'count');
+      $by_type_query->groupBy('api_type');
+      
+      $by_type_results = $by_type_query->execute()->fetchAllKeyed();
+      
+      $by_type = [
+        'graphql' => $by_type_results['graphql'] ?? 0,
+        'jsonapi' => $by_type_results['jsonapi'] ?? 0,
+        'rest' => $by_type_results['rest'] ?? 0,
+      ];
+
+      // Calculate daily average for current month
+      $days_in_month = date('j'); // Current day of month
+      $daily_average = $days_in_month > 0 ? round($total_monthly / $days_in_month, 1) : 0;
+
+      return [
+        'total_monthly' => (int) $total_monthly,
+        'by_type' => $by_type,
+        'daily_average' => $daily_average,
+      ];
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('dcloud_usage')->error('Error getting API request stats: @message', ['@message' => $e->getMessage()]);
+      return [
+        'total_monthly' => 0,
+        'by_type' => [
+          'graphql' => 0,
+          'jsonapi' => 0,
+          'rest' => 0,
+        ],
+        'daily_average' => 0,
+      ];
+    }
   }
 
   /**
@@ -354,12 +418,174 @@ class UsageController extends ControllerBase {
    *   Array with bandwidth stats.
    */
   protected function getBandwidthStats() {
-    // For now, return placeholder data
-    // In a full implementation, this would track actual bandwidth usage
-    return [
-      'monthly_gb' => 0,
-      'daily_average_mb' => 0,
-    ];
+    try {
+      // Check if table exists and has bandwidth columns
+      if (!$this->database->schema()->tableExists('dcloud_usage_api_requests') ||
+          !$this->database->schema()->fieldExists('dcloud_usage_api_requests', 'total_bytes')) {
+        return [
+          'monthly_gb' => 0,
+          'daily_average_mb' => 0,
+          'total_requests' => 0,
+          'by_type' => [
+            'graphql' => ['gb' => 0, 'requests' => 0],
+            'jsonapi' => ['gb' => 0, 'requests' => 0],
+            'rest' => ['gb' => 0, 'requests' => 0],
+          ],
+        ];
+      }
+
+      // Get current month's bandwidth
+      $month_start = strtotime('first day of this month 00:00:00');
+      
+      // Total bandwidth for the month
+      $total_query = $this->database->select('dcloud_usage_api_requests', 'r')
+        ->condition('timestamp', $month_start, '>=');
+      $total_query->addExpression('SUM(total_bytes)', 'total_bytes');
+      $total_query->addExpression('COUNT(*)', 'total_requests');
+      $total_result = $total_query->execute()->fetchAssoc();
+      
+      $total_bytes = $total_result['total_bytes'] ?? 0;
+      $total_requests = $total_result['total_requests'] ?? 0;
+      
+      // Bandwidth by API type
+      $by_type_query = $this->database->select('dcloud_usage_api_requests', 'r')
+        ->fields('r', ['api_type'])
+        ->condition('timestamp', $month_start, '>=');
+      $by_type_query->addExpression('SUM(total_bytes)', 'total_bytes');
+      $by_type_query->addExpression('COUNT(*)', 'requests');
+      $by_type_query->groupBy('api_type');
+      
+      $by_type_results = $by_type_query->execute()->fetchAllAssoc('api_type');
+      
+      $by_type = [
+        'graphql' => [
+          'gb' => isset($by_type_results['graphql']) ? round($by_type_results['graphql']->total_bytes / 1024 / 1024 / 1024, 3) : 0,
+          'requests' => isset($by_type_results['graphql']) ? (int) $by_type_results['graphql']->requests : 0,
+        ],
+        'jsonapi' => [
+          'gb' => isset($by_type_results['jsonapi']) ? round($by_type_results['jsonapi']->total_bytes / 1024 / 1024 / 1024, 3) : 0,
+          'requests' => isset($by_type_results['jsonapi']) ? (int) $by_type_results['jsonapi']->requests : 0,
+        ],
+        'rest' => [
+          'gb' => isset($by_type_results['rest']) ? round($by_type_results['rest']->total_bytes / 1024 / 1024 / 1024, 3) : 0,
+          'requests' => isset($by_type_results['rest']) ? (int) $by_type_results['rest']->requests : 0,
+        ],
+      ];
+
+      // Calculate daily average
+      $days_in_month = date('j'); // Current day of month
+      $daily_average_mb = $days_in_month > 0 ? round($total_bytes / 1024 / 1024 / $days_in_month, 2) : 0;
+
+      return [
+        'monthly_gb' => round($total_bytes / 1024 / 1024 / 1024, 3),
+        'daily_average_mb' => $daily_average_mb,
+        'total_requests' => (int) $total_requests,
+        'by_type' => $by_type,
+      ];
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('dcloud_usage')->error('Error getting bandwidth stats: @message', ['@message' => $e->getMessage()]);
+      return [
+        'monthly_gb' => 0,
+        'daily_average_mb' => 0,
+        'total_requests' => 0,
+        'by_type' => [
+          'graphql' => ['gb' => 0, 'requests' => 0],
+          'jsonapi' => ['gb' => 0, 'requests' => 0],
+          'rest' => ['gb' => 0, 'requests' => 0],
+        ],
+      ];
+    }
+  }
+
+  /**
+   * Gets detailed bandwidth statistics.
+   *
+   * @return array
+   *   Array with detailed bandwidth information.
+   */
+  protected function getBandwidthDetails() {
+    try {
+      // Check if table exists and has bandwidth columns
+      if (!$this->database->schema()->tableExists('dcloud_usage_api_requests') ||
+          !$this->database->schema()->fieldExists('dcloud_usage_api_requests', 'total_bytes')) {
+        return [
+          'daily_breakdown' => [],
+          'endpoint_breakdown' => [],
+          'average_request_size_kb' => 0,
+          'average_response_size_kb' => 0,
+        ];
+      }
+
+      // Get current month's daily breakdown
+      $month_start = strtotime('first day of this month 00:00:00');
+      $daily_query = $this->database->select('dcloud_usage_api_requests', 'r')
+        ->condition('timestamp', $month_start, '>=');
+      $daily_query->addExpression('DATE(FROM_UNIXTIME(timestamp))', 'date');
+      $daily_query->addExpression('SUM(total_bytes)', 'total_bytes');
+      $daily_query->addExpression('COUNT(*)', 'requests');
+      $daily_query->groupBy('DATE(FROM_UNIXTIME(timestamp))');
+      $daily_query->orderBy('date');
+      
+      $daily_results = $daily_query->execute()->fetchAll();
+      $daily_breakdown = [];
+      
+      foreach ($daily_results as $row) {
+        $daily_breakdown[] = [
+          'date' => $row->date,
+          'mb' => round($row->total_bytes / 1024 / 1024, 2),
+          'requests' => (int) $row->requests,
+        ];
+      }
+
+      // Get top bandwidth consuming endpoints
+      $endpoint_query = $this->database->select('dcloud_usage_api_requests', 'r')
+        ->fields('r', ['endpoint_path', 'api_type'])
+        ->condition('timestamp', $month_start, '>=');
+      $endpoint_query->addExpression('SUM(total_bytes)', 'total_bytes');
+      $endpoint_query->addExpression('COUNT(*)', 'requests');
+      $endpoint_query->addExpression('AVG(total_bytes)', 'avg_bytes');
+      $endpoint_query->groupBy('endpoint_path');
+      $endpoint_query->groupBy('api_type');
+      $endpoint_query->orderBy('total_bytes', 'DESC');
+      $endpoint_query->range(0, 10); // Top 10 endpoints
+      
+      $endpoint_results = $endpoint_query->execute()->fetchAll();
+      $endpoint_breakdown = [];
+      
+      foreach ($endpoint_results as $row) {
+        $endpoint_breakdown[] = [
+          'endpoint' => $row->endpoint_path,
+          'api_type' => $row->api_type,
+          'total_mb' => round($row->total_bytes / 1024 / 1024, 2),
+          'requests' => (int) $row->requests,
+          'avg_kb_per_request' => round($row->avg_bytes / 1024, 2),
+        ];
+      }
+
+      // Get average request and response sizes
+      $avg_query = $this->database->select('dcloud_usage_api_requests', 'r')
+        ->condition('timestamp', $month_start, '>=');
+      $avg_query->addExpression('AVG(request_size)', 'avg_request');
+      $avg_query->addExpression('AVG(response_size)', 'avg_response');
+      $avg_result = $avg_query->execute()->fetchAssoc();
+
+      return [
+        'daily_breakdown' => $daily_breakdown,
+        'endpoint_breakdown' => $endpoint_breakdown,
+        'average_request_size_kb' => round(($avg_result['avg_request'] ?? 0) / 1024, 2),
+        'average_response_size_kb' => round(($avg_result['avg_response'] ?? 0) / 1024, 2),
+      ];
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('dcloud_usage')->error('Error getting detailed bandwidth stats: @message', ['@message' => $e->getMessage()]);
+      return [
+        'daily_breakdown' => [],
+        'endpoint_breakdown' => [],
+        'average_request_size_kb' => 0,
+        'average_response_size_kb' => 0,
+      ];
+    }
   }
 
   /**
@@ -512,6 +738,53 @@ class UsageController extends ControllerBase {
     catch (\Exception $e) {
       \Drupal::logger('dcloud_usage')->error('Error getting files size: @message', ['@message' => $e->getMessage()]);
       return 0;
+    }
+  }
+
+  /**
+   * Debug endpoint to check module status.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   JSON response with debug information.
+   */
+  public function debugInfo(Request $request) {
+    try {
+      $debug_info = [
+        'module_enabled' => \Drupal::moduleHandler()->moduleExists('dcloud_usage'),
+        'database_connection' => 'OK',
+        'table_exists' => $this->database->schema()->tableExists('dcloud_usage_api_requests'),
+        'columns' => [],
+        'row_count' => 0,
+        'timestamp' => time(),
+      ];
+
+      if ($debug_info['table_exists']) {
+        $columns = ['id', 'endpoint_path', 'method', 'api_type', 'response_time', 'status_code', 'request_size', 'response_size', 'total_bytes', 'timestamp'];
+        foreach ($columns as $column) {
+          $debug_info['columns'][$column] = $this->database->schema()->fieldExists('dcloud_usage_api_requests', $column);
+        }
+        
+        try {
+          $debug_info['row_count'] = $this->database->select('dcloud_usage_api_requests', 'r')->countQuery()->execute()->fetchField();
+        } catch (\Exception $e) {
+          $debug_info['row_count_error'] = $e->getMessage();
+        }
+      }
+
+      $response = new JsonResponse($debug_info);
+      $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return $response;
+    }
+    catch (\Exception $e) {
+      $response = new JsonResponse([
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+      ], 500);
+      $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return $response;
     }
   }
 

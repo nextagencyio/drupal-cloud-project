@@ -1,0 +1,6 @@
+services:
+  dcloud_usage.api_request_subscriber:
+    class: Drupal\dcloud_usage\EventSubscriber\ApiRequestSubscriber
+    arguments: ['@database']
+    tags:
+      - { name: event_subscriber }

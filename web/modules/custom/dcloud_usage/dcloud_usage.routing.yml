@@ -6,6 +6,8 @@ dcloud_usage.usage_stats:
   requirements:
     _permission: 'access content'
   methods: [GET]
+  options:
+    no_cache: TRUE
 
 dcloud_usage.detailed_usage:
   path: '/api/dcloud/usage/detailed'
@@ -15,3 +17,16 @@ dcloud_usage.detailed_usage:
   requirements:
     _permission: 'access content'
   methods: [GET]
+  options:
+    no_cache: TRUE
+
+dcloud_usage.debug:
+  path: '/api/dcloud/usage/debug'
+  defaults:
+    _controller: '\Drupal\dcloud_usage\Controller\UsageController::debugInfo'
+    _title: 'Debug Usage Module'
+  requirements:
+    _permission: 'access content'
+  methods: [GET]
+  options:
+    no_cache: TRUE
