@@ -1,0 +1,57 @@
+#!/bin/bash
+
+## Description: Install DCloud on a single site (non-multisite) setup
+## Usage: ddev install [site-title]
+## Example: ddev install "My DCloud Site"
+
+set -eu -o pipefail
+
+SITE_TITLE="${1:-DCloud Site}"
+
+echo "Starting DCloud installation..."
+echo "Site title: $SITE_TITLE"
+
+# Start DDEV and install dependencies
+ddev start
+ddev composer install
+
+echo "Installing Drupal with minimal profile..."
+
+# Install Drupal with minimal profile
+ddev drush site:install minimal \
+    --site-name="$SITE_TITLE" \
+    --account-name=admin \
+    --account-pass=admin \
+    --verbose -y
+
+echo "Applying Drupal Cloud configuration recipe..."
+
+# Apply the DCloud recipe for complete configuration
+ddev drush recipe recipes/dcloud-core -y
+
+# Clear cache
+ddev drush cr
+
+echo "Configuring GraphQL and OAuth integration..."
+
+# Run post-install configuration script
+ddev drush scr scripts/consumers-next.php
+
+echo ""
+echo "✅ DCloud installation complete!"
+echo ""
+echo "🌐 Site URL: $(ddev describe | grep "https://" | head -1 | awk '{print $1}')"
+echo "👤 Admin login: admin / admin"
+echo "📦 GraphQL API enabled for modern development"
+echo "🔧 OAuth authentication and URL aliases configured"
+echo "⚙️  GraphQL Compose enabled for easy schema building"
+echo ""
+echo "📋 NEXT STEPS:"
+echo "1. Visit your site admin panel"
+echo "2. Explore the GraphQL API at: /graphql/explorer"
+echo "3. Visit /nextjs-config for frontend integration setup"
+echo "4. Use Paragraphs to build structured content"
+echo ""
+echo "🔑 One-time admin login link:"
+ddev drush uli
+echo ""

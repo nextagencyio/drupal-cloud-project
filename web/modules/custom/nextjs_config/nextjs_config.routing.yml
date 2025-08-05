@@ -1,0 +1,33 @@
+nextjs_config.admin:
+  path: '/admin/config/services/nextjs-config'
+  defaults:
+    _controller: '\Drupal\nextjs_config\Controller\NextjsConfigController::configPage'
+    _title: 'Next.js Configuration'
+  requirements:
+    _permission: 'administer nextjs configuration'
+
+nextjs_config.homepage:
+  path: '/nextjs-config'
+  defaults:
+    _controller: '\Drupal\nextjs_config\Controller\NextjsConfigController::homePage'
+    _title: 'Next.js Configuration'
+  requirements:
+    _access: 'TRUE'
+
+nextjs_config.generate_secret:
+  path: '/nextjs-config/generate-secret'
+  defaults:
+    _controller: '\Drupal\nextjs_config\Controller\NextjsConfigController::generateSecret'
+    _title: 'Generate Revalidation Secret'
+  requirements:
+    _access: 'TRUE'
+  methods: [POST]
+
+nextjs_config.generate_secret_ajax:
+  path: '/nextjs-config/generate-secret-ajax'
+  defaults:
+    _controller: '\Drupal\nextjs_config\Controller\NextjsConfigController::generateSecretAjax'
+    _title: 'Generate Secret Ajax'
+  requirements:
+    _access: 'TRUE'
+  methods: [POST]

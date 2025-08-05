@@ -1,0 +1,5 @@
+nextjs_config.admin:
+  title: 'Next.js Configuration'
+  description: 'Configure Next.js integration settings and view OAuth credentials'
+  parent: system.admin_config_services
+  route_name: nextjs_config.admin

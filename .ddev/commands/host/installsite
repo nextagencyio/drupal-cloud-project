@@ -1,0 +1,148 @@
+#!/bin/bash
+
+## Description: Install a new multisite in DCloud
+## Usage: ddev installsite [site-name] [db-name] [site-title]
+## Example: ddev installsite foobar foobar_db "Foobar Site"
+
+set -eu -o pipefail
+
+SITE_NAME="${1:-}"
+DB_NAME="${2:-}"
+SITE_TITLE="${3:-New DCloud Site}"
+
+if [ -z "$SITE_NAME" ] || [ -z "$DB_NAME" ]; then
+    echo "Usage: ddev installsite [site-name] [db-name] [site-title]"
+    echo "Example: ddev installsite foobar foobar_db 'Foobar Site'"
+    exit 1
+fi
+
+echo "Installing DCloud multisite: $SITE_NAME"
+echo "Title: $SITE_TITLE"
+
+# Convert hyphens to underscores for directory name
+DIRECTORY_NAME=$(echo "$SITE_NAME" | tr '-' '_')
+
+echo "Creating site directory: sites/$DIRECTORY_NAME"
+
+# Create site directory structure
+mkdir -p "web/sites/$DIRECTORY_NAME"/{files,private,config/sync}
+
+# Set permissions
+chmod 755 "web/sites/$DIRECTORY_NAME"
+chmod 755 "web/sites/$DIRECTORY_NAME/files"
+chmod 755 "web/sites/$DIRECTORY_NAME/private"
+
+# Generate hostname (with hyphens for valid hostnames)
+HOSTNAME="$SITE_NAME.dcloud.ddev.site"
+
+echo "Installing Drupal for hostname: $HOSTNAME"
+
+# Create SQLite database path for this site
+SQLITE_PATH="/var/www/html/web/sites/$DIRECTORY_NAME/files/$DIRECTORY_NAME.sqlite"
+echo "Using SQLite database: $SQLITE_PATH"
+
+# Ensure the files directory has proper permissions for SQLite
+chmod 755 "web/sites/$DIRECTORY_NAME/files"
+
+# Create SQLite-specific settings.php
+cat > "web/sites/$DIRECTORY_NAME/settings.php" << EOF
+<?php
+
+/**
+ * @file
+ * Settings for $SITE_TITLE ($SITE_NAME).
+ *
+ * Generated automatically by DCloud installsite script.
+ */
+
+// Database configuration with SQLite.
+\$databases['default']['default'] = [
+  'database' => '/var/www/html/web/sites/$DIRECTORY_NAME/files/$DIRECTORY_NAME.sqlite',
+  'driver' => 'sqlite',
+  'prefix' => '',
+];
+
+// Site-specific configuration.
+\$settings['hash_salt'] = '$(openssl rand -base64 55)';
+\$settings['update_free_access'] = FALSE;
+
+// Trusted host configuration.
+\$settings['trusted_host_patterns'] = [
+  '^$SITE_NAME\.dcloud\.ddev\.site$',
+  '^.*\.dcloud\.ddev\.site$',
+  '^localhost$',
+  '^127\.0\.0\.1$',
+];
+
+// Site-specific file paths.
+\$settings['file_public_path'] = 'sites/$DIRECTORY_NAME/files';
+\$settings['file_private_path'] = 'sites/$DIRECTORY_NAME/private';
+
+// Configuration sync directory.
+\$settings['config_sync_directory'] = 'sites/$DIRECTORY_NAME/config/sync';
+
+// Force cache backends to use memory instead of null for Drupal 11 compatibility.
+\$settings['cache']['default'] = 'cache.backend.memory';
+\$settings['cache']['bins']['bootstrap'] = 'cache.backend.memory';
+\$settings['cache']['bins']['config'] = 'cache.backend.memory';
+\$settings['cache']['bins']['data'] = 'cache.backend.memory';
+\$settings['cache']['bins']['discovery'] = 'cache.backend.memory';
+\$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.memory';
+\$settings['cache']['bins']['entity'] = 'cache.backend.memory';
+\$settings['cache']['bins']['menu'] = 'cache.backend.memory';
+\$settings['cache']['bins']['migrate'] = 'cache.backend.memory';
+\$settings['cache']['bins']['render'] = 'cache.backend.memory';
+\$settings['cache']['bins']['rest'] = 'cache.backend.memory';
+\$settings['cache']['bins']['toolbar'] = 'cache.backend.memory';
+
+// Local development settings.
+if (file_exists(\$app_root . '/' . \$site_path . '/settings.local.php')) {
+  include \$app_root . '/' . \$site_path . '/settings.local.php';
+}
+EOF
+
+echo "Created SQLite settings.php for $SITE_NAME"
+
+# Install minimal Drupal using SQLite database
+ddev drush --uri="$HOSTNAME" site:install minimal \
+    --db-url="sqlite://localhost/$SQLITE_PATH" \
+    --site-name="$SITE_TITLE" \
+    --account-name=admin \
+    --account-pass=admin \
+    --verbose -y
+
+echo "Applying DCloud configuration recipe..."
+
+# Apply the DCloud recipe for complete configuration
+ddev drush --uri="$HOSTNAME" recipe ../recipes/dcloud-core -y
+
+# Clear cache
+ddev drush --uri="$HOSTNAME" cr
+
+echo "Configuring GraphQL and OAuth integration..."
+
+# Run post-install configuration script
+ddev drush --uri="$HOSTNAME" scr ../scripts/consumers-next.php
+
+echo ""
+echo "✅ DCloud multisite installation complete!"
+echo ""
+echo "🌐 Site URL: https://$HOSTNAME"
+echo "👤 Admin login: admin / admin"
+echo "📦 GraphQL API enabled for modern development"
+echo "🗄️ Using SQLite database: $SQLITE_PATH"
+echo "🔧 OAuth authentication and URL aliases configured"
+echo "⚙️  GraphQL Compose enabled for easy schema building"
+echo ""
+echo "📋 NEXT STEPS:"
+echo "1. Visit your site: https://$HOSTNAME"
+echo "2. Login with admin/admin (or use the one-time link below)"
+echo "3. Explore the GraphQL API at: https://$HOSTNAME/graphql/explorer"
+echo "4. Use Paragraphs to build structured content"
+echo ""
+echo "🔑 One-time admin login link:"
+ULI_LINK=$(ddev drush --uri="$HOSTNAME" uli)
+echo "$ULI_LINK"
+echo ""
+echo "📋 Copy this link to access your admin panel instantly!"
+echo ""

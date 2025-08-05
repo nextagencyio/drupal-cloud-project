@@ -1,0 +1,56 @@
+_meta:
+  version: '1.0'
+  entity_type: node
+  uuid: 2b3c4d5e-6f78-90ab-cdef-123456789012
+  bundle: article
+  default_langcode: en
+default:
+  revision_uid:
+    -
+      target_id: 1
+  status:
+    -
+      value: true
+  uid:
+    -
+      target_id: 1
+  title:
+    -
+      value: 'Getting Started with GraphQL'
+  created:
+    -
+      value: 1723000060
+  promote:
+    -
+      value: false
+  sticky:
+    -
+      value: false
+  revision_translation_affected:
+    -
+      value: true
+  path:
+    -
+      alias: /getting-started-with-graphql
+      langcode: en
+      pathauto: 1
+  body:
+    -
+      value: |
+        <p>GraphQL is a powerful query language that allows you to request exactly the data you need from your API.</p>
+
+        <h3>Key Benefits</h3>
+        <ul>
+          <li>Request specific fields only</li>
+          <li>Single endpoint for all data</li>
+          <li>Strongly typed schema</li>
+          <li>Real-time subscriptions</li>
+        </ul>
+
+        <h3>Example Query</h3>
+        <p>Query for articles with title, body, and creation date:</p>
+        <p><code>query → nodeArticles(first: 10) → nodes → [title, body, created]</code></p>
+
+        <p>Visit the <a href="/graphql/explorer">GraphQL Explorer</a> to test queries interactively.</p>
+      format: basic_html
+      summary: 'Learn how to use GraphQL with DCloud for efficient data querying and API integration.'

@@ -1,0 +1,60 @@
+_meta:
+  version: '1.0'
+  entity_type: node
+  uuid: 4d5e6f78-90ab-cdef-1234-56789012345a
+  bundle: article
+  default_langcode: en
+default:
+  revision_uid:
+    -
+      target_id: 1
+  status:
+    -
+      value: true
+  uid:
+    -
+      target_id: 1
+  title:
+    -
+      value: 'API Integration & Authentication'
+  created:
+    -
+      value: 1723000180
+  promote:
+    -
+      value: false
+  sticky:
+    -
+      value: false
+  revision_translation_affected:
+    -
+      value: true
+  path:
+    -
+      alias: /api-integration-authentication
+      langcode: en
+      pathauto: 1
+  body:
+    -
+      value: |
+        <p>DCloud provides secure OAuth2 authentication for your headless applications along with multiple API options.</p>
+
+        <h3>Available APIs</h3>
+        <ul>
+          <li><strong>GraphQL</strong> - Modern, efficient querying with GraphQL Compose</li>
+          <li><strong>JSON:API</strong> - RESTful API following JSON:API specification</li>
+          <li><strong>Custom Endpoints</strong> - Build your own REST endpoints</li>
+        </ul>
+
+        <h3>Authentication</h3>
+        <p>Use OAuth2 with the provided client credentials:</p>
+        <ul>
+          <li>Grant Type: <code>client_credentials</code></li>
+          <li>Token Endpoint: <code>/oauth/token</code></li>
+          <li>Scope: Read, write, or custom permissions</li>
+        </ul>
+
+        <h3>Next.js Integration</h3>
+        <p>DCloud includes configuration helpers for Next.js applications. Check the admin interface for generated environment variables and setup instructions.</p>
+      format: basic_html
+      summary: 'Learn about API integration and OAuth2 authentication options available in DCloud.'

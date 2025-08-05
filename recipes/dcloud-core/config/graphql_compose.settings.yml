@@ -1,0 +1,64 @@
+entity_config:
+  image_style:
+    large:
+      enabled: true
+    media_library:
+      enabled: true
+    medium:
+      enabled: true
+    thumbnail:
+      enabled: true
+    wide:
+      enabled: true
+  menu:
+    account:
+      enabled: false
+    admin:
+      enabled: false
+    footer:
+      enabled: false
+    main:
+      enabled: true
+    tools:
+      enabled: false
+  node:
+    article:
+      enabled: true
+      query_load_enabled: true
+      edges_enabled: true
+    page:
+      enabled: true
+      query_load_enabled: true
+      edges_enabled: true
+  taxonomy_term:
+    tags:
+      enabled: true
+      query_load_enabled: true
+      edges_enabled: true
+  user:
+    user:
+      enabled: true
+      query_load_enabled: true
+field_config:
+  node:
+    article:
+      body:
+        enabled: true
+      field_tags:
+        enabled: true
+    page:
+      body:
+        enabled: true
+settings:
+  exclude_unpublished: true
+  expose_entity_ids: true
+  field_required_override: false
+  schema_description: 'Drupal Cloud GraphQL API'
+  schema_version: '1.0'
+  simple_queries: true
+  simple_unions: true
+  site_name: true
+  site_slogan: true
+  site_front: true
+  inflector_langcode: en
+  inflector_singularize: true

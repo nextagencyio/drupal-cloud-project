@@ -1,0 +1,8 @@
+name: 'Next.js Configuration Helper'
+type: module
+description: 'Provides configuration instructions and OAuth credentials for Next.js integration'
+core_version_requirement: ^10 || ^11
+package: 'Next.js'
+dependencies:
+  - simple_oauth
+  - consumers

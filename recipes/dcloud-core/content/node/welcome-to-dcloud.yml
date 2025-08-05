@@ -1,0 +1,53 @@
+_meta:
+  version: '1.0'
+  entity_type: node
+  uuid: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+  bundle: article
+  default_langcode: en
+default:
+  revision_uid:
+    -
+      target_id: 1
+  status:
+    -
+      value: true
+  uid:
+    -
+      target_id: 1
+  title:
+    -
+      value: 'Welcome to DCloud'
+  created:
+    -
+      value: 1723000000
+  promote:
+    -
+      value: true
+  sticky:
+    -
+      value: false
+  revision_translation_affected:
+    -
+      value: true
+  path:
+    -
+      alias: /welcome-to-dcloud
+      langcode: en
+      pathauto: 1
+  body:
+    -
+      value: |
+        <p>Welcome to your new DCloud headless CMS! This powerful platform combines the flexibility of Drupal with modern headless architecture.</p>
+
+        <h3>What makes DCloud special?</h3>
+        <ul>
+          <li><strong>GraphQL API</strong> - Modern, efficient data querying</li>
+          <li><strong>SQLite Database</strong> - Lightweight, file-based storage</li>
+          <li><strong>Paragraphs</strong> - Structured content authoring</li>
+          <li><strong>OAuth Authentication</strong> - Secure API access</li>
+          <li><strong>Gin Admin Theme</strong> - Beautiful administration interface</li>
+        </ul>
+
+        <p>Start building your content and explore the GraphQL API at <code>/graphql/explorer</code>.</p>
+      format: basic_html
+      summary: 'Welcome to your new DCloud headless CMS! This powerful platform combines the flexibility of Drupal with modern headless architecture.'
