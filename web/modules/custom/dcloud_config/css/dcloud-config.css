@@ -1,34 +1,34 @@
-/* Next.js Configuration Page Styles */
+/* DCloud Configuration Page Styles */
 
 /* Base typography improvements */
-.nextjs-config-container h2 {
+.dcloud-config-container h2 {
   margin-top: 40px;
   margin-bottom: 20px;
   font-weight: 600;
 }
 
-.nextjs-config-container h3 {
+.dcloud-config-container h3 {
   margin-top: 30px;
   margin-bottom: 15px;
   font-weight: 600;
 }
 
-.nextjs-config-container p {
+.dcloud-config-container p {
   margin-bottom: 15px;
   line-height: 1.6;
 }
 
-.nextjs-config-container {
+.dcloud-config-container {
   max-width: 1000px;
 }
 
 @media (max-width: 768px) {
-  .nextjs-config-container {
+  .dcloud-config-container {
     padding: 0 15px;
   }
 }
 
-.nextjs-config-header {
+.dcloud-config-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 30px;
@@ -39,29 +39,29 @@
 }
 
 @media (max-width: 768px) {
-  .nextjs-config-header {
+  .dcloud-config-header {
     padding: 20px;
     border-radius: 8px;
   }
 
-  .nextjs-config-header h1 {
+  .dcloud-config-header h1 {
     font-size: 2em !important;
   }
 }
 
-.nextjs-config-header h1 {
+.dcloud-config-header h1 {
   margin: 0 0 10px 0;
   font-size: 2.5em;
   color: #fff;
 }
 
-.nextjs-config-header p {
+.dcloud-config-header p {
   margin: 0;
   font-size: 1.2em;
   opacity: 0.9;
 }
 
-.nextjs-config-tip {
+.dcloud-config-tip {
   background: linear-gradient(135deg, #e3f2fd 0%, #f0f7ff 100%);
   border: 1px solid #90caf9;
   border-radius: 10px;
@@ -70,14 +70,14 @@
   box-shadow: 0 2px 8px rgba(144, 202, 249, 0.1);
 }
 
-.nextjs-config-tip p {
+.dcloud-config-tip p {
   margin: 0;
   color: #1565c0;
   font-weight: 500;
   line-height: 1.6;
 }
 
-.nextjs-config-code-block {
+.dcloud-config-code-block {
   position: relative;
   background: #f8f9fa;
   border-radius: 10px;
@@ -87,14 +87,14 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.nextjs-config-code-block:hover {
+.dcloud-config-code-block:hover {
   border-color: #0073aa;
   box-shadow: 0 4px 12px rgba(0, 115, 170, 0.12);
   transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
-  .nextjs-config-copy-button {
+  .dcloud-config-copy-button {
     position: static;
     display: block;
     margin: 10px 0 0 0;
@@ -103,12 +103,12 @@
     right: auto;
   }
 
-  .nextjs-config-code-content {
+  .dcloud-config-code-content {
     padding-bottom: 10px;
   }
 }
 
-.nextjs-config-code-title {
+.dcloud-config-code-title {
   background: #e0e0e0;
   padding: 8px 15px;
   margin: -15px -15px 10px -15px;
@@ -117,11 +117,11 @@
   border-radius: 5px 5px 0 0;
 }
 
-.nextjs-config-code-content {
+.dcloud-config-code-content {
   position: relative;
 }
 
-.nextjs-config-code-block pre {
+.dcloud-config-code-block pre {
   background: #f8f9fa;
   padding: 15px;
   margin: 0;
@@ -136,11 +136,11 @@
   overflow-y: auto;
 }
 
-.nextjs-config-code-block.has-title pre {
+.dcloud-config-code-block.has-title pre {
   border-radius: 0 0 8px 8px;
 }
 
-.nextjs-config-copy-button {
+.dcloud-config-copy-button {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -157,33 +157,33 @@
   opacity: 0.9;
 }
 
-.nextjs-config-copy-button:hover {
+.dcloud-config-copy-button:hover {
   background-color: #005a87;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   opacity: 1;
 }
 
-.nextjs-config-copy-button:focus {
+.dcloud-config-copy-button:focus {
   outline: 2px solid #0073aa;
   outline-offset: 2px;
   opacity: 1;
 }
 
-.nextjs-config-copy-button:active {
+.dcloud-config-copy-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.nextjs-config-copy-button--success {
+.dcloud-config-copy-button--success {
   background-color: #28a745 !important;
 }
 
-.nextjs-config-copy-button--error {
+.dcloud-config-copy-button--error {
   background-color: #dc3545 !important;
 }
 
-.nextjs-config-status {
+.dcloud-config-status {
   background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%);
   padding: 20px;
   border-radius: 10px;
@@ -192,25 +192,25 @@
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
 }
 
-.nextjs-config-status h4 {
+.dcloud-config-status h4 {
   margin-top: 0;
   margin-bottom: 15px;
   color: #2e7d32;
   font-weight: 600;
 }
 
-.nextjs-config-status ul {
+.dcloud-config-status ul {
   margin-bottom: 0;
   padding-left: 20px;
 }
 
-.nextjs-config-status li {
+.dcloud-config-status li {
   margin-bottom: 8px;
   line-height: 1.5;
 }
 
 /* Generate Secret Button Styles */
-.nextjs-config-generate-secret {
+.dcloud-config-generate-secret {
   margin: 20px 0;
   padding: 15px;
   background: #f8f9fa;
@@ -218,7 +218,7 @@
   border-radius: 8px;
 }
 
-.nextjs-config-generate-button {
+.dcloud-config-generate-button {
   background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
   color: white !important;
   padding: 12px 24px !important;
@@ -235,7 +235,7 @@
   text-decoration: none !important;
 }
 
-.nextjs-config-generate-button:hover {
+.dcloud-config-generate-button:hover {
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4) !important;
   background: linear-gradient(135deg, #218838 0%, #1ea085 100%) !important;
@@ -243,12 +243,12 @@
   text-decoration: none !important;
 }
 
-.nextjs-config-generate-button:focus {
+.dcloud-config-generate-button:focus {
   outline: 2px solid #20c997 !important;
   outline-offset: 2px !important;
 }
 
-.nextjs-config-generate-button:active {
+.dcloud-config-generate-button:active {
   transform: translateY(0) !important;
   box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
 }

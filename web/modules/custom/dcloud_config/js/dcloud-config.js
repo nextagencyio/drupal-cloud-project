@@ -1,6 +1,6 @@
 /**
  * @file
- * JavaScript functionality for Next.js configuration page.
+ * JavaScript functionality for DCloud configuration page.
  */
 
 (function (Drupal) {
@@ -9,10 +9,10 @@
   /**
    * Copy text to clipboard functionality.
    */
-  Drupal.behaviors.nextjsConfigCopy = {
+  Drupal.behaviors.dcloudConfigCopy = {
     attach: function (context, settings) {
       // Add event listeners to copy buttons
-      once('nextjs-copy', '.nextjs-config-copy-button', context).forEach(function (button) {
+      once('dcloud-copy', '.dcloud-config-copy-button', context).forEach(function (button) {
         button.addEventListener('click', function () {
           const targetId = this.getAttribute('data-target');
           const element = document.getElementById(targetId);
@@ -70,10 +70,10 @@
     catch (err) {
       console.error("Failed to copy: ", err);
       button.textContent = "❌ Failed";
-      button.classList.add('nextjs-config-copy-button--error');
+      button.classList.add('dcloud-config-copy-button--error');
       setTimeout(function () {
         button.textContent = "📋 Copy";
-        button.classList.remove('nextjs-config-copy-button--error');
+        button.classList.remove('dcloud-config-copy-button--error');
       }, 2000);
     }
 
@@ -88,20 +88,20 @@
   function showCopySuccess(button) {
     const originalText = button.textContent;
     button.textContent = "✅ Copied!";
-    button.classList.add('nextjs-config-copy-button--success');
+    button.classList.add('dcloud-config-copy-button--success');
     setTimeout(function () {
       button.textContent = originalText;
-      button.classList.remove('nextjs-config-copy-button--success');
+      button.classList.remove('dcloud-config-copy-button--success');
     }, 2000);
   }
 
   /**
    * Generate secrets via AJAX.
    */
-  Drupal.behaviors.nextjsConfigGenerateSecret = {
+  Drupal.behaviors.dcloudConfigGenerateSecret = {
     attach: function (context, settings) {
       // Add event listener to generate secret button
-      once('nextjs-generate-secret', '.nextjs-config-generate-button', context).forEach(function (button) {
+      once('dcloud-generate-secret', '.dcloud-config-generate-button', context).forEach(function (button) {
         button.addEventListener('click', function (e) {
           e.preventDefault();
           generateSecretsAjax(button);
@@ -118,67 +118,67 @@
   function generateSecretsAjax(button) {
     const form = button.closest('form');
     const formData = new FormData(form);
-    
+
     // Show loading state
     const originalText = button.textContent;
     button.textContent = '⏳ Generating...';
     button.disabled = true;
 
-    fetch('/nextjs-config/generate-secret-ajax', {
+    fetch('/dcloud-config/generate-secret-ajax', {
       method: 'POST',
       body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Update the client secret in the code block
-        updateClientSecret(data.client_secret);
-        
-        // Show success message
-        showMessage(data.message, 'success');
-        
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Update the client secret in the code block
+          updateClientSecret(data.client_secret);
+
+          // Show success message
+          showMessage(data.message, 'success');
+
+          // Reset button
+          button.textContent = '✅ Generated!';
+          setTimeout(function () {
+            button.textContent = originalText;
+            button.disabled = false;
+          }, 2000);
+        } else {
+          // Show error message
+          showMessage(data.error || 'Failed to generate secrets', 'error');
+
+          // Reset button
+          button.textContent = '❌ Failed';
+          setTimeout(function () {
+            button.textContent = originalText;
+            button.disabled = false;
+          }, 3000);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showMessage('Network error occurred', 'error');
+
         // Reset button
-        button.textContent = '✅ Generated!';
-        setTimeout(function () {
-          button.textContent = originalText;
-          button.disabled = false;
-        }, 2000);
-      } else {
-        // Show error message
-        showMessage(data.error || 'Failed to generate secrets', 'error');
-        
-        // Reset button
-        button.textContent = '❌ Failed';
+        button.textContent = '❌ Error';
         setTimeout(function () {
           button.textContent = originalText;
           button.disabled = false;
         }, 3000);
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      showMessage('Network error occurred', 'error');
-      
-      // Reset button
-      button.textContent = '❌ Error';
-      setTimeout(function () {
-        button.textContent = originalText;
-        button.disabled = false;
-      }, 3000);
-    });
+      });
   }
 
   /**
    * Update client secret in the code block.
    */
   function updateClientSecret(clientSecret) {
-    const codeBlock = document.querySelector('.nextjs-config-code-block pre');
+    const codeBlock = document.querySelector('.dcloud-config-code-block pre');
     if (codeBlock) {
       let content = codeBlock.textContent;
-      
+
       // Update client secret
       content = content.replace(/DRUPAL_CLIENT_SECRET=.*$/m, `DRUPAL_CLIENT_SECRET=${clientSecret}`);
-      
+
       codeBlock.textContent = content;
     }
   }
@@ -191,12 +191,12 @@
     const messageDiv = document.createElement('div');
     messageDiv.className = `messages messages--${type}`;
     messageDiv.innerHTML = `<p>${message}</p>`;
-    
+
     // Insert at top of page
-    const container = document.querySelector('.nextjs-config-container');
+    const container = document.querySelector('.dcloud-config-container');
     if (container) {
       container.insertBefore(messageDiv, container.firstChild);
-      
+
       // Auto-remove after 5 seconds
       setTimeout(function () {
         if (messageDiv.parentNode) {
