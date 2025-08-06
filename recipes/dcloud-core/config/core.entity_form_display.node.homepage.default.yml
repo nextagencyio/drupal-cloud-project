@@ -1,0 +1,190 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.homepage.field_cta_description
+    - field.field.node.homepage.field_cta_primary
+    - field.field.node.homepage.field_cta_secondary
+    - field.field.node.homepage.field_cta_title
+    - field.field.node.homepage.field_features_items
+    - field.field.node.homepage.field_features_subtitle
+    - field.field.node.homepage.field_features_title
+    - field.field.node.homepage.field_hero_description
+    - field.field.node.homepage.field_hero_subtitle
+    - field.field.node.homepage.field_hero_title
+    - field.field.node.homepage.field_primary_cta
+    - field.field.node.homepage.field_secondary_cta
+    - node.type.homepage
+  module:
+    - link
+    - paragraphs
+    - path
+    - text
+id: node.homepage.default
+targetEntityType: node
+bundle: homepage
+mode: default
+content:
+  title:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: 'Enter page title'
+    third_party_settings: {  }
+  # Hero Section Fields
+  field_hero_title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: '🎯 Enter hero title (e.g., "Modern Headless CMS")'
+    third_party_settings: {  }
+  field_hero_subtitle:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: '📝 Enter hero subtitle (e.g., "Powered by Drupal")'
+    third_party_settings: {  }
+  field_hero_description:
+    type: text_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 4
+      placeholder: '📄 Enter hero description - explain the main value proposition'
+    third_party_settings: {  }
+  field_primary_cta:
+    type: link_default
+    weight: 3
+    region: content
+    settings:
+      placeholder_url: 'internal:/node'
+      placeholder_title: '🔗 Primary button text'
+    third_party_settings: {  }
+  field_secondary_cta:
+    type: link_default
+    weight: 4
+    region: content
+    settings:
+      placeholder_url: 'internal:/graphql/explorer'
+      placeholder_title: '🔗 Secondary button text'
+    third_party_settings: {  }
+  # Features Section Fields
+  field_features_title:
+    type: string_textfield
+    weight: 10
+    region: content
+    settings:
+      size: 60
+      placeholder: '⭐ Enter features section title (e.g., "Why Choose Us?")'
+    third_party_settings: {  }
+  field_features_subtitle:
+    type: text_textarea
+    weight: 11
+    region: content
+    settings:
+      rows: 3
+      placeholder: '📝 Enter features section subtitle - brief overview of benefits'
+    third_party_settings: {  }
+  field_features_items:
+    type: paragraphs
+    weight: 12
+    region: content
+    settings:
+      title: Feature
+      title_plural: Features
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: feature_item
+      features:
+        duplicate: duplicate
+        collapse_edit_all: collapse_edit_all
+        add_above: 0
+    third_party_settings: {  }
+  # Call-to-Action Section Fields
+  field_cta_title:
+    type: string_textfield
+    weight: 20
+    region: content
+    settings:
+      size: 60
+      placeholder: '🚀 Enter CTA section title (e.g., "Ready to Get Started?")'
+    third_party_settings: {  }
+  field_cta_description:
+    type: text_textarea
+    weight: 21
+    region: content
+    settings:
+      rows: 3
+      placeholder: '💬 Enter CTA section description - final persuasive message'
+    third_party_settings: {  }
+  field_cta_primary:
+    type: link_default
+    weight: 22
+    region: content
+    settings:
+      placeholder_url: 'internal:/node'
+      placeholder_title: '🎯 Primary CTA button text'
+    third_party_settings: {  }
+  field_cta_secondary:
+    type: link_default
+    weight: 23
+    region: content
+    settings:
+      placeholder_url: 'internal:/contact'
+      placeholder_title: '📞 Secondary CTA button text'
+    third_party_settings: {  }
+  # Standard node fields
+  uid:
+    type: entity_reference_autocomplete
+    weight: 30
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  created:
+    type: datetime_timestamp
+    weight: 31
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 32
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 33
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 34
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 35
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+hidden: {  }

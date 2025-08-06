@@ -1,0 +1,31 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.feature_item.field_feature_description
+    - field.field.paragraph.feature_item.field_feature_title
+    - paragraphs.paragraphs_type.feature_item
+  module:
+    - text
+id: paragraph.feature_item.default
+targetEntityType: paragraph
+bundle: feature_item
+mode: default
+content:
+  field_feature_title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: 'e.g., Lightning Fast Performance'
+    third_party_settings: {  }
+  field_feature_description:
+    type: text_textarea
+    weight: 1
+    region: content
+    settings:
+      rows: 4
+      placeholder: 'Describe this feature and its benefits...'
+    third_party_settings: {  }
+hidden: {  }
