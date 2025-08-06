@@ -70,7 +70,7 @@ After installation, visit `/nextjs-config` to:
 
 - **Next.js Config Module** - Configuration UI at `/nextjs-config`
 - **OAuth Consumer Management** - Automated client setup
-- **Environment Generation** - Copy-ready config for frontends
+- **Configuration Generation** - Copy-ready config for frontends
 
 ## Frontend Integration
 
