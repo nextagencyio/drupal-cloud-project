@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Description: Install Drupal Cloud on a single site (non-multisite) setup
-## Usage: ddev install [site-title]
+## Usage: install [site-title]
 ## Example: ddev install "My Drupal Cloud Site"
 
 set -eu -o pipefail

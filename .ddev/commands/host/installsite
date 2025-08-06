@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Description: Install a new multisite in Drupal Cloud
-## Usage: ddev installsite [site-name] [db-name] [site-title]
+## Usage: installsite [site-name] [db-name] [site-title]
 ## Example: ddev installsite foobar foobar_db "Foobar Site"
 
 set -eu -o pipefail
