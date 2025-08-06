@@ -14,6 +14,9 @@ fi
 
 SOURCE_SPACE="$1"
 TARGET_SPACE="$2"
+# Convert machine names to directory names (hyphens to underscores for filesystem)
+SOURCE_DIR=$(echo "$SOURCE_SPACE" | tr '-' '_')
+TARGET_DIR=$(echo "$TARGET_SPACE" | tr '-' '_')
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "🚀 Starting clone process from '$SOURCE_SPACE' to '$TARGET_SPACE'"
@@ -21,8 +24,11 @@ echo "🚀 Starting clone process from '$SOURCE_SPACE' to '$TARGET_SPACE'"
 # Function to check if a space exists
 check_space_exists() {
   local space_name="$1"
-  if [ ! -d "web/sites/$space_name" ]; then
-    echo "❌ Error: Space '$space_name' does not exist"
+  local space_dir_name=$(echo "$space_name" | tr '-' '_')
+  
+  if [ ! -d "web/sites/$space_dir_name" ]; then
+    echo "❌ Error: Source space does not exist: $space_name"
+    echo "Looking for directory: web/sites/$space_dir_name" 
     echo "Available spaces:"
     find web/sites -maxdepth 1 -type d -name "*" ! -name "default" ! -name "sites" | sed 's|web/sites/||' | sort
     exit 1
@@ -32,17 +38,18 @@ check_space_exists() {
 # Function to create multisite directory structure
 create_multisite_structure() {
   local space_name="$1"
-  echo "📁 Creating multisite structure for '$space_name'"
+  local space_dir_name=$(echo "$space_name" | tr '-' '_')
+  echo "📁 Creating multisite structure for '$space_name' (directory: $space_dir_name)"
   
-  mkdir -p "web/sites/$space_name"
+  mkdir -p "web/sites/$space_dir_name"
   
   # Create settings.php with SQLite database settings
-  cat > "web/sites/$space_name/settings.php" << EOF
+  cat > "web/sites/$space_dir_name/settings.php" << EOF
 <?php
 
 // Database settings for $space_name (SQLite)
 \$databases['default']['default'] = [
-  'database' => '/var/www/html/web/sites/${space_name}/files/${space_name}.sqlite',
+  'database' => '/var/www/html/web/sites/${space_dir_name}/files/${space_name}.sqlite',
   'driver' => 'sqlite',
   'prefix' => '',
 ];
@@ -50,17 +57,17 @@ create_multisite_structure() {
 EOF
   
   # Add common settings to the file
-  cat >> "web/sites/$space_name/settings.php" << EOF
+  cat >> "web/sites/$space_dir_name/settings.php" << EOF
 
 // Hash salt - should be unique per site
 \$settings['hash_salt'] = '$(openssl rand -base64 32)';
 
 // File paths
-\$settings['file_public_path'] = "sites/$space_name/files";
-\$settings['file_private_path'] = "sites/$space_name/private";
+\$settings['file_public_path'] = "sites/$space_dir_name/files";
+\$settings['file_private_path'] = "sites/$space_dir_name/private";
 
 // Configuration sync directory
-\$settings['config_sync_directory'] = "sites/$space_name/config";
+\$settings['config_sync_directory'] = "sites/$space_dir_name/config";
 
 // Trusted host patterns (adjust for your domain)
 \$settings['trusted_host_patterns'] = [
@@ -72,33 +79,33 @@ EOF
 EOF
 
   # Create services.yml
-  cp "web/sites/default/default.services.yml" "web/sites/$space_name/services.yml"
+  cp "web/sites/default/default.services.yml" "web/sites/$space_dir_name/services.yml"
   
   # Create directories
-  mkdir -p "web/sites/$space_name/files"
-  mkdir -p "web/sites/$space_name/private" 
-  mkdir -p "web/sites/$space_name/config"
+  mkdir -p "web/sites/$space_dir_name/files"
+  mkdir -p "web/sites/$space_dir_name/private" 
+  mkdir -p "web/sites/$space_dir_name/config"
   
-  echo "✅ Multisite structure created for '$space_name'"
+  echo "✅ Multisite structure created for '$space_name' (directory: $space_dir_name)"
 }
 
 # Check if source space exists
 check_space_exists "$SOURCE_SPACE"
 
 # Check if target space already exists
-if [ -d "web/sites/$TARGET_SPACE" ]; then
-  echo "❌ Error: Target space '$TARGET_SPACE' already exists"
+if [ -d "web/sites/$TARGET_DIR" ]; then
+  echo "❌ Error: Target space '$TARGET_SPACE' already exists (directory: $TARGET_DIR)"
   exit 1
 fi
 
 echo "📋 Cloning process:"
-echo "   Source: $SOURCE_SPACE"
-echo "   Target: $TARGET_SPACE"
+echo "   Source: $SOURCE_SPACE (directory: $SOURCE_DIR)"
+echo "   Target: $TARGET_SPACE (directory: $TARGET_DIR)"
 echo "   Timestamp: $TIMESTAMP"
 
 # Step 1: Extract SQLite database file path  
 echo "📁 Locating SQLite database for '$SOURCE_SPACE'"
-SQLITE_DB_PATH=$(grep -o "database.*=.*'[^']*'" "web/sites/$SOURCE_SPACE/settings.php" | sed "s/.*'\([^']*\)'.*/\1/" | head -1)
+SQLITE_DB_PATH=$(grep -o "database.*=.*'[^']*'" "web/sites/$SOURCE_DIR/settings.php" | sed "s/.*'\([^']*\)'.*/\1/" | head -1)
 SQLITE_DB_FILE=$(echo "$SQLITE_DB_PATH" | sed 's|/var/www/html/||')
 echo "📁 Found SQLite database: $SQLITE_DB_FILE"
 
@@ -108,7 +115,7 @@ create_multisite_structure "$TARGET_SPACE"
 # Step 3: Copy SQLite database
 echo "📤 Copying SQLite database from '$SOURCE_SPACE'"
 if [ -f "$SQLITE_DB_FILE" ]; then
-  TARGET_SQLITE_FILE="web/sites/$TARGET_SPACE/files/$TARGET_SPACE.sqlite"
+  TARGET_SQLITE_FILE="web/sites/$TARGET_DIR/files/$TARGET_SPACE.sqlite"
   cp "$SQLITE_DB_FILE" "$TARGET_SQLITE_FILE"
   echo "✅ SQLite database copied to $TARGET_SQLITE_FILE"
 else
@@ -116,33 +123,48 @@ else
   exit 1
 fi
 
-# Step 5: Copy files
-if [ -d "web/sites/$SOURCE_SPACE/files" ]; then
-  echo "📂 Copying files from '$SOURCE_SPACE' to '$TARGET_SPACE'"
-  cp -r "web/sites/$SOURCE_SPACE/files"/* "web/sites/$TARGET_SPACE/files/" 2>/dev/null || true
-  echo "✅ Files copied"
+# Step 5: Copy files (excluding aggregated CSS/JS/PHP directories)
+if [ -d "web/sites/$SOURCE_DIR/files" ]; then
+  echo "📂 Copying files from '$SOURCE_SPACE' to '$TARGET_SPACE' (excluding aggregated files)"
+  
+  # Copy everything except css, js, and php directories
+  for item in "web/sites/$SOURCE_DIR/files"/*; do
+    if [ -e "$item" ]; then
+      basename_item=$(basename "$item")
+      if [ "$basename_item" != "css" ] && [ "$basename_item" != "js" ] && [ "$basename_item" != "php" ]; then
+        cp -r "$item" "web/sites/$TARGET_DIR/files/" 2>/dev/null || true
+        echo "  ✅ Copied: $basename_item"
+      else
+        echo "  ⏭️  Skipped: $basename_item (will be regenerated)"
+      fi
+    fi
+  done
+  
+  echo "✅ Files copied (aggregated directories excluded)"
 else
   echo "ℹ️  No files directory found in source space"
 fi
 
 # Step 6: Copy private files if they exist
-if [ -d "web/sites/$SOURCE_SPACE/private" ]; then
+if [ -d "web/sites/$SOURCE_DIR/private" ]; then
   echo "📂 Copying private files from '$SOURCE_SPACE' to '$TARGET_SPACE'"
-  cp -r "web/sites/$SOURCE_SPACE/private"/* "web/sites/$TARGET_SPACE/private/" 2>/dev/null || true
+  cp -r "web/sites/$SOURCE_DIR/private"/* "web/sites/$TARGET_DIR/private/" 2>/dev/null || true
   echo "✅ Private files copied"
 fi
 
 # Step 7: Update database URLs and paths in target
 echo "🔧 Updating site-specific settings in target database"
 ddev mysql -D "$TARGET_SPACE" -e "
-  UPDATE config SET data = REPLACE(data, 'sites/$SOURCE_SPACE', 'sites/$TARGET_SPACE') WHERE collection = '' AND name LIKE '%file%';
-  UPDATE key_value SET value = REPLACE(value, 'sites/$SOURCE_SPACE', 'sites/$TARGET_SPACE') WHERE collection = 'system.file';
-  UPDATE file_managed SET uri = REPLACE(uri, 'sites/$SOURCE_SPACE', 'sites/$TARGET_SPACE');
+  UPDATE config SET data = REPLACE(data, 'sites/$SOURCE_DIR', 'sites/$TARGET_DIR') WHERE collection = '' AND name LIKE '%file%';
+  UPDATE key_value SET value = REPLACE(value, 'sites/$SOURCE_DIR', 'sites/$TARGET_DIR') WHERE collection = 'system.file';
+  UPDATE file_managed SET uri = REPLACE(uri, 'sites/$SOURCE_DIR', 'sites/$TARGET_DIR');
 " 2>/dev/null || true
 
-# Step 8: Clear caches for the new site
+# Step 8: Simple cache rebuild for the cloned site
 echo "🧹 Clearing caches for '$TARGET_SPACE'"
-ddev drush --uri="$TARGET_SPACE" cache:rebuild 2>/dev/null || echo "ℹ️  Cache rebuild completed (some warnings may be normal)"
+TARGET_URL="https://${TARGET_SPACE}.dcloud.ddev.site"
+echo "Using URL: $TARGET_URL"
+ddev drush --uri="$TARGET_URL" cr 2>/dev/null || echo "ℹ️  Cache rebuild completed"
 
 # Step 9: Cleanup
 echo "🧹 Cleaning up temporary files"
@@ -153,9 +175,9 @@ if [ -f "web/sites/sites.php" ]; then
   echo "🔗 Updating sites.php with new space mapping"
   
   # Add entry for the new space if it doesn't exist
-  if ! grep -q "$TARGET_SPACE" "web/sites/sites.php"; then
-    echo "\$sites['$TARGET_SPACE.ddev.site'] = '$TARGET_SPACE';" >> "web/sites/sites.php"
-    echo "\$sites['$TARGET_SPACE.dcloud.ddev.site'] = '$TARGET_SPACE';" >> "web/sites/sites.php"
+  if ! grep -q "$TARGET_DIR" "web/sites/sites.php"; then
+    echo "\$sites['$TARGET_SPACE.ddev.site'] = '$TARGET_DIR';" >> "web/sites/sites.php"
+    echo "\$sites['$TARGET_SPACE.dcloud.ddev.site'] = '$TARGET_DIR';" >> "web/sites/sites.php"
   fi
 fi
 
