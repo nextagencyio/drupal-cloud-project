@@ -160,11 +160,8 @@ ddev mysql -D "$TARGET_SPACE" -e "
   UPDATE file_managed SET uri = REPLACE(uri, 'sites/$SOURCE_DIR', 'sites/$TARGET_DIR');
 " 2>/dev/null || true
 
-# Step 8: Simple cache rebuild for the cloned site
-echo "🧹 Clearing caches for '$TARGET_SPACE'"
-TARGET_URL="https://${TARGET_SPACE}.dcloud.ddev.site"
-echo "Using URL: $TARGET_URL"
-ddev drush --uri="$TARGET_URL" cr 2>/dev/null || echo "ℹ️  Cache rebuild completed"
+# Step 8: Cache clearing handled by clone-space.sh wrapper
+echo "ℹ️  Cache clearing will be handled by the wrapper script"
 
 # Step 9: Cleanup
 echo "🧹 Cleaning up temporary files"

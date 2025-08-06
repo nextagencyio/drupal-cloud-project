@@ -64,6 +64,7 @@ install:
   # Content structure modules
   - paragraphs
   - entity_reference_revisions
+  - field_group
 
   # URL and path management
   - pathauto
