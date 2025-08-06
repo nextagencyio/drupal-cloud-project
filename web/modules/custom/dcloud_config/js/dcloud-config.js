@@ -1,6 +1,6 @@
 /**
  * @file
- * JavaScript functionality for DCloud configuration page.
+ * JavaScript functionality for Drupal Cloud configuration page.
  */
 
 (function (Drupal) {

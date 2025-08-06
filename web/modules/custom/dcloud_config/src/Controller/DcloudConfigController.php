@@ -14,7 +14,7 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Random;
 
 /**
- * Controller for DCloud configuration page.
+ * Controller for Drupal Cloud configuration page.
  */
 class DcloudConfigController extends ControllerBase {
 

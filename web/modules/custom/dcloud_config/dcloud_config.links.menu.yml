@@ -1,5 +1,5 @@
 dcloud_config.admin:
-  title: 'DCloud Configuration'
-  description: 'Configure DCloud integration settings and view OAuth credentials'
+  title: 'Drupal Cloud Configuration'
+  description: 'Configure Drupal Cloud integration settings and view OAuth credentials'
   parent: system.admin_config_services
   route_name: dcloud_config.admin

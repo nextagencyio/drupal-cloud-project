@@ -1,3 +1,3 @@
 administer dcloud configuration:
-  title: 'Administer DCloud configuration'
-  description: 'View OAuth credentials and configuration instructions for DCloud integration'
+  title: 'Administer Drupal Cloud configuration'
+  description: 'View OAuth credentials and configuration instructions for Drupal Cloud integration'

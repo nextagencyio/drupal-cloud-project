@@ -1,8 +1,8 @@
-name: 'DCloud Configuration Helper'
+name: 'Drupal Cloud Configuration Helper'
 type: module
-description: 'Provides configuration instructions and OAuth credentials for DCloud integration'
+description: 'Provides configuration instructions and OAuth credentials for Drupal Cloud integration'
 core_version_requirement: ^10 || ^11
-package: 'DCloud'
+package: 'Drupal Cloud'
 dependencies:
   - simple_oauth
   - consumers
