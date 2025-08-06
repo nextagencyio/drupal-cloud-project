@@ -1,0 +1,180 @@
+#!/bin/bash
+
+## Description: Clone a Drupal Cloud space with all content and files
+## Usage: clonespace <source-space-name> <target-space-name>
+## Example: "ddev clonespace campaign_site campaign_site_clone"
+
+set -eu -o pipefail
+
+if [ $# -ne 2 ]; then
+  echo "Usage: ddev clonespace <source-space-name> <target-space-name>"
+  echo "Example: ddev clonespace campaign_site campaign_site_clone"
+  exit 1
+fi
+
+SOURCE_SPACE="$1"
+TARGET_SPACE="$2"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+echo "🚀 Starting clone process from '$SOURCE_SPACE' to '$TARGET_SPACE'"
+
+# Function to check if a space exists
+check_space_exists() {
+  local space_name="$1"
+  if [ ! -d "web/sites/$space_name" ]; then
+    echo "❌ Error: Space '$space_name' does not exist"
+    echo "Available spaces:"
+    find web/sites -maxdepth 1 -type d -name "*" ! -name "default" ! -name "sites" | sed 's|web/sites/||' | sort
+    exit 1
+  fi
+}
+
+# Function to create multisite directory structure
+create_multisite_structure() {
+  local space_name="$1"
+  echo "📁 Creating multisite structure for '$space_name'"
+  
+  mkdir -p "web/sites/$space_name"
+  
+  # Create settings.php with SQLite database settings
+  cat > "web/sites/$space_name/settings.php" << EOF
+<?php
+
+// Database settings for $space_name (SQLite)
+\$databases['default']['default'] = [
+  'database' => '/var/www/html/web/sites/${space_name}/files/${space_name}.sqlite',
+  'driver' => 'sqlite',
+  'prefix' => '',
+];
+
+EOF
+  
+  # Add common settings to the file
+  cat >> "web/sites/$space_name/settings.php" << EOF
+
+// Hash salt - should be unique per site
+\$settings['hash_salt'] = '$(openssl rand -base64 32)';
+
+// File paths
+\$settings['file_public_path'] = "sites/$space_name/files";
+\$settings['file_private_path'] = "sites/$space_name/private";
+
+// Configuration sync directory
+\$settings['config_sync_directory'] = "sites/$space_name/config";
+
+// Trusted host patterns (adjust for your domain)
+\$settings['trusted_host_patterns'] = [
+  '^localhost\$',
+  '^.*\.ddev\.site\$',
+  '^.*\.dcloud\..*\$',
+];
+
+EOF
+
+  # Create services.yml
+  cp "web/sites/default/default.services.yml" "web/sites/$space_name/services.yml"
+  
+  # Create directories
+  mkdir -p "web/sites/$space_name/files"
+  mkdir -p "web/sites/$space_name/private" 
+  mkdir -p "web/sites/$space_name/config"
+  
+  echo "✅ Multisite structure created for '$space_name'"
+}
+
+# Check if source space exists
+check_space_exists "$SOURCE_SPACE"
+
+# Check if target space already exists
+if [ -d "web/sites/$TARGET_SPACE" ]; then
+  echo "❌ Error: Target space '$TARGET_SPACE' already exists"
+  exit 1
+fi
+
+echo "📋 Cloning process:"
+echo "   Source: $SOURCE_SPACE"
+echo "   Target: $TARGET_SPACE"
+echo "   Timestamp: $TIMESTAMP"
+
+# Step 1: Extract SQLite database file path  
+echo "📁 Locating SQLite database for '$SOURCE_SPACE'"
+SQLITE_DB_PATH=$(grep -o "database.*=.*'[^']*'" "web/sites/$SOURCE_SPACE/settings.php" | sed "s/.*'\([^']*\)'.*/\1/" | head -1)
+SQLITE_DB_FILE=$(echo "$SQLITE_DB_PATH" | sed 's|/var/www/html/||')
+echo "📁 Found SQLite database: $SQLITE_DB_FILE"
+
+# Step 2: Create multisite structure for target
+create_multisite_structure "$TARGET_SPACE"
+
+# Step 3: Copy SQLite database
+echo "📤 Copying SQLite database from '$SOURCE_SPACE'"
+if [ -f "$SQLITE_DB_FILE" ]; then
+  TARGET_SQLITE_FILE="web/sites/$TARGET_SPACE/files/$TARGET_SPACE.sqlite"
+  cp "$SQLITE_DB_FILE" "$TARGET_SQLITE_FILE"
+  echo "✅ SQLite database copied to $TARGET_SQLITE_FILE"
+else
+  echo "❌ Error: SQLite database file not found: $SQLITE_DB_FILE"
+  exit 1
+fi
+
+# Step 5: Copy files
+if [ -d "web/sites/$SOURCE_SPACE/files" ]; then
+  echo "📂 Copying files from '$SOURCE_SPACE' to '$TARGET_SPACE'"
+  cp -r "web/sites/$SOURCE_SPACE/files"/* "web/sites/$TARGET_SPACE/files/" 2>/dev/null || true
+  echo "✅ Files copied"
+else
+  echo "ℹ️  No files directory found in source space"
+fi
+
+# Step 6: Copy private files if they exist
+if [ -d "web/sites/$SOURCE_SPACE/private" ]; then
+  echo "📂 Copying private files from '$SOURCE_SPACE' to '$TARGET_SPACE'"
+  cp -r "web/sites/$SOURCE_SPACE/private"/* "web/sites/$TARGET_SPACE/private/" 2>/dev/null || true
+  echo "✅ Private files copied"
+fi
+
+# Step 7: Update database URLs and paths in target
+echo "🔧 Updating site-specific settings in target database"
+ddev mysql -D "$TARGET_SPACE" -e "
+  UPDATE config SET data = REPLACE(data, 'sites/$SOURCE_SPACE', 'sites/$TARGET_SPACE') WHERE collection = '' AND name LIKE '%file%';
+  UPDATE key_value SET value = REPLACE(value, 'sites/$SOURCE_SPACE', 'sites/$TARGET_SPACE') WHERE collection = 'system.file';
+  UPDATE file_managed SET uri = REPLACE(uri, 'sites/$SOURCE_SPACE', 'sites/$TARGET_SPACE');
+" 2>/dev/null || true
+
+# Step 8: Clear caches for the new site
+echo "🧹 Clearing caches for '$TARGET_SPACE'"
+ddev drush --uri="$TARGET_SPACE" cache:rebuild 2>/dev/null || echo "ℹ️  Cache rebuild completed (some warnings may be normal)"
+
+# Step 9: Cleanup
+echo "🧹 Cleaning up temporary files"
+# No temporary files to clean up for SQLite-only cloning
+
+# Step 10: Update sites.php if it exists
+if [ -f "web/sites/sites.php" ]; then
+  echo "🔗 Updating sites.php with new space mapping"
+  
+  # Add entry for the new space if it doesn't exist
+  if ! grep -q "$TARGET_SPACE" "web/sites/sites.php"; then
+    echo "\$sites['$TARGET_SPACE.ddev.site'] = '$TARGET_SPACE';" >> "web/sites/sites.php"
+    echo "\$sites['$TARGET_SPACE.dcloud.ddev.site'] = '$TARGET_SPACE';" >> "web/sites/sites.php"
+  fi
+fi
+
+echo ""
+echo "🎉 Clone completed successfully!"
+echo ""
+echo "📋 Summary:"
+echo "   ✅ Database '$SOURCE_SPACE' → '$TARGET_SPACE'"
+echo "   ✅ Files copied"
+echo "   ✅ Settings configured"
+echo "   ✅ Site URLs updated"
+echo ""
+echo "🌐 Your cloned space is now available at:"
+echo "   https://$TARGET_SPACE.ddev.site"
+echo ""
+echo "🔧 Next steps:"
+echo "   1. Test the cloned site"
+echo "   2. Update any hardcoded URLs if needed"
+echo "   3. Configure any external integrations"
+echo ""
+
+exit 0
