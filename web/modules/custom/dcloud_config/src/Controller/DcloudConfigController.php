@@ -421,6 +421,23 @@ npm run dev", 'bash', 'Quick Start Commands') . '
     ];
 
     try {
+      // Get existing revalidation secret to preserve it
+      $next_config = $this->configFactory->get('next.settings');
+      $existing_revalidate_secret = $next_config->get('revalidate_secret');
+      
+      // If no existing revalidate secret, generate one
+      if (empty($existing_revalidate_secret) || $existing_revalidate_secret === 'not-set') {
+        $random = new Random();
+        $existing_revalidate_secret = bin2hex(random_bytes(16));
+        
+        // Save the new revalidate secret to config
+        $next_config_editable = $this->configFactory->getEditable('next.settings');
+        $next_config_editable->set('revalidate_secret', $existing_revalidate_secret);
+        $next_config_editable->save();
+      }
+      
+      $response_data['revalidate_secret'] = $existing_revalidate_secret;
+
       // Regenerate OAuth client secret
       $consumer_storage = $this->entityTypeManager->getStorage('consumer');
       $consumer_storage->resetCache();
@@ -439,7 +456,6 @@ npm run dev", 'bash', 'Quick Start Commands') . '
 
         // Clear cache
         $consumer_storage->resetCache([$consumer->id()]);
-
 
         $response_data['client_secret'] = $client_secret;
         $response_data['success'] = true;
