@@ -361,13 +361,6 @@ npm run dev", 'bash', 'Quick Start Commands') . '
       return new RedirectResponse(Url::fromRoute('dcloud_config.homepage')->toString());
     }
 
-    // Generate new revalidation secret
-    $revalidate_secret = bin2hex(random_bytes(16));
-
-    // Save the revalidation secret
-    $next_config = $this->configFactory->getEditable('next.settings');
-    $next_config->set('revalidate_secret', $revalidate_secret);
-    $next_config->save();
 
     // Also regenerate OAuth client secret if needed
     try {
@@ -397,7 +390,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
     }
 
     // Add success message
-    \Drupal::messenger()->addStatus('New secrets generated successfully!');
+    \Drupal::messenger()->addStatus('New client secret generated successfully!');
 
     // Redirect back to the configuration page
     return new RedirectResponse(Url::fromRoute('dcloud_config.homepage')->toString());
@@ -447,19 +440,10 @@ npm run dev", 'bash', 'Quick Start Commands') . '
         // Clear cache
         $consumer_storage->resetCache([$consumer->id()]);
 
-        // Also generate new revalidation secret
-        $random_revalidate = new Random();
-        $revalidate_secret = $random_revalidate->word(32);
-
-        // Save the new revalidation secret
-        $next_config_editable = $this->configFactory->getEditable('next.settings');
-        $next_config_editable->set('revalidate_secret', $revalidate_secret);
-        $next_config_editable->save();
 
         $response_data['client_secret'] = $client_secret;
-        $response_data['revalidate_secret'] = $revalidate_secret;
         $response_data['success'] = true;
-        $response_data['message'] = 'New client secret and revalidation secret generated successfully!';
+        $response_data['message'] = 'New client secret generated successfully!';
       } else {
         $response_data['error'] = 'OAuth consumer not found';
       }

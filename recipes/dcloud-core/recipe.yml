@@ -87,6 +87,7 @@ install:
   # Drupal Cloud configuration and usage tracking
   - dcloud_config
   - dcloud_usage
+  - dcloud_revalidate
 
 config:
   strict:
