@@ -1,120 +1,198 @@
-/* Drupal Cloud Configuration Page Styles */
+/* Drupal Cloud Configuration Page Styles - Modern Full-Width Layout */
 
-/* Base typography improvements */
-.dcloud-config-container h2 {
-  margin-top: 40px;
-  margin-bottom: 20px;
-  font-weight: 600;
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
 }
 
-.dcloud-config-container h3 {
-  margin-top: 30px;
-  margin-bottom: 15px;
-  font-weight: 600;
+/* Main layout structure */
+.dcloud-config-main-layout {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  position: relative;
 }
 
-.dcloud-config-container p {
-  margin-bottom: 15px;
-  line-height: 1.6;
+.dcloud-config-content-area {
+  flex: 1;
+  padding: 2rem;
+  padding-right: 1rem;
 }
 
-.dcloud-config-container {
-  max-width: 1000px;
+.dcloud-config-main-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-@media (max-width: 768px) {
-  .dcloud-config-container {
-    padding: 0 15px;
-  }
-}
-
+/* Header styles */
 .dcloud-config-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 30px;
-  border-radius: 12px;
-  margin-bottom: 30px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-@media (max-width: 768px) {
-  .dcloud-config-header {
-    padding: 20px;
-    border-radius: 8px;
-  }
+.dcloud-config-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
 
-  .dcloud-config-header h1 {
-    font-size: 2em !important;
-  }
+.dcloud-config-logo-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.75rem;
+  font-weight: bold;
+  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.3);
+}
+
+.dcloud-config-logo-text {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.025em;
 }
 
 .dcloud-config-header h1 {
-  margin: 0 0 10px 0;
-  font-size: 2.5em;
-  color: #fff;
+  font-size: 2.25rem;
+  margin: 0 0 0.75rem 0;
+  color: #1e293b;
+  font-weight: 600;
 }
 
 .dcloud-config-header p {
+  font-size: 1.125rem;
+  color: #64748b;
   margin: 0;
-  font-size: 1.2em;
-  opacity: 0.9;
+  line-height: 1.6;
 }
 
+/* Section styles */
+.dcloud-config-section {
+  margin: 2.5rem 0;
+}
+
+.dcloud-config-section h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dcloud-config-section h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.75rem 0;
+}
+
+.dcloud-config-section p {
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Tip styles */
 .dcloud-config-tip {
-  background: linear-gradient(135deg, #e3f2fd 0%, #f0f7ff 100%);
-  border: 1px solid #90caf9;
-  border-radius: 10px;
-  padding: 18px;
-  margin: 25px 0;
-  box-shadow: 0 2px 8px rgba(144, 202, 249, 0.1);
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  border: 1px solid #0ea5e9;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.dcloud-config-tip-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .dcloud-config-tip p {
   margin: 0;
-  color: #1565c0;
+  color: #0c4a6e;
   font-weight: 500;
-  line-height: 1.6;
 }
 
+/* Setup options */
+.dcloud-config-setup-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.dcloud-config-option-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.dcloud-config-option-card:hover {
+  border-color: #0ea5e9;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.15);
+  transform: translateY(-2px);
+}
+
+.dcloud-config-option-header h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.dcloud-config-option-header p {
+  margin: 0 0 1rem 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Code blocks */
 .dcloud-config-code-block {
   position: relative;
-  background: #f8f9fa;
-  border-radius: 10px;
-  margin: 20px 0;
-  border: 1px solid #e9ecef;
+  background: #1e293b;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border: 1px solid #334155;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dcloud-config-code-block:hover {
-  border-color: #0073aa;
-  box-shadow: 0 4px 12px rgba(0, 115, 170, 0.12);
+  border-color: #0ea5e9;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
   transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-  .dcloud-config-copy-button {
-    position: static;
-    display: block;
-    margin: 10px 0 0 0;
-    width: 100%;
-    top: auto;
-    right: auto;
-  }
-
-  .dcloud-config-code-content {
-    padding-bottom: 10px;
-  }
-}
-
 .dcloud-config-code-title {
-  background: #e0e0e0;
-  padding: 8px 15px;
-  margin: -15px -15px 10px -15px;
-  font-weight: bold;
-  color: #333;
-  border-radius: 5px 5px 0 0;
+  background: #334155;
+  color: #e2e8f0;
+  padding: 0.75rem 1rem;
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid #475569;
 }
 
 .dcloud-config-code-content {
@@ -122,133 +200,257 @@
 }
 
 .dcloud-config-code-block pre {
-  background: #f8f9fa;
-  padding: 15px;
+  background: transparent;
+  color: #e2e8f0;
+  padding: 1.25rem;
   margin: 0;
-  font-family: 'SFMono-Regular', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-  font-size: 14px;
+  font-family: 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.875rem;
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
-  border-radius: 8px;
+  border-radius: 0 0 12px 12px;
   overflow-x: auto;
-  max-height: 400px;
-  overflow-y: auto;
 }
 
 .dcloud-config-code-block.has-title pre {
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 12px 12px;
 }
 
 .dcloud-config-copy-button {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #0073aa;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: #0ea5e9;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  opacity: 0.9;
+  z-index: 10;
 }
 
 .dcloud-config-copy-button:hover {
-  background-color: #005a87;
+  background: #0284c7;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  opacity: 1;
-}
-
-.dcloud-config-copy-button:focus {
-  outline: 2px solid #0073aa;
-  outline-offset: 2px;
-  opacity: 1;
-}
-
-.dcloud-config-copy-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dcloud-config-copy-button--success {
-  background-color: #28a745 !important;
+  background: #10b981 !important;
 }
 
 .dcloud-config-copy-button--error {
-  background-color: #dc3545 !important;
+  background: #ef4444 !important;
 }
 
-.dcloud-config-status {
-  background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%);
-  padding: 20px;
-  border-radius: 10px;
-  margin: 25px 0;
-  border-left: 4px solid #4caf50;
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
-}
-
-.dcloud-config-status h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #2e7d32;
-  font-weight: 600;
-}
-
-.dcloud-config-status ul {
-  margin-bottom: 0;
-  padding-left: 20px;
-}
-
-.dcloud-config-status li {
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
-
-/* Generate Secret Button Styles */
+/* Generate secret button */
 .dcloud-config-generate-secret {
-  margin: 20px 0;
-  padding: 15px;
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
 }
 
 .dcloud-config-generate-button {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: white !important;
-  padding: 12px 24px !important;
+  padding: 0.75rem 1.5rem !important;
   border: none !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   cursor: pointer !important;
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
   transition: all 0.2s ease !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 0.5rem !important;
   text-decoration: none !important;
 }
 
 .dcloud-config-generate-button:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4) !important;
-  background: linear-gradient(135deg, #218838 0%, #1ea085 100%) !important;
-  color: white !important;
-  text-decoration: none !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
 }
 
-.dcloud-config-generate-button:focus {
-  outline: 2px solid #20c997 !important;
-  outline-offset: 2px !important;
+.dcloud-config-generate-help {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.75rem;
+  color: #64748b;
+  font-style: italic;
 }
 
-.dcloud-config-generate-button:active {
-  transform: translateY(0) !important;
-  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+
+/* Sidebar */
+.dcloud-config-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  padding: 2rem 2rem 2rem 1rem;
+}
+
+.dcloud-config-sidebar-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.dcloud-config-sidebar-content {
+  padding: 1.5rem;
+}
+
+.dcloud-config-sidebar h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dcloud-config-sidebar-icon {
+  font-size: 1.25rem;
+}
+
+/* Checklist */
+.dcloud-config-checklist {
+  margin-bottom: 2rem;
+}
+
+.dcloud-config-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dcloud-config-checklist-item:last-child {
+  border-bottom: none;
+}
+
+.dcloud-config-step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+
+.dcloud-config-step-content {
+  flex: 1;
+}
+
+.dcloud-config-step-title {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.dcloud-config-step-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Help links */
+.dcloud-config-help-links {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 1.25rem;
+}
+
+.dcloud-config-help-links h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+}
+
+.dcloud-config-help-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dcloud-config-help-links li {
+  margin-bottom: 0.5rem;
+}
+
+.dcloud-config-help-links a {
+  color: #0ea5e9;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+}
+
+.dcloud-config-help-links a:hover {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .dcloud-config-main-layout {
+    flex-direction: column;
+  }
+  
+  .dcloud-config-sidebar {
+    width: 100%;
+    padding: 0 2rem 2rem 2rem;
+  }
+  
+  .dcloud-config-content-area {
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dcloud-config-content-area {
+    padding: 1rem;
+  }
+
+  .dcloud-config-main-content {
+    padding: 1.5rem;
+  }
+
+  .dcloud-config-header {
+    padding: 1.5rem;
+  }
+
+  .dcloud-config-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .dcloud-config-logo-text {
+    font-size: 1.5rem;
+  }
+
+  .dcloud-config-setup-options {
+    grid-template-columns: 1fr;
+  }
+
+  .dcloud-config-copy-button {
+    position: static;
+    display: block;
+    margin: 1rem 0 0 0;
+    width: 100%;
+  }
 }

@@ -1,128 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview Setup Required</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 1rem;
-            line-height: 1.4;
-            color: #333;
-            font-size: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            padding: 0;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            font-size: 16px;
         }
 
-        .container {
-            text-align: center;
-            max-width: 400px;
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 3rem;
+            max-width: 600px;
             width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .icon {
-            font-size: 3rem;
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
             margin-bottom: 1rem;
         }
 
-        h1 {
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
             font-size: 1.5rem;
-            margin: 0 0 1rem 0;
-            color: #0073aa;
+            font-weight: bold;
         }
 
-        .status {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 0.75rem;
-            margin: 1rem 0;
-            font-size: 15px;
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: -0.025em;
         }
 
-        .steps {
-            background: #f8f9fa;
-            border-radius: 4px;
-            padding: 1rem;
-            margin: 1rem 0;
-            text-align: left;
-        }
-
-        .steps h2 {
-            font-size: 1.2rem;
-            margin: 0 0 0.5rem 0;
-            color: #0073aa;
-        }
-
-        .steps ol {
+        h1 {
+            font-size: 1.75rem;
             margin: 0;
-            padding-left: 1.2rem;
-            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 600;
         }
 
-        .steps li {
-            margin-bottom: 0.5rem;
+        .status-alert {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .code {
-            background: #f1f3f4;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-family: monospace;
-            font-size: 13px;
+        .alert-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
         }
 
-        .action {
-            background: #0073aa;
+        .alert-content {
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        .description {
+            color: #6b7280;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             text-decoration: none;
-            padding: 0.75rem 1.25rem;
-            border-radius: 4px;
-            display: inline-block;
-            font-size: 14px;
-            margin-top: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        .action:hover {
-            background: #005a87;
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
             color: white;
+        }
+
+        .button-icon {
+            font-size: 1.1rem;
+        }
+
+        .sidebar {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        .sidebar h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-number.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .step-text {
+            color: #374151;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .step-example {
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-top: 2rem;
+                right: auto;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            .content-area {
+                padding: 2rem 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .sidebar {
+                margin: 1rem;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="icon">🔧</div>
-        <h1>Preview Setup Required</h1>
+    <div class="main-container">
+        <div class="content-area">
+            <div class="content-card">
+                <div class="header">
+                    <div class="logo">
+                        <div class="logo-icon">DC</div>
+                        <div class="logo-text">Drupal Cloud</div>
+                    </div>
+                    <h1>Preview Setup Required</h1>
+                </div>
 
-        <div class="status">
-            <strong>Preview environment not configured.</strong><br>
-            Configure your Next.js frontend to enable content previews.
+                <div class="status-alert">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <strong>Preview environment not configured.</strong><br>
+                        Configure your Next.js frontend to enable content previews.
+                    </div>
+                </div>
+
+                <div class="description">
+                    Content preview allows editors to see how their draft content will look on your Next.js frontend before publishing. Follow the setup steps to get started.
+                </div>
+
+                <div style="text-align: center;">
+                    <a href="/admin/config/decoupled_preview_iframe/settings" class="action-button" target="_top">
+                        <span class="button-icon">⚙️</span>
+                        Configure Preview Settings
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <div class="steps">
-            <h2>Quick Setup:</h2>
-            <ol>
-                <li>Go to <strong>Configuration → Decoupled Preview
-                        Iframe</strong></li>
-                <li>Update <strong>Preview URL</strong> to your Next.js
-                    URL<br><small>(eg. internal url
-                        http://host.docker.internal:3000)</small></li>
-                <li>Update <strong>Redirect URL</strong> to your Next.js
-                    URL<br><small>(eg. internal url
-                        http://host.docker.internal:3000)</small></li>
-                <li>Save configuration</li>
-            </ol>
+        <div class="sidebar">
+            <h3>
+                <span>📋</span>
+                Quick Setup Checklist
+            </h3>
+            <ul class="checklist">
+                <li>
+                    <div class="step-number active">1</div>
+                    <div>
+                        <div class="step-text">Go to Configuration → Decoupled Preview Iframe</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">2</div>
+                    <div>
+                        <div class="step-text">Update Preview URL to your Next.js URL</div>
+                        <div class="step-example">http://host.docker.internal:3000</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">3</div>
+                    <div>
+                        <div class="step-text">Update Redirect URL to your Next.js URL</div>
+                        <div class="step-example">http://host.docker.internal:3000</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">4</div>
+                    <div>
+                        <div class="step-text">Save configuration</div>
+                    </div>
+                </li>
+            </ul>
         </div>
-
-        <a href="/admin/config/decoupled_preview_iframe/settings" class="action"
-            target="_top">Configure Preview Settings</a>
     </div>
 </body>
-
 </html>

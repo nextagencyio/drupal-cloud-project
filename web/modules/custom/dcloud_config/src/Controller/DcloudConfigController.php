@@ -215,42 +215,53 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
 
     $build['instructions'] = [
       '#type' => 'markup',
-      '#markup' => '<div class="dcloud-config-container">
-        <div class="dcloud-config-header">
-          <h1>🚀 Drupal Cloud</h1>
-          <p>Your headless CMS is ready! Follow the steps below to connect your Next.js frontend.</p>
-        </div>
+      '#markup' => '<div class="dcloud-config-main-layout">
+        <div class="dcloud-config-content-area">
+          <div class="dcloud-config-header">
+            <div class="dcloud-config-logo">
+              <div class="dcloud-config-logo-icon">DC</div>
+              <div class="dcloud-config-logo-text">Drupal Cloud</div>
+            </div>
+            <h1>Your headless CMS is ready!</h1>
+            <p>Follow the steps below to connect your Next.js frontend and start building.</p>
+          </div>
 
-        <div class="dcloud-config-tip">
-          <p>💡 <strong>Pro Tip:</strong> All code blocks below have copy buttons (📋) in the top-right corner. Click to copy instantly!</p>
-        </div>
+          <div class="dcloud-config-main-content">
+            <div class="dcloud-config-tip">
+              <div class="dcloud-config-tip-icon">💡</div>
+              <div>
+                <p><strong>Pro Tip:</strong> All code blocks below have copy buttons (📋) in the top-right corner. Click to copy instantly!</p>
+              </div>
+            </div>
 
-        <h2>⚡ Quick Setup Guide</h2>
-        <p>Follow these steps to set up your Next.js application with this Drupal backend:</p>
+            <div class="dcloud-config-section">
+              <h2>🔧 Environment Configuration</h2>
+              <p>Create or update your <code>.env.local</code> file in your Next.js project root:</p>
 
-        <h3>1. Create your .env.local file</h3>
-        <p>In your Next.js project root, create or update your <code>.env.local</code> file with the following configuration:</p>
+              ' . $this->createCodeBlock($env_content, 'env', '.env.local') . '
 
-        ' . $this->createCodeBlock($env_content, 'env', '.env.local') . '
+              <div class="dcloud-config-generate-secret">
+                <form method="post" action="/dcloud-config/generate-secret" style="display: inline;">
+                  <input type="hidden" name="form_token" value="' . \Drupal::csrfToken()->get('dcloud_config_generate_secret') . '">
+                  <button type="submit" class="dcloud-config-generate-button">
+                    🔑&nbsp;&nbsp;Generate New Client Secret
+                  </button>
+                </form>
+                <p class="dcloud-config-generate-help">Generate a new OAuth client secret for enhanced security.</p>
+              </div>
+            </div>
 
-        <div class="dcloud-config-generate-secret">
-          <form method="post" action="/dcloud-config/generate-secret" style="display: inline;">
-            <input type="hidden" name="form_token" value="' . \Drupal::csrfToken()->get('dcloud_config_generate_secret') . '">
-            <button type="submit" class="dcloud-config-generate-button">
-              🔑&nbsp;&nbsp;Generate Client Secret
-            </button>
-          </form>
-          <p style="font-size: 13px; color: #6c757d; margin: 8px 0 0 0; font-style: italic;">Generate a new OAuth client secret for this configuration.</p>
-        </div>
+            <div class="dcloud-config-section">
+              <h2>🚀 Get Started</h2>
+              <p>Choose your preferred setup method:</p>
 
-        <h3>2. Quick Start with Next.js</h3>
-        <p>Get started quickly using our pre-configured Next.js starter project:</p>
-
-        <div class="dcloud-config-tip">
-          <p><strong>🚀 Next.js Starter Project:</strong> <a href="https://github.com/nextagencyio/drupal-cloud-starter" target="_blank">https://github.com/nextagencyio/drupal-cloud-starter</a></p>
-        </div>
-
-        ' . $this->createCodeBlock("# Clone the starter project
+              <div class="dcloud-config-setup-options">
+                <div class="dcloud-config-option-card">
+                  <div class="dcloud-config-option-header">
+                    <h3>🆕 New Project</h3>
+                    <p>Start with our pre-configured starter</p>
+                  </div>
+                  ' . $this->createCodeBlock("# Clone the starter project
 git clone https://github.com/nextagencyio/drupal-cloud-starter.git my-frontend
 cd my-frontend
 
@@ -260,23 +271,70 @@ npm install
 # Copy the environment variables above to .env.local
 # Then start the development server
 npm run dev", 'bash', 'Quick Start Commands') . '
+                </div>
 
-        <p><strong>Alternative:</strong> If you have an existing Next.js project, just add the environment variables above to your <code>.env.local</code> file and start your development server:</p>
-        ' . $this->createCodeBlock($npm_run_dev, 'bash', 'Existing Project') . '
-
-        <div class="dcloud-config-status">
-          <h4>✅ Configuration Status</h4>
-          <ul>
-            <li><strong>OAuth Consumer:</strong> ✅ Configured</li>
-            <li><strong>Client ID:</strong> ' . $client_id . '</li>
-            <li><strong>Client Secret:</strong> ✅ Generated</li>
-            <li><strong>Revalidation Secret:</strong> ✅ Generated</li>
-            <li><strong>JSON:API:</strong> ✅ Enabled</li>
-            <li><strong>CORS:</strong> ✅ Configured</li>
-          </ul>
+                <div class="dcloud-config-option-card">
+                  <div class="dcloud-config-option-header">
+                    <h3>📁 Existing Project</h3>
+                    <p>Add to your current Next.js project</p>
+                  </div>
+                  ' . $this->createCodeBlock($npm_run_dev, 'bash', 'Start Development Server') . '
+                  <p><strong>Note:</strong> Make sure to add the environment variables above to your <code>.env.local</code> file first.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
+        <div class="dcloud-config-sidebar">
+          <div class="dcloud-config-sidebar-card">
+            <div class="dcloud-config-sidebar-content">
+            <h3>
+              <span class="dcloud-config-sidebar-icon">📋</span>
+              Setup Checklist
+            </h3>
+            <div class="dcloud-config-checklist">
+              <div class="dcloud-config-checklist-item">
+                <div class="dcloud-config-step-number">1</div>
+                <div class="dcloud-config-step-content">
+                  <div class="dcloud-config-step-title">Copy Environment Variables</div>
+                  <div class="dcloud-config-step-description">Add the .env.local configuration to your Next.js project</div>
+                </div>
+              </div>
+              <div class="dcloud-config-checklist-item">
+                <div class="dcloud-config-step-number">2</div>
+                <div class="dcloud-config-step-content">
+                  <div class="dcloud-config-step-title">Install Dependencies</div>
+                  <div class="dcloud-config-step-description">Run npm install in your project directory</div>
+                </div>
+              </div>
+              <div class="dcloud-config-checklist-item">
+                <div class="dcloud-config-step-number">3</div>
+                <div class="dcloud-config-step-content">
+                  <div class="dcloud-config-step-title">Start Development Server</div>
+                  <div class="dcloud-config-step-description">Run npm run dev to start your application</div>
+                </div>
+              </div>
+              <div class="dcloud-config-checklist-item">
+                <div class="dcloud-config-step-number">4</div>
+                <div class="dcloud-config-step-content">
+                  <div class="dcloud-config-step-title">Test Connection</div>
+                  <div class="dcloud-config-step-description">Verify your frontend connects to this Drupal backend</div>
+                </div>
+              </div>
+            </div>
 
+            <div class="dcloud-config-help-links">
+              <h4>📚 Resources</h4>
+              <ul>
+                <li><a href="https://github.com/nextagencyio/drupal-cloud-starter" target="_blank">Starter Project →</a></li>
+                <li><a href="https://nextjs.org/docs" target="_blank">Next.js Docs →</a></li>
+                <li><a href="/admin/config" target="_blank">Drupal Config →</a></li>
+              </ul>
+            </div>
+            </div>
+          </div>
+        </div>
       </div>',
     ];
 
