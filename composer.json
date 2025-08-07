@@ -39,6 +39,7 @@
         "drupal/admin_toolbar": "^3.4",
         "drupal/admin_toolbar_tools": "^3.4",
         "drupal/core-composer-scaffold": "^11.2",
+        "drupal/decoupled_preview_iframe": "1.0.x-dev",
         "drupal/core-project-message": "^11.2",
         "drupal/core-recipe-unpack": "^11.2",
         "drupal/core-recommended": "^11.2",
@@ -116,7 +117,7 @@
             ],
             "post-create-project-cmd-message": [
                 "<bg=blue;fg=white>                                                         </>",
-                "<bg=blue;fg=white>  Congratulations, you’ve installed the Drupal codebase  </>",
+                "<bg=blue;fg=white>  Congratulations, you've installed the Drupal codebase  </>",
                 "<bg=blue;fg=white>  from the drupal/recommended-project template!          </>",
                 "<bg=blue;fg=white>                                                         </>",
                 "",
@@ -129,6 +130,11 @@
                 "  * Remove the plugin that prints this message:",
                 "      composer remove drupal/core-project-message"
             ]
+        },
+        "patches": {
+            "drupal/decoupled_preview_iframe": {
+                "Drupal 11 compatibility: Add TypedConfigManagerInterface support": "patches/decoupled-preview-iframe-drupal11-fix.patch"
+            }
         }
     }
 }

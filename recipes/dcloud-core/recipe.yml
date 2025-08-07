@@ -51,6 +51,9 @@ install:
   # JSON:API for headless compatibility
   - jsonapi
 
+  # Decoupled preview iframe for content preview
+  - decoupled_preview_iframe
+
   # GraphQL modules for modern API
   - graphql
   - graphql_compose
@@ -154,6 +157,9 @@ config:
     # Path and URL configuration
     pathauto: '*'
     token: '*'
+
+    # Decoupled preview iframe configuration
+    decoupled_preview_iframe: '*'
 
 
 
