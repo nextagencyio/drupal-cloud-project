@@ -176,17 +176,20 @@ class DcloudConfigController extends ControllerBase {
     // Get Next.js settings.
     $next_config = $this->configFactory->get('next.settings');
     $next_base_url = $next_config->get('base_url') ?: 'http://localhost:3000';
-    $revalidate_secret = $next_config->get('revalidate_secret');
+    
+    // Get revalidate secret from dcloud_revalidate.settings
+    $revalidate_config = $this->configFactory->get('dcloud_revalidate.settings');
+    $revalidate_secret = $revalidate_config->get('revalidate_secret');
 
     // Generate revalidation secret if it doesn't exist
     if (empty($revalidate_secret) || $revalidate_secret === 'not-set') {
       $random = new Random();
-      $revalidate_secret = $random->word(32);
+      $revalidate_secret = bin2hex(random_bytes(16));
 
-      // Save the new revalidation secret
-      $next_config_editable = $this->configFactory->getEditable('next.settings');
-      $next_config_editable->set('revalidate_secret', $revalidate_secret);
-      $next_config_editable->save();
+      // Save the new revalidation secret to dcloud_revalidate.settings
+      $revalidate_config_editable = $this->configFactory->getEditable('dcloud_revalidate.settings');
+      $revalidate_config_editable->set('revalidate_secret', $revalidate_secret);
+      $revalidate_config_editable->save();
     }
 
     // Get current site URL.
@@ -422,8 +425,8 @@ npm run dev", 'bash', 'Quick Start Commands') . '
 
     try {
       // Get existing revalidation secret to preserve it
-      $next_config = $this->configFactory->get('next.settings');
-      $existing_revalidate_secret = $next_config->get('revalidate_secret');
+      $revalidate_config = $this->configFactory->get('dcloud_revalidate.settings');
+      $existing_revalidate_secret = $revalidate_config->get('revalidate_secret');
       
       // If no existing revalidate secret, generate one
       if (empty($existing_revalidate_secret) || $existing_revalidate_secret === 'not-set') {
@@ -431,9 +434,9 @@ npm run dev", 'bash', 'Quick Start Commands') . '
         $existing_revalidate_secret = bin2hex(random_bytes(16));
         
         // Save the new revalidate secret to config
-        $next_config_editable = $this->configFactory->getEditable('next.settings');
-        $next_config_editable->set('revalidate_secret', $existing_revalidate_secret);
-        $next_config_editable->save();
+        $revalidate_config_editable = $this->configFactory->getEditable('dcloud_revalidate.settings');
+        $revalidate_config_editable->set('revalidate_secret', $existing_revalidate_secret);
+        $revalidate_config_editable->save();
       }
       
       $response_data['revalidate_secret'] = $existing_revalidate_secret;

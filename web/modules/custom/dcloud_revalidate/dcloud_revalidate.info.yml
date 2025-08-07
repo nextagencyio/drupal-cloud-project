@@ -1,4 +1,4 @@
-name: 'Dcloud Revalidate'
+name: 'Drupal Cloud Revalidate'
 type: module
 description: 'Optional module for triggering Next.js revalidation when nodes are saved'
 core_version_requirement: ^10 || ^11

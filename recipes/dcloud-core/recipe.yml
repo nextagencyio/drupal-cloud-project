@@ -70,7 +70,7 @@ install:
   - pathauto
   - token
 
-    # OAuth authentication for headless apps
+    # OAuth authentication for headless apps (must be before dcloud modules)
   - simple_oauth
   - serialization
   - consumers
@@ -84,10 +84,10 @@ install:
   - admin_toolbar
   - admin_toolbar_tools
 
-  # Drupal Cloud configuration and usage tracking
+  # Drupal Cloud configuration and usage tracking (order matters)
+  - dcloud_revalidate
   - dcloud_config
   - dcloud_usage
-  - dcloud_revalidate
 
 config:
   strict:
@@ -225,3 +225,9 @@ config:
         remember_clients: true
         use_implicit: false
         disable_openid_connect: false
+
+    # Configure dcloud_revalidate with default frontend URL
+    dcloud_revalidate.settings:
+      simple_config_update:
+        enabled: false
+        frontend_url: 'http://host.docker.internal:3000'

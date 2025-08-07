@@ -60,17 +60,34 @@ class RevalidationService {
    *   TRUE if revalidation was triggered successfully, FALSE otherwise.
    */
   public function revalidateNode(NodeInterface $node) {
-    $config = $this->configFactory->get('dcloud_revalidate.settings');
+    $this->logger->info('Revalidation triggered for node @nid (@title)', [
+      '@nid' => $node->id(),
+      '@title' => $node->getTitle(),
+    ]);
 
-    if (!$config->get('enabled')) {
+    $config = $this->configFactory->get('dcloud_revalidate.settings');
+    $enabled = $config->get('enabled');
+
+    $this->logger->info('Revalidation enabled status: @enabled', ['@enabled' => $enabled ? 'true' : 'false']);
+
+    if (!$enabled) {
+      $this->logger->info('Revalidation is disabled, skipping request for node @nid', ['@nid' => $node->id()]);
       return FALSE;
     }
 
     $frontend_url = $config->get('frontend_url');
     $secret = $config->get('revalidate_secret');
 
+    $this->logger->info('Revalidation config: URL=@url, Secret length=@secret_len', [
+      '@url' => $frontend_url,
+      '@secret_len' => strlen($secret),
+    ]);
+
     if (empty($frontend_url) || empty($secret)) {
-      $this->logger->error('Revalidation failed: Missing frontend URL or secret.');
+      $this->logger->error('Revalidation failed: Missing frontend URL or secret. URL=@url, Secret=@secret', [
+        '@url' => $frontend_url ?: 'empty',
+        '@secret' => $secret ? 'present' : 'empty',
+      ]);
       return FALSE;
     }
 
@@ -79,6 +96,11 @@ class RevalidationService {
       $this->logger->warning('Revalidation skipped: No slug found for node @nid.', ['@nid' => $node->id()]);
       return FALSE;
     }
+
+    $this->logger->info('Generated slug for node @nid: @slug', [
+      '@nid' => $node->id(),
+      '@slug' => $slug,
+    ]);
 
     return $this->sendRevalidationRequest($frontend_url, $secret, $slug);
   }
@@ -119,30 +141,57 @@ class RevalidationService {
   protected function sendRevalidationRequest($frontend_url, $secret, $slug) {
     $url = rtrim($frontend_url, '/') . '/api/revalidate';
 
+    // Log the request details
+    $this->logger->info('Attempting revalidation request to @url with slug: @slug', [
+      '@url' => $url,
+      '@slug' => $slug,
+    ]);
+
     try {
-      $response = $this->httpClient->post($url, [
+      $request_data = [
         'form_params' => [
           'secret' => $secret,
           'slug' => $slug,
         ],
         'timeout' => 10,
+      ];
+
+      // Log the request data (without the secret for security)
+      $this->logger->info('Revalidation request data: @data', [
+        '@data' => json_encode([
+          'url' => $url,
+          'slug' => $slug,
+          'timeout' => 10,
+          'secret_length' => strlen($secret),
+        ]),
       ]);
 
-      if ($response->getStatusCode() === 200) {
+      $response = $this->httpClient->post($url, $request_data);
+
+      $status_code = $response->getStatusCode();
+      $response_body = $response->getBody()->getContents();
+
+      $this->logger->info('Revalidation response: Status @status, Body: @body', [
+        '@status' => $status_code,
+        '@body' => $response_body,
+      ]);
+
+      if ($status_code === 200) {
         $this->logger->info('Revalidation successful for slug: @slug', ['@slug' => $slug]);
         return TRUE;
       }
       else {
         $this->logger->error('Revalidation failed for slug: @slug. Status: @status', [
           '@slug' => $slug,
-          '@status' => $response->getStatusCode(),
+          '@status' => $status_code,
         ]);
         return FALSE;
       }
     }
     catch (RequestException $e) {
-      $this->logger->error('Revalidation request failed for slug: @slug. Error: @error', [
+      $this->logger->error('Revalidation request failed for slug: @slug. URL: @url. Error: @error', [
         '@slug' => $slug,
+        '@url' => $url,
         '@error' => $e->getMessage(),
       ]);
       return FALSE;

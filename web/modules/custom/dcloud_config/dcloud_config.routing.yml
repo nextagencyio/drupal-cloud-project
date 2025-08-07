@@ -1,5 +1,5 @@
 dcloud_config.admin:
-  path: '/admin/config/services/dcloud-config'
+  path: '/admin/config/dcloud/configuration'
   defaults:
     _controller: '\Drupal\dcloud_config\Controller\DcloudConfigController::configPage'
     _title: 'Drupal Cloud Configuration'
@@ -31,3 +31,11 @@ dcloud_config.generate_secret_ajax:
   requirements:
     _access: 'TRUE'
   methods: [POST]
+
+dcloud.admin_category:
+  path: '/admin/config/dcloud'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Drupal Cloud'
+  requirements:
+    _permission: 'administer site configuration'

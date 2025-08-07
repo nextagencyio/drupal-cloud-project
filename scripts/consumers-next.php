@@ -170,9 +170,9 @@ if (is_writable('../drupal-cloud-starter/')) {
     );
 
     // Save the revalidate secret to Drupal configuration.
-    $nextConfig = \Drupal::configFactory()->getEditable('next.settings');
-    $nextConfig->set('revalidate_secret', $revalidateSecret);
-    $nextConfig->save();
+    $revalidateConfig = \Drupal::configFactory()->getEditable('dcloud_revalidate.settings');
+    $revalidateConfig->set('revalidate_secret', $revalidateSecret);
+    $revalidateConfig->save();
 
     // Write the updated contents back to the file.
     file_put_contents($envFile, $envContents);
