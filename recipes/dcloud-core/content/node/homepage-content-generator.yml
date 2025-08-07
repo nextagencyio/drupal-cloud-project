@@ -31,7 +31,7 @@ default:
       value: true
   path:
     -
-      alias: /
+      alias: /homepage
       langcode: en
       pathauto: 0
   field_hero_title:
