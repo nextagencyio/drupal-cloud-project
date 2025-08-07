@@ -71,6 +71,9 @@ default:
           bundle: feature_item
           default_langcode: en
         default:
+          field_feature_icon:
+            -
+              value: 'database'
           field_feature_title:
             -
               value: 'Powerful CMS'
@@ -87,6 +90,9 @@ default:
           bundle: feature_item
           default_langcode: en
         default:
+          field_feature_icon:
+            -
+              value: 'zap'
           field_feature_title:
             -
               value: 'Lightning Fast'
@@ -103,6 +109,9 @@ default:
           bundle: feature_item
           default_langcode: en
         default:
+          field_feature_icon:
+            -
+              value: 'shield'
           field_feature_title:
             -
               value: 'Enterprise Security'
@@ -119,6 +128,9 @@ default:
           bundle: feature_item
           default_langcode: en
         default:
+          field_feature_icon:
+            -
+              value: 'terminal'
           field_feature_title:
             -
               value: 'Developer Friendly'
@@ -135,6 +147,9 @@ default:
           bundle: feature_item
           default_langcode: en
         default:
+          field_feature_icon:
+            -
+              value: 'code'
           field_feature_title:
             -
               value: 'Modern Stack'
@@ -151,6 +166,9 @@ default:
           bundle: feature_item
           default_langcode: en
         default:
+          field_feature_icon:
+            -
+              value: 'globe'
           field_feature_title:
             -
               value: 'Global Scale'

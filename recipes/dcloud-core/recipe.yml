@@ -106,6 +106,7 @@ config:
     # Paragraph field storages for feature items
     - field.storage.paragraph.field_feature_title
     - field.storage.paragraph.field_feature_description
+    - field.storage.paragraph.field_feature_icon
 
 
   import:

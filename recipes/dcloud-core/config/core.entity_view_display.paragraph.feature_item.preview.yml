@@ -3,6 +3,7 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.paragraph.preview
+    - field.field.paragraph.feature_item.field_feature_icon
     - field.field.paragraph.feature_item.field_feature_title
     - paragraphs.paragraphs_type.feature_item
 id: paragraph.feature_item.preview
@@ -10,10 +11,18 @@ targetEntityType: paragraph
 bundle: feature_item
 mode: preview
 content:
-  field_feature_title:
+  field_feature_icon:
     type: string
     label: hidden
     weight: 0
+    region: content
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  field_feature_title:
+    type: string
+    label: hidden
+    weight: 1
     region: content
     settings:
       link_to_entity: false

@@ -86,6 +86,8 @@ field_config:
     feature_item:
       field_feature_description:
         enabled: true
+      field_feature_icon:
+        enabled: true
       field_feature_title:
         enabled: true
 settings:
