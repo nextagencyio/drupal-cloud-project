@@ -116,6 +116,23 @@ echo "Applying Drupal Cloud configuration recipe..."
 # Apply the Drupal Cloud recipe for complete configuration
 ddev drush --uri="$HOSTNAME" recipe ../recipes/dcloud-core -y
 
+# Copy recipe files to site files directory
+echo "Copying recipe files to site files directory..."
+mkdir -p "web/sites/$DIRECTORY_NAME/files/content"
+RECIPE_FILES_DIR="recipes/dcloud-core/content/file"
+if [ -d "$RECIPE_FILES_DIR" ]; then
+    # Copy all files from recipe files directory, excluding .yml files
+    for file in "$RECIPE_FILES_DIR"/*; do
+        if [ -f "$file" ] && [[ ! "$file" == *.yml ]]; then
+            filename=$(basename "$file")
+            cp "$file" "web/sites/$DIRECTORY_NAME/files/content/"
+            echo "Copied $filename to site files directory"
+        fi
+    done
+else
+    echo "Warning: Recipe files directory not found at $RECIPE_FILES_DIR"
+fi
+
 # Clear cache
 ddev drush --uri="$HOSTNAME" cr
 

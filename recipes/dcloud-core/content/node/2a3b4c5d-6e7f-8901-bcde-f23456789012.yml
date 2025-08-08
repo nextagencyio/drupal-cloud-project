@@ -1,0 +1,267 @@
+_meta:
+  version: '1.0'
+  entity_type: node
+  uuid: 2a3b4c5d-6e7f-8901-bcde-f23456789012
+  bundle: homepage
+  default_langcode: en
+default:
+  revision_uid:
+    -
+      target_id: 1
+  status:
+    -
+      value: true
+  uid:
+    -
+      target_id: 1
+  title:
+    -
+      value: 'Drupal Cloud Homepage'
+  created:
+    -
+      value: 1723100000
+  promote:
+    -
+      value: true
+  sticky:
+    -
+      value: false
+  revision_translation_affected:
+    -
+      value: true
+  path:
+    -
+      alias: /homepage
+      langcode: en
+      pathauto: 0
+  field_cta_description:
+    -
+      value: 'Join thousands of developers building amazing web experiences with Drupal Cloud.'
+      format: basic_html
+  field_cta_primary:
+    -
+      uri: 'internal:/node'
+      title: 'Browse Articles'
+      options: {  }
+  field_cta_secondary:
+    -
+      uri: 'internal:/contact'
+      title: 'Contact Us'
+      options: {  }
+  field_cta_title:
+    -
+      value: 'Ready to Get Started?'
+  field_features_items:
+    -
+      entity:
+        _meta:
+          version: '1.0'
+          entity_type: paragraph
+          uuid: f1a2b3c4-d5e6-7890-abcd-ef1234567890
+          bundle: feature_item
+          default_langcode: en
+        default:
+          status:
+            -
+              value: true
+          created:
+            -
+              value: 1754615122
+          behavior_settings:
+            -
+              value: {  }
+          revision_translation_affected:
+            -
+              value: true
+          field_feature_description:
+            -
+              value: "Leverage Drupal's robust content management capabilities with custom content types, workflows, and user permissions."
+              format: basic_html
+          field_feature_icon:
+            -
+              value: database
+          field_feature_title:
+            -
+              value: 'Powerful CMS'
+    -
+      entity:
+        _meta:
+          version: '1.0'
+          entity_type: paragraph
+          uuid: f2a3b4c5-d6e7-8901-bcde-f23456789012
+          bundle: feature_item
+          default_langcode: en
+        default:
+          status:
+            -
+              value: true
+          created:
+            -
+              value: 1754615122
+          behavior_settings:
+            -
+              value: {  }
+          revision_translation_affected:
+            -
+              value: true
+          field_feature_description:
+            -
+              value: 'Next.js provides server-side rendering, static generation, and optimized performance for blazing-fast user experiences.'
+              format: basic_html
+          field_feature_icon:
+            -
+              value: zap
+          field_feature_title:
+            -
+              value: 'Lightning Fast'
+    -
+      entity:
+        _meta:
+          version: '1.0'
+          entity_type: paragraph
+          uuid: f3a4b5c6-d7e8-9012-cdef-345678901234
+          bundle: feature_item
+          default_langcode: en
+        default:
+          status:
+            -
+              value: true
+          created:
+            -
+              value: 1754615122
+          behavior_settings:
+            -
+              value: {  }
+          revision_translation_affected:
+            -
+              value: true
+          field_feature_description:
+            -
+              value: 'Built-in security features, OAuth2 authentication, and role-based access control keep your content safe and secure.'
+              format: basic_html
+          field_feature_icon:
+            -
+              value: shield
+          field_feature_title:
+            -
+              value: 'Enterprise Security'
+    -
+      entity:
+        _meta:
+          version: '1.0'
+          entity_type: paragraph
+          uuid: f4a5b6c7-d8e9-0123-def4-56789012345
+          bundle: feature_item
+          default_langcode: en
+        default:
+          status:
+            -
+              value: true
+          created:
+            -
+              value: 1754615122
+          behavior_settings:
+            -
+              value: {  }
+          revision_translation_affected:
+            -
+              value: true
+          field_feature_description:
+            -
+              value: 'GraphQL API, TypeScript support, and modern tooling make development efficient and enjoyable for your team.'
+              format: basic_html
+          field_feature_icon:
+            -
+              value: terminal
+          field_feature_title:
+            -
+              value: 'Developer Friendly'
+    -
+      entity:
+        _meta:
+          version: '1.0'
+          entity_type: paragraph
+          uuid: f5a6b7c8-d9ea-1234-ef56-789012345678
+          bundle: feature_item
+          default_langcode: en
+        default:
+          status:
+            -
+              value: true
+          created:
+            -
+              value: 1754615122
+          behavior_settings:
+            -
+              value: {  }
+          revision_translation_affected:
+            -
+              value: true
+          field_feature_description:
+            -
+              value: 'React components, Tailwind CSS, and the latest web technologies ensure your project stays current and maintainable.'
+              format: basic_html
+          field_feature_icon:
+            -
+              value: code
+          field_feature_title:
+            -
+              value: 'Modern Stack'
+    -
+      entity:
+        _meta:
+          version: '1.0'
+          entity_type: paragraph
+          uuid: f6a7b8c9-daeb-2345-f678-90123456789a
+          bundle: feature_item
+          default_langcode: en
+        default:
+          status:
+            -
+              value: true
+          created:
+            -
+              value: 1754615122
+          behavior_settings:
+            -
+              value: {  }
+          revision_translation_affected:
+            -
+              value: true
+          field_feature_description:
+            -
+              value: 'Deploy anywhere with edge computing, CDN integration, and optimized performance for users worldwide.'
+              format: basic_html
+          field_feature_icon:
+            -
+              value: globe
+          field_feature_title:
+            -
+              value: 'Global Scale'
+  field_features_subtitle:
+    -
+      value: 'Combine the content management power of Drupal with modern frontend technologies for the ultimate development experience.'
+      format: basic_html
+  field_features_title:
+    -
+      value: 'Why Choose Drupal Cloud?'
+  field_hero_description:
+    -
+      value: 'Build fast, scalable web applications with the power of Drupal backend and the flexibility of Next.js frontend.'
+      format: basic_html
+  field_hero_subtitle:
+    -
+      value: 'Powered by Drupal'
+  field_hero_title:
+    -
+      value: 'Modern Headless CMS'
+  field_primary_cta:
+    -
+      uri: 'internal:/node'
+      title: 'View Articles'
+      options: {  }
+  field_secondary_cta:
+    -
+      uri: 'internal:/graphql/explorer'
+      title: 'Learn More'
+      options: {  }

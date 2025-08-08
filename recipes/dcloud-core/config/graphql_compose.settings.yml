@@ -55,6 +55,8 @@ field_config:
     article:
       body:
         enabled: true
+      field_image:
+        enabled: true
       field_tags:
         enabled: true
     homepage:

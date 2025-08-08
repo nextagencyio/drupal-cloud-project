@@ -73,5 +73,3 @@ default:
         <p>Ready to build your next project with Drupal Cloud? Check out our documentation and starter templates to get up and running quickly. Whether you're building a blog, corporate website, or complex web application, we have the tools and resources to help you succeed.</p>
       format: basic_html
       summary: 'Welcome to Drupal Cloud, a modern headless CMS solution that combines the power of Drupal with the flexibility of Next.js.'
-
-

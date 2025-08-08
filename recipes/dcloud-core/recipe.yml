@@ -14,8 +14,6 @@ recipes:
   - core/recipes/core_recommended_performance
   - core/recipes/core_recommended_maintenance
   - core/recipes/core_recommended_admin_theme
-  - core/recipes/core_recommended_front_end_theme
-  - core/recipes/user_picture
   # Provides a fallback text format which is available to all users.
   - core/recipes/restricted_html_format
   - core/recipes/administrator_role
@@ -27,12 +25,10 @@ install:
   - config
   - content_moderation
   - help
-  - contextual
   - datetime
   - datetime_range
   - field_ui
   - file
-  - history
   - image
   - language
   - link
