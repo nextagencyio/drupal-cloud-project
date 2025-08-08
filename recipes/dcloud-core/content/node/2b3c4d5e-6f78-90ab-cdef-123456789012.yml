@@ -4,6 +4,8 @@ _meta:
   uuid: 2b3c4d5e-6f78-90ab-cdef-123456789012
   bundle: article
   default_langcode: en
+  depends:
+    b891166c-ae6d-46c9-bd1a-c102a9b238d0: file
 default:
   revision_uid:
     -
@@ -54,3 +56,10 @@ default:
         <p>Visit the <a href="/graphql/explorer">GraphQL Explorer</a> to test queries interactively.</p>
       format: basic_html
       summary: 'Learn how to use GraphQL with Drupal Cloud for efficient data querying and API integration.'
+  field_image:
+    -
+      entity: b891166c-ae6d-46c9-bd1a-c102a9b238d0
+      alt: 'Getting Started with GraphQL'
+      title: ''
+      width: 1992
+      height: 990

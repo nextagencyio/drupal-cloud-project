@@ -4,6 +4,8 @@ _meta:
   uuid: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
   bundle: article
   default_langcode: en
+  depends:
+    b891166c-ae6d-46c9-bd1a-c102a9b238d0: file
 default:
   revision_uid:
     -
@@ -51,3 +53,10 @@ default:
         <p>Start building your content and explore the GraphQL API at <code>/graphql/explorer</code>.</p>
       format: basic_html
       summary: 'Welcome to your new Drupal Cloud headless CMS! This powerful platform combines the flexibility of Drupal with modern headless architecture.'
+  field_image:
+    -
+      entity: b891166c-ae6d-46c9-bd1a-c102a9b238d0
+      alt: 'Welcome to Drupal Cloud'
+      title: ''
+      width: 1992
+      height: 990

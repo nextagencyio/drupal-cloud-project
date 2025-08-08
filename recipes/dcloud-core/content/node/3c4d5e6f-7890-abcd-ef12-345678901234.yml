@@ -4,6 +4,8 @@ _meta:
   uuid: 3c4d5e6f-7890-abcd-ef12-345678901234
   bundle: article
   default_langcode: en
+  depends:
+    b891166c-ae6d-46c9-bd1a-c102a9b238d0: file
 default:
   revision_uid:
     -
@@ -58,3 +60,10 @@ default:
         <p>This approach gives you the flexibility of a page builder with the structure needed for API consumption.</p>
       format: basic_html
       summary: 'Learn how to create rich, structured content using the Paragraphs module in Drupal Cloud.'
+  field_image:
+    -
+      entity: b891166c-ae6d-46c9-bd1a-c102a9b238d0
+      alt: 'Content Authoring with Paragraphs'
+      title: ''
+      width: 1992
+      height: 990
