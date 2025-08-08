@@ -33,7 +33,7 @@ default:
     -
       alias: /getting-started-with-graphql
       langcode: en
-      pathauto: 1
+      pathauto: 0
   body:
     -
       value: |

@@ -26,14 +26,17 @@ entity_config:
       enabled: true
       query_load_enabled: true
       edges_enabled: true
+      routes_enabled: true
     homepage:
       enabled: true
       query_load_enabled: true
       edges_enabled: true
+      routes_enabled: true
     page:
       enabled: true
       query_load_enabled: true
       edges_enabled: true
+      routes_enabled: true
   paragraph:
     feature_item:
       enabled: true

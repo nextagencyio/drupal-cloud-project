@@ -33,7 +33,7 @@ default:
     -
       alias: /welcome-to-dcloud
       langcode: en
-      pathauto: 1
+      pathauto: 0
   body:
     -
       value: |
