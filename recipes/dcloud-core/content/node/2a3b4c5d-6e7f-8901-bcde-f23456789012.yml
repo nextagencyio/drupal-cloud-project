@@ -40,7 +40,7 @@ default:
       format: basic_html
   field_cta_primary:
     -
-      uri: 'internal:/node'
+      uri: 'internal:/articles'
       title: 'Browse Articles'
       options: {  }
   field_cta_secondary:
