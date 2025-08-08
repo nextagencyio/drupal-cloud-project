@@ -58,12 +58,16 @@ class DcloudConfigController extends ControllerBase {
   /**
    * Homepage that shows configuration information.
    *
-   * @return array
-   *   A render array.
+   * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   A render array or redirect response.
    */
   public function homePage() {
-    // Show the configuration page regardless of authentication status.
-    // This is a helper page for developers setting up their Next.js frontend.
+    // Check if user has permission to administer site configuration.
+    if (!$this->currentUser()->hasPermission('administer site configuration')) {
+      return new RedirectResponse('/user');
+    }
+    
+    // Show the configuration page for authorized users.
     return $this->configPage();
   }
 
@@ -415,6 +419,11 @@ npm run dev", 'bash', 'Quick Start Commands') . '
    *   A redirect response back to the configuration page.
    */
   public function generateSecret(Request $request) {
+    // Check if user has permission to administer site configuration.
+    if (!$this->currentUser()->hasPermission('administer site configuration')) {
+      return new RedirectResponse('/user');
+    }
+    
     // Verify CSRF token
     $token = $request->request->get('form_token');
     if (!\Drupal::csrfToken()->validate($token, 'dcloud_config_generate_secret')) {
@@ -467,6 +476,11 @@ npm run dev", 'bash', 'Quick Start Commands') . '
    *   A JSON response with the new client secret.
    */
   public function generateSecretAjax(Request $request) {
+    // Check if user has permission to administer site configuration.
+    if (!$this->currentUser()->hasPermission('administer site configuration')) {
+      return new JsonResponse(['error' => 'Access denied'], 403);
+    }
+    
     // Verify CSRF token
     $token = $request->request->get('form_token');
     if (!\Drupal::csrfToken()->validate($token, 'dcloud_config_generate_secret')) {
