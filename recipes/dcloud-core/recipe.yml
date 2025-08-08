@@ -87,6 +87,7 @@ install:
   - dcloud_revalidate
   - dcloud_config
   - dcloud_usage
+  - dcloud_import
 
 config:
   strict:

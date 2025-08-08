@@ -1,0 +1,7 @@
+dcloud_import.import_form:
+  path: '/admin/config/content/dcloud-import'
+  defaults:
+    _form: '\Drupal\dcloud_import\Form\DrupalImportForm'
+    _title: 'Drupal Content Import'
+  requirements:
+    _permission: 'administer site configuration'

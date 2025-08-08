@@ -1,0 +1,7 @@
+services:
+  dcloud_import.field_type_mapper:
+    class: Drupal\dcloud_import\Service\FieldTypeMapper
+
+  dcloud_import.importer:
+    class: Drupal\dcloud_import\Service\DrupalContentImporter
+    arguments: ['@entity_type.manager', '@config.factory', '@dcloud_import.field_type_mapper']

@@ -1,0 +1,744 @@
+<?php
+
+namespace Drupal\dcloud_import\Service;
+
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+
+/**
+ * Service for importing concise Drupal-friendly JSON configuration.
+ */
+class DrupalContentImporter {
+
+  use StringTranslationTrait;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * Field type mapper.
+   *
+   * @var \Drupal\dcloud_import\Service\FieldTypeMapper
+   */
+  protected $fieldTypeMapper;
+
+  /**
+   * Constructs a DrupalContentImporter object.
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_factory, FieldTypeMapper $field_type_mapper) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->configFactory = $config_factory;
+    $this->fieldTypeMapper = $field_type_mapper;
+  }
+
+  /**
+   * Imports concise configuration with 'model' and 'content'.
+   *
+   * @param array $data
+   *   The decoded JSON data.
+   * @param bool $preview_mode
+   *   Whether to run in preview mode (do not actually create).
+   *
+   * @return array
+   *   Result array with summary and warnings.
+   */
+  public function import(array $data, $preview_mode = FALSE) {
+    if (!isset($data['model'])) {
+      throw new \InvalidArgumentException('JSON must contain a "model" array.');
+    }
+    return $this->importConcise($data, $preview_mode);
+  }
+
+  /**
+   * Imports the concise schema with 'model' and 'content'.
+   */
+  private function importConcise(array $data, $preview_mode = FALSE) {
+    $result = [
+      'summary' => [],
+      'warnings' => [],
+    ];
+
+    $model = $data['model'];
+    // Support both: an array of bundle defs, or keyed by entity type.
+    $bundle_defs = [];
+    if (is_array($model) && (isset($model['node']) || isset($model['paragraph']))) {
+      foreach (['node', 'paragraph'] as $entity_type) {
+        if (!empty($model[$entity_type]) && is_array($model[$entity_type])) {
+          foreach ($model[$entity_type] as $def) {
+            $def['entity'] = $entity_type;
+            $bundle_defs[] = $def;
+          }
+        }
+      }
+    } else {
+      // Assume $model is a flat array of bundle definitions.
+      $bundle_defs = is_array($model) ? $model : [];
+    }
+
+    // Create bundles.
+    foreach ($bundle_defs as $def) {
+      $entity_type = $def['entity'] ?? 'node';
+      if ($entity_type === 'paragraph') {
+        $this->createBundleParagraphConcise($def, $preview_mode, $result);
+      } else {
+        $this->createBundleNodeConcise($def, $preview_mode, $result);
+      }
+    }
+
+    // Create content if present.
+    if (!empty($data['content']) && is_array($data['content'])) {
+      $this->createContentConcise($data['content'], $preview_mode, $result);
+    }
+
+    return $result;
+  }
+
+  /**
+   * Creates a node bundle from concise def.
+   */
+  private function createBundleNodeConcise(array $def, $preview_mode, array &$result) {
+    $id = $def['bundle'];
+    $name = $def['label'] ?? $id;
+    $description = $def['description'] ?? '';
+
+    if ($preview_mode) {
+      $result['summary'][] = "Would create node type: {$name} ({$id})";
+    } else {
+      $existing = $this->entityTypeManager->getStorage('node_type')->load($id);
+      if ($existing) {
+        $result['warnings'][] = "Node type '{$id}' already exists, skipping creation";
+      } else {
+        $node_type = $this->entityTypeManager->getStorage('node_type')->create([
+          'type' => $id,
+          'name' => $name,
+          'description' => $description,
+          'new_revision' => TRUE,
+          'preview_mode' => 1,
+          'display_submitted' => TRUE,
+        ]);
+        $node_type->save();
+        $result['summary'][] = "Created node type: {$name} ({$id})";
+      }
+    }
+
+    // Add core body if requested.
+    if (!empty($def['body'])) {
+      $this->addBodyFieldToContentType($id, $preview_mode, $result);
+    }
+
+    // Fields.
+    $fields = $def['fields'] ?? [];
+    foreach ($fields as $field) {
+      // Normalize field keys: label or name.
+      if (!isset($field['name']) && isset($field['label'])) {
+        $field['name'] = $field['label'];
+      }
+      $this->createField('node', $id, $field, $preview_mode, $result);
+    }
+
+    // Form display with sensible defaults.
+    if (!$preview_mode) {
+      $this->createFormDisplayConcise('node', $id, $fields, $def['form_display'] ?? NULL, $result);
+    }
+  }
+
+  /**
+   * Creates a paragraph bundle from concise def.
+   */
+  private function createBundleParagraphConcise(array $def, $preview_mode, array &$result) {
+    $id = $def['bundle'];
+    $name = $def['label'] ?? $id;
+    $description = $def['description'] ?? '';
+
+    if ($preview_mode) {
+      $result['summary'][] = "Would create paragraph type: {$name} ({$id})";
+    } else {
+      $existing = $this->entityTypeManager->getStorage('paragraphs_type')->load($id);
+      if ($existing) {
+        $result['warnings'][] = "Paragraph type '{$id}' already exists, skipping creation";
+      } else {
+        $paragraph_type = $this->entityTypeManager->getStorage('paragraphs_type')->create([
+          'id' => $id,
+          'label' => $name,
+          'description' => $description,
+        ]);
+        $paragraph_type->save();
+        $result['summary'][] = "Created paragraph type: {$name} ({$id})";
+      }
+    }
+
+    $fields = $def['fields'] ?? [];
+    foreach ($fields as $field) {
+      if (!isset($field['name']) && isset($field['label'])) {
+        $field['name'] = $field['label'];
+      }
+      $this->createField('paragraph', $id, $field, $preview_mode, $result);
+    }
+
+    if (!$preview_mode) {
+      $this->createFormDisplayConcise('paragraph', $id, $fields, $def['form_display'] ?? NULL, $result);
+    }
+  }
+
+  /**
+   * Creates form display with concise defaults using mapper widget hints.
+   */
+  private function createFormDisplayConcise($entity_type, $bundle, array $fields, $overrides, array &$result) {
+    $form_display_id = "{$entity_type}.{$bundle}.default";
+    $form_display_storage = $this->entityTypeManager->getStorage('entity_form_display');
+    $existing_display = $form_display_storage->load($form_display_id);
+    if ($existing_display) {
+      $result['warnings'][] = "Form display for {$entity_type}.{$bundle} already exists, skipping";
+      return;
+    }
+
+    $display_config = [
+      'targetEntityType' => $entity_type,
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+      'content' => [],
+      'hidden' => [],
+    ];
+
+    $weight = -5;
+    if ($entity_type === 'node') {
+      $display_config['content']['title'] = [
+        'type' => 'string_textfield',
+        'weight' => $weight++,
+        'region' => 'content',
+        'settings' => [
+          'size' => 60,
+          'placeholder' => '',
+        ],
+        'third_party_settings' => [],
+      ];
+    }
+
+    foreach ($fields as $field_config) {
+      $field_id = $field_config['id'];
+      // Handle reserved fields.
+      if ($this->isReservedField($field_id, $entity_type)) {
+        $widget_type = 'string_textfield';
+        if ($field_id === 'body') {
+          $widget_type = 'text_textarea';
+        }
+        $display_config['content'][$field_id] = [
+          'type' => $widget_type,
+          'weight' => $weight++,
+          'region' => 'content',
+          'settings' => [],
+          'third_party_settings' => [],
+        ];
+        continue;
+      }
+
+      $drupal = $this->fieldTypeMapper->mapFieldType($field_config);
+      if (!$drupal) {
+        continue;
+      }
+      if (!empty($drupal['required'])) {
+        $field_config['required'] = TRUE;
+      }
+      $field_name = 'field_' . $this->sanitizeFieldName($field_id);
+      $widget_type = $drupal['widget'] ?? 'string_textfield';
+      $display_config['content'][$field_name] = [
+        'type' => $widget_type,
+        'weight' => $weight++,
+        'region' => 'content',
+        'settings' => [],
+        'third_party_settings' => [],
+      ];
+    }
+
+    // Add standard node fields at the end.
+    if ($entity_type === 'node') {
+      $display_config['content']['uid'] = [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => $weight++,
+        'region' => 'content',
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'match_limit' => 10,
+          'size' => 60,
+          'placeholder' => '',
+        ],
+        'third_party_settings' => [],
+      ];
+      $display_config['content']['created'] = [
+        'type' => 'datetime_timestamp',
+        'weight' => $weight++,
+        'region' => 'content',
+        'settings' => [],
+        'third_party_settings' => [],
+      ];
+      $display_config['content']['promote'] = [
+        'type' => 'boolean_checkbox',
+        'weight' => $weight++,
+        'region' => 'content',
+        'settings' => ['display_label' => TRUE],
+        'third_party_settings' => [],
+      ];
+      $display_config['content']['status'] = [
+        'type' => 'boolean_checkbox',
+        'weight' => $weight + 10,
+        'region' => 'content',
+        'settings' => ['display_label' => TRUE],
+        'third_party_settings' => [],
+      ];
+    }
+
+    $form_display = $form_display_storage->create($display_config);
+    $form_display->save();
+    $result['summary'][] = "Created form display for {$entity_type} {$bundle}";
+  }
+
+  /**
+   * Creates content entities from concise 'content' array.
+   */
+  private function createContentConcise(array $content, $preview_mode, array &$result) {
+    $created = [];
+
+    // First pass: create entities without resolving @refs.
+    foreach ($content as $item) {
+      $entity = $this->createConciseEntry($item, $preview_mode, $result);
+      if ($entity) {
+        $created[$item['id']] = $entity;
+      }
+    }
+
+    if ($preview_mode) {
+      return;
+    }
+
+    // Second pass: resolve @refs and taxonomy terms.
+    foreach ($content as $item) {
+      if (isset($created[$item['id']])) {
+        $this->resolveConciseReferences($item, $created[$item['id']], $created, $result);
+      }
+    }
+  }
+
+  private function createConciseEntry(array $item, $preview_mode, array &$result) {
+    $type = $item['type'];
+    $parts = explode('.', $type, 2);
+    $entity_type = $parts[0] ?? 'node';
+    $bundle = $parts[1] ?? NULL;
+    $values = $item['values'] ?? [];
+
+    if ($entity_type === 'paragraph') {
+      if ($preview_mode) {
+        $result['summary'][] = "Would create paragraph: {$item['id']} (type: {$bundle})";
+        return NULL;
+      }
+      $paragraph_storage = $this->entityTypeManager->getStorage('paragraph');
+      $data = ['type' => $bundle];
+      foreach ($values as $field_id => $value) {
+        $data['field_' . $this->sanitizeFieldName($field_id)] = $this->mapFieldValueConcise($value, $field_id);
+      }
+      $paragraph = $paragraph_storage->create($data);
+      $paragraph->save();
+      $title = $values['title'] ?? $item['id'];
+      $result['summary'][] = "Created paragraph: {$title} (ID: {$paragraph->id()}, type: {$bundle})";
+      return $paragraph;
+    }
+
+    // Default: node.
+    if ($preview_mode) {
+      $result['summary'][] = "Would create node: {$item['id']} (type: {$bundle})";
+      return NULL;
+    }
+
+    $node_storage = $this->entityTypeManager->getStorage('node');
+    $node_data = [
+      'type' => $bundle,
+      'title' => $values['title'] ?? 'Untitled',
+      'status' => 1,
+      'uid' => 1,
+    ];
+    foreach ($values as $field_id => $value) {
+      if ($field_id === 'title') {
+        // Already handled.
+        continue;
+      }
+      if ($this->isReservedField($field_id, 'node')) {
+        $node_data[$field_id] = $this->mapFieldValueConcise($value, $field_id);
+      } else {
+        $node_data['field_' . $this->sanitizeFieldName($field_id)] = $this->mapFieldValueConcise($value, $field_id);
+      }
+    }
+    $node = $node_storage->create($node_data);
+    $node->save();
+    $result['summary'][] = "Created node: {$node_data['title']} (ID: {$node->id()}, type: {$bundle})";
+    return $node;
+  }
+
+  /**
+   * Map field values for concise format.
+   */
+  private function mapFieldValueConcise($value, $field_id) {
+    if ($value === NULL) {
+      return NULL;
+    }
+    // Reference marker like @foo.
+    if (is_string($value) && strlen($value) > 1 && $value[0] === '@') {
+      return NULL; // Will resolve later.
+    }
+    // Arrays of scalars -> [{value: item}].
+    if (is_array($value)) {
+      // If already an associative array for rich text body etc, pass through.
+      $is_assoc = array_keys($value) !== range(0, count($value) - 1);
+      if ($is_assoc) {
+        return $value;
+      }
+      return array_map(function ($item) {
+        return ['value' => $item];
+      }, $value);
+    }
+    if (is_bool($value)) {
+      return $value ? 1 : 0;
+    }
+    // Heuristic for date fields by id.
+    if ($field_id === 'publish_date' || strpos($field_id, 'date') !== FALSE) {
+      if (is_string($value)) {
+        $timestamp = strtotime($value);
+        if ($timestamp !== FALSE) {
+          return date('Y-m-d\\TH:i:s', $timestamp);
+        }
+      }
+    }
+    // Default: simple value for string/text fields.
+    return ['value' => $value, 'format' => 'basic_html'];
+  }
+
+  /**
+   * Resolve @refs and taxonomy terms after entity creation.
+   */
+  private function resolveConciseReferences(array $item, $entity, array $created, array &$result) {
+    $values = $item['values'] ?? [];
+    $type = $item['type'];
+    $parts = explode('.', $type, 2);
+    $entity_type = $parts[0] ?? 'node';
+    $bundle = $parts[1] ?? NULL;
+
+    foreach ($values as $field_id => $value) {
+      $drupal_field_name = $this->isReservedField($field_id, $entity_type) ? $field_id : 'field_' . $this->sanitizeFieldName($field_id);
+      if (!$entity->hasField($drupal_field_name)) {
+        continue;
+      }
+
+      // Get field definition once for type and settings.
+      $field_definition = $entity->getFieldDefinition($drupal_field_name);
+
+      // Handle references marked with @.
+      if (is_string($value) && strlen($value) > 1 && $value[0] === '@') {
+        $ref = substr($value, 1);
+        if (isset($created[$ref])) {
+          $field_type = $field_definition->getType();
+          $ref_entity = $created[$ref];
+          $cardinality = (int) $field_definition->getFieldStorageDefinition()->getCardinality();
+
+          if ($field_type === 'entity_reference_revisions') {
+            // Paragraph reference: set using explicit IDs as item list.
+            $field_list = $entity->get($drupal_field_name);
+            $item = [
+              'target_id' => (int) $ref_entity->id(),
+              'target_revision_id' => (int) $ref_entity->getRevisionId(),
+            ];
+            $field_list->setValue([$item]);
+            $entity->save();
+            $result['summary'][] = "Resolved paragraph reference: {$field_id} -> {$ref}";
+          } elseif ($field_type === 'entity_reference') {
+            // Node or term reference by target_id.
+            $item = [
+              'target_id' => (int) $ref_entity->id(),
+            ];
+            $entity->set($drupal_field_name, $cardinality === 1 ? $item : [$item]);
+            $entity->save();
+            $result['summary'][] = "Resolved entity reference: {$field_id} -> {$ref}";
+          } else {
+            // Fallback: best-effort assign ID.
+            $entity->set($drupal_field_name, (int) $ref_entity->id());
+            $entity->save();
+            $result['summary'][] = "Resolved reference (fallback): {$field_id} -> {$ref}";
+          }
+        } else {
+          $result['warnings'][] = "Could not resolve reference {$field_id} -> {$ref}";
+        }
+        continue;
+      }
+
+      // Handle arrays of references marked with @.
+      if (is_array($value) && !empty($value)) {
+        $all_refs = TRUE;
+        foreach ($value as $item) {
+          if (!is_string($item) || strlen($item) <= 1 || $item[0] !== '@') {
+            $all_refs = FALSE;
+            break;
+          }
+        }
+        
+        if ($all_refs) {
+          $field_type = $field_definition->getType();
+          $items = [];
+          $resolved_refs = [];
+          
+          foreach ($value as $item) {
+            $ref = substr($item, 1);
+            if (isset($created[$ref])) {
+              $ref_entity = $created[$ref];
+              $resolved_refs[] = $ref;
+              
+              if ($field_type === 'entity_reference_revisions') {
+                // Paragraph reference: set using explicit IDs as item list.
+                $items[] = [
+                  'target_id' => (int) $ref_entity->id(),
+                  'target_revision_id' => (int) $ref_entity->getRevisionId(),
+                ];
+              } elseif ($field_type === 'entity_reference') {
+                // Node or term reference by target_id.
+                $items[] = [
+                  'target_id' => (int) $ref_entity->id(),
+                ];
+              } else {
+                // Fallback: best-effort assign ID.
+                $items[] = (int) $ref_entity->id();
+              }
+            } else {
+              $result['warnings'][] = "Could not resolve reference {$field_id} -> {$ref}";
+            }
+          }
+          
+          if (!empty($items)) {
+            if ($field_type === 'entity_reference_revisions') {
+              $field_list = $entity->get($drupal_field_name);
+              $field_list->setValue($items);
+              $entity->save();
+              $result['summary'][] = "Resolved paragraph references: {$field_id} -> [" . implode(', ', $resolved_refs) . "]";
+            } else {
+              $entity->set($drupal_field_name, $items);
+              $entity->save();
+              $result['summary'][] = "Resolved entity references: {$field_id} -> [" . implode(', ', $resolved_refs) . "]";
+            }
+          }
+          continue;
+        }
+      }
+
+      // Handle taxonomy term creation for term() fields: if strings provided.
+      $type_storage_settings = $field_definition->getSettings();
+      $target_type = $type_storage_settings['target_type'] ?? NULL;
+      if ($target_type === 'taxonomy_term') {
+        $handler_settings = $field_definition->getSetting('handler_settings') ?: [];
+        $target_bundles = $handler_settings['target_bundles'] ?? [];
+        $vocab = is_array($target_bundles) ? array_key_first($target_bundles) : NULL;
+        if ($vocab) {
+          $term_ids = [];
+          $values_list = is_array($value) && array_keys($value) === range(0, count($value) - 1) ? $value : [$value];
+          foreach ($values_list as $term_value) {
+            $tid = NULL;
+            if (is_array($term_value)) {
+              if (!empty($term_value['tid'])) {
+                $tid = (int) $term_value['tid'];
+              } elseif (!empty($term_value['name'])) {
+                $tid = $this->ensureTerm($vocab, $term_value['name']);
+              }
+            } elseif (is_string($term_value)) {
+              $tid = $this->ensureTerm($vocab, $term_value);
+            }
+            if ($tid) {
+              $term_ids[] = ['target_id' => $tid];
+            }
+          }
+          if (!empty($term_ids)) {
+            $entity->set($drupal_field_name, $term_ids);
+            $entity->save();
+            $result['summary'][] = "Assigned taxonomy terms on {$field_id}";
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Ensure a taxonomy term exists by name in a vocabulary, return tid.
+   */
+  private function ensureTerm(string $vocabulary, string $name) {
+    $term_storage = $this->entityTypeManager->getStorage('taxonomy_term');
+    $existing = $term_storage->loadByProperties(['vid' => $vocabulary, 'name' => $name]);
+    if (!empty($existing)) {
+      /** @var \Drupal\taxonomy\Entity\Term $term */
+      $term = reset($existing);
+      return (int) $term->id();
+    }
+    $term = $term_storage->create([
+      'vid' => $vocabulary,
+      'name' => $name,
+    ]);
+    $term->save();
+    return (int) $term->id();
+  }
+
+  /**
+   * Creates a field for an entity type.
+   */
+  private function createField($entity_type, $bundle, array $field_config, $preview_mode, array &$result) {
+    $field_id = $field_config['id'];
+    $field_label = $field_config['name'];
+    $field_type = $field_config['type'];
+    $required = $field_config['required'] ?? FALSE;
+
+    // Handle reserved field names.
+    if ($this->isReservedField($field_id, $entity_type)) {
+      if ($field_id === 'body' && $entity_type === 'node') {
+        // Special handling for body field. Need to add it to the content type.
+        $this->addBodyFieldToContentType($bundle, $preview_mode, $result);
+      } else {
+        if ($preview_mode) {
+          $result['summary'][] = "Would use existing reserved field: {$field_label} ({$field_id}) for {$entity_type} {$bundle}";
+        } else {
+          $result['summary'][] = "Using existing reserved field: {$field_label} ({$field_id}) for {$entity_type} {$bundle}";
+        }
+      }
+      return;
+    }
+
+    // Convert camelCase and other formats to valid machine name.
+    $field_name = 'field_' . $this->sanitizeFieldName($field_id);
+
+    // Get Drupal field type mapping.
+    $drupal_field_info = $this->fieldTypeMapper->mapFieldType($field_config);
+    if (!$drupal_field_info) {
+      $result['warnings'][] = "Unsupported field type '{$field_type}' for field '{$field_id}', skipping";
+      return;
+    }
+
+    $drupal_field_type = $drupal_field_info['type'];
+    $field_settings = $drupal_field_info['settings'] ?? [];
+    $cardinality = $drupal_field_info['cardinality'] ?? 1;
+
+    if ($preview_mode) {
+      $result['summary'][] = "Would create field: {$field_label} ({$field_name}) of type {$drupal_field_type} for {$entity_type} {$bundle}";
+      return;
+    }
+
+    // Create field storage.
+    $field_storage_id = "{$entity_type}.{$field_name}";
+    $field_storage = $this->entityTypeManager->getStorage('field_storage_config')->load($field_storage_id);
+    if (!$field_storage) {
+      $field_storage = $this->entityTypeManager->getStorage('field_storage_config')->create([
+        'field_name' => $field_name,
+        'entity_type' => $entity_type,
+        'type' => $drupal_field_type,
+        'cardinality' => $cardinality,
+        'settings' => $field_settings,
+      ]);
+      $field_storage->save();
+    }
+
+    // Create field instance.
+    $field_id_full = "{$entity_type}.{$bundle}.{$field_name}";
+    $field = $this->entityTypeManager->getStorage('field_config')->load($field_id_full);
+    if (!$field) {
+      $field = $this->entityTypeManager->getStorage('field_config')->create([
+        'field_storage' => $field_storage,
+        'bundle' => $bundle,
+        'label' => $field_label,
+        'required' => $required,
+        'settings' => $drupal_field_info['instance_settings'] ?? [],
+      ]);
+      $field->save();
+      $result['summary'][] = "Created field: {$field_label} ({$field_name}) for {$entity_type} {$bundle}";
+    } else {
+      $result['warnings'][] = "Field '{$field_name}' already exists for {$entity_type} {$bundle}, skipping";
+    }
+  }
+
+  /**
+   * Sanitizes a field ID to create a valid Drupal machine name.
+   */
+  private function sanitizeFieldName($field_id) {
+    // Convert camelCase to snake_case.
+    $field_name = preg_replace('/([a-z])([A-Z])/', '$1_$2', $field_id);
+    // Convert to lowercase.
+    $field_name = strtolower($field_name);
+    // Replace invalid characters with underscores.
+    $field_name = preg_replace('/[^a-z0-9_]/', '_', $field_name);
+    // Remove multiple consecutive underscores.
+    $field_name = preg_replace('/_+/', '_', $field_name);
+    // Ensure it starts with a letter or underscore.
+    if (preg_match('/^[0-9]/', $field_name)) {
+      $field_name = '_' . $field_name;
+    }
+    // Trim underscores from start and end.
+    $field_name = trim($field_name, '_');
+    // Ensure it is not empty and has valid start.
+    if (empty($field_name) || !preg_match('/^[a-z_]/', $field_name)) {
+      $field_name = 'field_' . uniqid();
+    }
+    return $field_name;
+  }
+
+  /**
+   * Checks if a field ID is a reserved field name in Drupal.
+   */
+  private function isReservedField($field_id, $entity_type) {
+    $reserved_fields = [
+      'node' => ['title', 'body', 'uid', 'status', 'created', 'changed', 'promote', 'sticky'],
+      'paragraph' => [],
+    ];
+    return in_array($field_id, $reserved_fields[$entity_type] ?? []);
+  }
+
+  /**
+   * Adds the body field to a node content type.
+   */
+  private function addBodyFieldToContentType($bundle, $preview_mode, array &$result) {
+    if ($preview_mode) {
+      $result['summary'][] = "Would add body field to node type: {$bundle}";
+      return;
+    }
+    // Check if body field already exists for this bundle.
+    $field_config_id = "node.{$bundle}.body";
+    $field_storage = $this->entityTypeManager->getStorage('field_config');
+    $existing_field = $field_storage->load($field_config_id);
+    if ($existing_field) {
+      $result['warnings'][] = "Body field already exists for {$bundle}, skipping";
+      return;
+    }
+    // Get the body field storage (should already exist).
+    $body_storage = $this->entityTypeManager->getStorage('field_storage_config')->load('node.body');
+    if (!$body_storage) {
+      $result['warnings'][] = "Body field storage does not exist, cannot add body field to {$bundle}";
+      return;
+    }
+    // Create the body field instance.
+    $field_config = $this->entityTypeManager->getStorage('field_config')->create([
+      'field_storage' => $body_storage,
+      'bundle' => $bundle,
+      'label' => 'Body',
+      'description' => '',
+      'required' => FALSE,
+      'settings' => [
+        'display_summary' => TRUE,
+        'required_summary' => FALSE,
+      ],
+    ]);
+    $field_config->save();
+    $result['summary'][] = "Added body field to node type: {$bundle}";
+  }
+}
+
+
