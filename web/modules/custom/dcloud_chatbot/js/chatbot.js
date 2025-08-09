@@ -61,9 +61,11 @@
 
     console.log('DCloud Chatbot: Initializing...', this.settings);
 
-    // Make sure loading is hidden initially
-    if (this.loading) {
-      this.hideLoading();
+    // Initialize loading indicator - detach from DOM initially
+    if (this.loading && this.loading.parentNode) {
+      this.loading.parentNode.removeChild(this.loading);
+      this.loading.setAttribute('aria-hidden', 'true');
+      this.loading.style.display = 'none';
     }
 
     this.bindEvents();
@@ -210,7 +212,13 @@
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    contentDiv.textContent = content;
+    
+    // Render markdown for bot messages, plain text for user messages
+    if (sender === 'bot') {
+      contentDiv.innerHTML = this.parseMarkdown(content);
+    } else {
+      contentDiv.textContent = content;
+    }
 
     const timeDiv = document.createElement('div');
     timeDiv.className = 'message-time';
@@ -247,16 +255,24 @@
   DCloudChatbot.prototype.showLoading = function () {
     console.log('DCloud Chatbot: Showing loading');
     if (this.loading) {
+      // Add loading indicator to messages area
+      this.messages.appendChild(this.loading);
       this.loading.setAttribute('aria-hidden', 'false');
       this.loading.style.display = 'block';
+      
+      // Scroll to bottom to show loading
+      this.messages.scrollTop = this.messages.scrollHeight;
     }
   };
 
   DCloudChatbot.prototype.hideLoading = function () {
     console.log('DCloud Chatbot: Hiding loading');
-    if (this.loading) {
+    if (this.loading && this.loading.parentNode === this.messages) {
       this.loading.setAttribute('aria-hidden', 'true');
       this.loading.style.display = 'none';
+      
+      // Remove from messages area
+      this.messages.removeChild(this.loading);
     }
   };
 
@@ -328,6 +344,90 @@
 
     // Production fallback - assume same domain but different port or subdomain
     return 'https://dashboard.' + window.location.hostname.replace(/^[^.]+\./, '');
+  };
+
+  DCloudChatbot.prototype.parseMarkdown = function (text) {
+    // Escape HTML to prevent XSS
+    text = text.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&#039;');
+
+    // Parse markdown elements
+    // Bold text **text**
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic text *text*
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Code `code`
+    text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+    
+    // Headers (simple # support)
+    text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    
+    // Links [text](url)
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    
+    // Process lists more carefully
+    const lines = text.split('<br>');
+    let result = [];
+    let inList = false;
+    let listType = null;
+    
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      
+      // Check if this is a list item
+      const ulMatch = line.match(/^\* (.*)$/);
+      const olMatch = line.match(/^\d+\. (.*)$/);
+      
+      if (ulMatch) {
+        // Unordered list item
+        if (!inList || listType !== 'ul') {
+          if (inList) {
+            result.push(`</${listType}>`);
+          }
+          result.push('<ul>');
+          listType = 'ul';
+          inList = true;
+        }
+        result.push(`<li>${ulMatch[1]}</li>`);
+      } else if (olMatch) {
+        // Ordered list item
+        if (!inList || listType !== 'ol') {
+          if (inList) {
+            result.push(`</${listType}>`);
+          }
+          result.push('<ol>');
+          listType = 'ol';
+          inList = true;
+        }
+        result.push(`<li>${olMatch[1]}</li>`);
+      } else {
+        // Not a list item
+        if (inList) {
+          result.push(`</${listType}>`);
+          inList = false;
+          listType = null;
+        }
+        if (line) {
+          result.push(line);
+        }
+      }
+    }
+    
+    // Close any open list
+    if (inList) {
+      result.push(`</${listType}>`);
+    }
+    
+    text = result.join('<br>');
+    
+    return text;
   };
 
   DCloudChatbot.prototype.formatTime = function (date) {

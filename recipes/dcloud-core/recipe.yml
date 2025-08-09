@@ -2,15 +2,12 @@ name: 'Drupal Cloud Core'
 description: 'Drupal Cloud headless CMS configuration with GraphQL, OAuth, and modern content tools.'
 type: 'Site'
 recipes:
-  - core/recipes/basic_block_type
   - core/recipes/basic_shortcuts
   - core/recipes/article_tags
-  - core/recipes/feedback_contact_form
   - core/recipes/article_content_type
   - core/recipes/page_content_type
   - core/recipes/basic_html_format_editor
   - core/recipes/full_html_format_editor
-  - core/recipes/content_search
   - core/recipes/core_recommended_performance
   - core/recipes/core_recommended_maintenance
   - core/recipes/core_recommended_admin_theme
@@ -89,6 +86,14 @@ install:
   - dcloud_usage
   - dcloud_import
   - dcloud_chatbot
+
+# Disable unused modules to keep the installation lean
+uninstall:
+  - search
+  - contact
+  - block_content
+  - announcements_feed
+  - update
 
 config:
   strict:
