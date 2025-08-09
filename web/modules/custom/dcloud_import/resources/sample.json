@@ -7,11 +7,6 @@
       "body": true,
       "fields": [
         {
-          "id": "path",
-          "label": "Path",
-          "type": "string"
-        },
-        {
           "id": "event_date",
           "label": "Event Date",
           "type": "datetime"
@@ -82,9 +77,9 @@
     {
       "id": "event1",
       "type": "node.event",
+      "path": "/events/web-dev-conference-2024",
       "values": {
         "title": "Web Development Conference 2024",
-        "path": "/events/web-dev-conference-2024",
         "body": "<p>Join us for a full day of learning about modern web development...</p>",
         "event_date": "2024-03-15T09:00:00",
         "location": "Convention Center Downtown",

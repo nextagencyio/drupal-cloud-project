@@ -5,3 +5,25 @@ dcloud_import.import_form:
     _title: 'Drupal Content Import'
   requirements:
     _permission: 'administer site configuration'
+
+dcloud_import.api_import:
+  path: '/api/dcloud-import'
+  defaults:
+    _controller: '\Drupal\dcloud_import\Controller\ImportApiController::import'
+  requirements:
+    _permission: 'access dcloud import api'
+  methods: [POST]
+
+dcloud_import.api_test:
+  path: '/dcloud-test'
+  defaults:
+    _controller: '\Drupal\dcloud_import\Controller\ImportApiController::status'
+  requirements:
+    _access: 'TRUE'
+
+dcloud_import.api_status:
+  path: '/api/dcloud-import/status'
+  defaults:
+    _controller: '\Drupal\dcloud_import\Controller\ImportApiController::status'
+  requirements:
+    _access: 'TRUE'

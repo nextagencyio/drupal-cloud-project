@@ -50,33 +50,44 @@ class DrupalImportForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['description'] = [
-      '#markup' => '<p>' . $this->t('Import Drupal content types, paragraph types, and content from JSON configuration.') . '</p>',
+      '#markup' => '<p>' . $this->t('Import Drupal content types, paragraph types, and content from JSON configuration.') . '</p>' .
+                   '<p><strong>' . $this->t('Note:') . '</strong> ' . $this->t('GraphQL Compose will be automatically configured for all imported content types with all GraphQL options and fields enabled.') . '</p>',
+    ];
+
+    // Add collapsed fieldset with example JSON
+    $form['example'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Example JSON'),
+      '#open' => FALSE,
+    ];
+
+    $form['example']['example_json'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Example Configuration'),
+      '#description' => $this->t('This is an example JSON configuration showing the structure. You can copy from here.'),
+      '#rows' => 20,
+      '#default_value' => $this->getStaticExampleJson(),
     ];
 
     $form['json_data'] = [
       '#type' => 'textarea',
       '#title' => $this->t('JSON Configuration'),
-      '#description' => $this->t('Paste your Drupal content configuration in JSON format.'),
       '#rows' => 20,
       '#required' => TRUE,
-      '#default_value' => $this->getExampleJson(),
     ];
 
     $form['preview'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Preview mode'),
-      '#description' => $this->t('Check this to preview what would be created without actually creating it.'),
-      '#default_value' => TRUE,
+      '#default_value' => FALSE,
     ];
 
     $form['actions'] = [
       '#type' => 'actions',
-    ];
-
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Import'),
-      '#button_type' => 'primary',
+      'submit' => [
+        '#type' => 'submit',
+        '#value' => $this->t('Import'),
+      ],
     ];
 
     return $form;
@@ -148,8 +159,15 @@ class DrupalImportForm extends FormBase {
       }
 
       // Display the results.
-      foreach ($result as $operation) {
-        $this->messenger()->addStatus($operation);
+      if (isset($result['summary']) && is_array($result['summary'])) {
+        foreach ($result['summary'] as $message) {
+          $this->messenger()->addStatus($message);
+        }
+      }
+      if (isset($result['warnings']) && is_array($result['warnings'])) {
+        foreach ($result['warnings'] as $warning) {
+          $this->messenger()->addWarning($warning);
+        }
       }
     }
     catch (\Exception $e) {
@@ -180,52 +198,169 @@ class DrupalImportForm extends FormBase {
     return json_encode([
       'model' => [
         [
-          'bundle' => 'blog_post',
-          'label' => 'Blog Post',
+          'bundle' => 'event',
+          'description' => 'Content type for managing events, conferences, and gatherings',
+          'label' => 'Event',
           'body' => TRUE,
           'fields' => [
-            ['id' => 'slug', 'label' => 'Slug', 'type' => 'string'],
-            ['id' => 'hero_section', 'label' => 'Hero Section', 'type' => 'paragraph(hero_section)'],
-            ['id' => 'publish_date', 'label' => 'Publish Date', 'type' => 'date'],
+            ['id' => 'path', 'label' => 'Path', 'type' => 'string'],
+            ['id' => 'event_date', 'label' => 'Event Date', 'type' => 'datetime'],
+            ['id' => 'location', 'label' => 'Location', 'type' => 'string'],
+            ['id' => 'event_details', 'label' => 'Event Details', 'type' => 'paragraph(event_detail)[]'],
             ['id' => 'tags', 'label' => 'Tags', 'type' => 'term(tags)[]'],
             ['id' => 'featured', 'label' => 'Featured', 'type' => 'bool'],
           ],
         ],
         [
           'entity' => 'paragraph',
-          'bundle' => 'hero_section',
-          'label' => 'Hero Section',
+          'bundle' => 'event_detail',
+          'description' => 'Reusable content blocks for event information and details',
+          'label' => 'Event Detail',
           'fields' => [
-            ['id' => 'title', 'label' => 'Title', 'type' => 'string!'],
-            ['id' => 'subtitle', 'label' => 'Subtitle', 'type' => 'string'],
-            ['id' => 'background_image', 'label' => 'Background Image', 'type' => 'image'],
+            ['id' => 'detail_title', 'label' => 'Detail Title', 'type' => 'string!'],
+            ['id' => 'detail_content', 'label' => 'Detail Content', 'type' => 'text'],
+            ['id' => 'detail_image', 'label' => 'Detail Image', 'type' => 'image'],
           ],
         ],
       ],
       'content' => [
         [
-          'id' => 'hero1',
-          'type' => 'paragraph.hero_section',
+          'id' => 'detail1',
+          'type' => 'paragraph.event_detail',
           'values' => [
-            'title' => 'Welcome to Our Site',
-            'subtitle' => 'Building amazing web experiences',
+            'detail_title' => 'Schedule',
+            'detail_content' => 'The event will run from 9:00 AM to 5:00 PM with lunch break at noon.',
           ],
         ],
         [
-          'id' => 'post1',
-          'type' => 'node.blog_post',
+          'id' => 'detail2',
+          'type' => 'paragraph.event_detail',
           'values' => [
-            'title' => 'Getting Started with Headless CMS',
-            'slug' => 'getting-started-headless-cms',
-            'body' => '<p>This is a comprehensive guide...</p>',
-            'publish_date' => '2024-01-15',
-            'tags' => ['cms', 'headless', 'tutorial'],
+            'detail_title' => 'Speakers',
+            'detail_content' => 'Join us for presentations by industry experts and thought leaders.',
+          ],
+        ],
+        [
+          'id' => 'event1',
+          'type' => 'node.event',
+          'values' => [
+            'title' => 'Web Development Conference 2024',
+            'path' => '/events/web-dev-conference-2024',
+            'body' => '<p>Join us for a full day of learning about modern web development...</p>',
+            'event_date' => '2024-03-15T09:00:00',
+            'location' => 'Convention Center Downtown',
+            'tags' => ['web-development', 'conference', 'technology'],
             'featured' => TRUE,
-            'hero_section' => '@hero1',
+            'event_details' => ['@detail1', '@detail2'],
           ],
         ],
       ],
     ], JSON_PRETTY_PRINT);
+  }
+
+  /**
+   * Returns static example JSON for the form.
+   *
+   * @return string
+   *   Example JSON configuration.
+   */
+  private function getStaticExampleJson(): string {
+    return '{
+  "model": [
+    {
+      "bundle": "event",
+      "description": "Content type for managing events, conferences, and gatherings",
+      "label": "Event",
+      "body": true,
+      "fields": [
+        {
+          "id": "event_date",
+          "label": "Event Date",
+          "type": "datetime"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "string"
+        },
+        {
+          "id": "event_details",
+          "label": "Event Details",
+          "type": "paragraph(event_detail)[]"
+        },
+        {
+          "id": "tags",
+          "label": "Tags",
+          "type": "term(tags)[]"
+        },
+        {
+          "id": "featured",
+          "label": "Featured",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "entity": "paragraph",
+      "bundle": "event_detail",
+      "description": "Reusable content blocks for event information and details",
+      "label": "Event Detail",
+      "fields": [
+        {
+          "id": "detail_title",
+          "label": "Detail Title",
+          "type": "string!"
+        },
+        {
+          "id": "detail_content",
+          "label": "Detail Content",
+          "type": "text"
+        },
+        {
+          "id": "detail_image",
+          "label": "Detail Image",
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "content": [
+    {
+      "id": "detail1",
+      "type": "paragraph.event_detail",
+      "values": {
+        "detail_title": "Schedule",
+        "detail_content": "The event will run from 9:00 AM to 5:00 PM with lunch break at noon."
+      }
+    },
+    {
+      "id": "detail2",
+      "type": "paragraph.event_detail",
+      "values": {
+        "detail_title": "Speakers",
+        "detail_content": "Join us for presentations by industry experts and thought leaders."
+      }
+    },
+    {
+      "id": "event1",
+      "type": "node.event",
+      "path": "/events/web-dev-conference-2024",
+      "values": {
+        "title": "Web Development Conference 2024",
+        "body": "<p>Join us for a full day of learning about modern web development...</p>",
+        "event_date": "2024-03-15T09:00:00",
+        "location": "Convention Center Downtown",
+        "tags": [
+          "web-development",
+          "conference",
+          "technology"
+        ],
+        "featured": true,
+        "event_details": ["@detail1", "@detail2"]
+      }
+    }
+  ]
+}';
   }
 
 }

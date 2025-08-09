@@ -97,6 +97,13 @@ class DrupalContentImporter {
       }
     }
 
+    // Configure GraphQL Compose after all bundles and fields are created.
+    foreach ($bundle_defs as $def) {
+      $entity_type = $def['entity'] ?? 'node';
+      $bundle = $def['bundle'];
+      $this->configureGraphQLCompose($entity_type, $bundle, $preview_mode, $result);
+    }
+
     // Create content if present.
     if (!empty($data['content']) && is_array($data['content'])) {
       $this->createContentConcise($data['content'], $preview_mode, $result);
@@ -381,6 +388,12 @@ class DrupalContentImporter {
     }
     $node = $node_storage->create($node_data);
     $node->save();
+    
+    // Handle path alias if specified.
+    if (isset($item['path']) && !empty($item['path'])) {
+      $this->createPathAlias($node, $item['path'], $result);
+    }
+    
     $result['summary'][] = "Created node: {$node_data['title']} (ID: {$node->id()}, type: {$bundle})";
     return $node;
   }
@@ -738,6 +751,125 @@ class DrupalContentImporter {
     ]);
     $field_config->save();
     $result['summary'][] = "Added body field to node type: {$bundle}";
+  }
+
+  /**
+   * Configure GraphQL Compose settings for a content type.
+   *
+   * @param string $entity_type
+   *   The entity type ('node' or 'paragraph').
+   * @param string $bundle
+   *   The bundle/content type machine name.
+   * @param bool $preview_mode
+   *   Whether this is preview mode.
+   * @param array &$result
+   *   The result array to add messages to.
+   */
+  private function configureGraphQLCompose(string $entity_type, string $bundle, bool $preview_mode, array &$result): void {
+    if ($preview_mode) {
+      $result['summary'][] = "Would configure GraphQL Compose for {$entity_type}.{$bundle}";
+      return;
+    }
+
+    // Check if GraphQL Compose is available.
+    if (!\Drupal::moduleHandler()->moduleExists('graphql_compose')) {
+      $result['warnings'][] = "GraphQL Compose module not found, skipping GraphQL configuration for {$entity_type}.{$bundle}";
+      return;
+    }
+
+    $config_name = "graphql_compose.settings";
+    $config = $this->configFactory->getEditable($config_name);
+    
+    // Get current settings.
+    $entity_config = $config->get('entity_config') ?: [];
+    $field_config = $config->get('field_config') ?: [];
+    
+    // Configure the entity type and bundle in entity_config.
+    if (!isset($entity_config[$entity_type])) {
+      $entity_config[$entity_type] = [];
+    }
+    
+    // Enable all the main GraphQL options.
+    $entity_config[$entity_type][$bundle] = [
+      'enabled' => TRUE,
+      'query_load_enabled' => TRUE,
+      'edges_enabled' => TRUE,
+    ];
+    
+    // Enable routes for nodes only.
+    if ($entity_type === 'node') {
+      $entity_config[$entity_type][$bundle]['routes_enabled'] = TRUE;
+    }
+    
+    // Configure field_config section.
+    if (!isset($field_config[$entity_type])) {
+      $field_config[$entity_type] = [];
+    }
+    if (!isset($field_config[$entity_type][$bundle])) {
+      $field_config[$entity_type][$bundle] = [];
+    }
+    
+    // Get all fields for this bundle and enable them.
+    $field_definitions = $this->entityTypeManager->getStorage('field_config')->loadByProperties([
+      'entity_type' => $entity_type,
+      'bundle' => $bundle,
+    ]);
+    
+    // Enable base fields for nodes.
+    if ($entity_type === 'node') {
+      $base_fields = ['body', 'title', 'created', 'changed', 'status', 'path'];
+      foreach ($base_fields as $base_field) {
+        $field_config[$entity_type][$bundle][$base_field] = ['enabled' => TRUE];
+      }
+    }
+    
+    // Enable all custom fields.
+    foreach ($field_definitions as $field_definition) {
+      $field_name = $field_definition->getName();
+      $field_config[$entity_type][$bundle][$field_name] = ['enabled' => TRUE];
+    }
+    
+    // Save both configurations.
+    $config->set('entity_config', $entity_config);
+    $config->set('field_config', $field_config);
+    $config->save();
+    
+    $result['summary'][] = "Configured GraphQL Compose for {$entity_type}.{$bundle} with all fields enabled";
+  }
+
+  /**
+   * Create a URL alias for a node.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node entity.
+   * @param string $path
+   *   The desired path alias.
+   * @param array &$result
+   *   The result array to add messages to.
+   */
+  private function createPathAlias($node, string $path, array &$result): void {
+    // Check if path alias module is available.
+    if (!\Drupal::moduleHandler()->moduleExists('path_alias')) {
+      $result['warnings'][] = "Path alias module not available, cannot set path for node {$node->id()}";
+      return;
+    }
+
+    // Get the path alias storage.
+    $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
+    
+    // Create the path alias.
+    $path_alias = $path_alias_storage->create([
+      'path' => '/node/' . $node->id(),
+      'alias' => $path,
+      'langcode' => $node->language()->getId(),
+    ]);
+    
+    try {
+      $path_alias->save();
+      $result['summary'][] = "Created path alias: {$path} for node {$node->id()}";
+    } catch (\Exception $e) {
+      $result['warnings'][] = "Failed to create path alias '{$path}' for node {$node->id()}: " . $e->getMessage();
+    }
   }
 }
 
