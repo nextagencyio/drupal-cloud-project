@@ -40,6 +40,8 @@
 
     this.isOpen = false;
     this.messageHistory = [];
+    this.currentMode = null; // 'model-content' or 'question-answer'
+    this.modelContentStep = null; // Track model content flow step
 
     // DOM elements
     this.trigger = container.querySelector('#dcloud-chatbot-trigger');
@@ -51,6 +53,8 @@
     this.loading = container.querySelector('#dcloud-chatbot-loading');
     this.sendBtn = container.querySelector('.dcloud-chatbot-send');
     this.backdrop = document.querySelector('#dcloud-chatbot-backdrop');
+    this.initialOptions = container.querySelector('#dcloud-chatbot-initial-options');
+    this.inputContainer = container.querySelector('.dcloud-chatbot-input-container');
   }
 
   DCloudChatbot.prototype.init = function () {
@@ -71,6 +75,7 @@
     this.bindEvents();
     this.setupAutoTrigger();
     this.updateWelcomeTime();
+    this.initializeInitialState();
   };
 
   DCloudChatbot.prototype.bindEvents = function () {
@@ -115,6 +120,15 @@
         }
       });
     }
+
+    // Action button handlers
+    const actionButtons = this.container.querySelectorAll('.chatbot-action-btn');
+    actionButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const action = button.getAttribute('data-action');
+        this.handleActionButton(action);
+      });
+    });
   };
 
   DCloudChatbot.prototype.setupAutoTrigger = function () {
@@ -178,6 +192,40 @@
     this.trigger.focus();
   };
 
+  DCloudChatbot.prototype.initializeInitialState = function () {
+    // Hide input container initially
+    this.inputContainer.classList.add('hidden');
+  };
+
+  DCloudChatbot.prototype.handleActionButton = function (action) {
+    this.currentMode = action;
+    
+    // Hide initial options
+    this.initialOptions.classList.add('hidden');
+    
+    // Show input container
+    this.inputContainer.classList.remove('hidden');
+    
+    if (action === 'model-content') {
+      this.startModelContentFlow();
+    } else if (action === 'answer-question') {
+      this.startQuestionAnswerFlow();
+    }
+  };
+
+  DCloudChatbot.prototype.startModelContentFlow = function () {
+    this.modelContentStep = 'description';
+    this.addMessage('I\'ll help you create a content model. Please describe the type of content you want to model (e.g., "a blog post with title, content, author, and tags" or "an event with date, location, and details").', 'bot');
+    this.input.placeholder = 'Describe your content type...';
+    this.input.focus();
+  };
+
+  DCloudChatbot.prototype.startQuestionAnswerFlow = function () {
+    this.addMessage('I\'m here to help answer your questions about Drupal Cloud! What would you like to know?', 'bot');
+    this.input.placeholder = 'Ask your question...';
+    this.input.focus();
+  };
+
   DCloudChatbot.prototype.sendMessage = function () {
     const message = this.input.value.trim();
     if (!message || this.sendBtn.disabled) {
@@ -191,7 +239,33 @@
     this.input.value = '';
     this.setSendingState(true);
 
-    // Send to API
+    if (this.currentMode === 'model-content') {
+      this.handleModelContentMessage(message);
+    } else {
+      this.handleQuestionAnswerMessage(message);
+    }
+  };
+
+  DCloudChatbot.prototype.handleModelContentMessage = function (message) {
+    if (this.modelContentStep === 'description') {
+      // Process the content description and generate import configuration
+      this.callModelContentAPI(message)
+        .then(response => {
+          this.addMessage(response.response, 'bot');
+          this.setSendingState(false);
+          this.input.focus();
+        })
+        .catch(error => {
+          console.error('Model content API error:', error);
+          this.addMessage('Sorry, I encountered an error while generating your content model. Please try again.', 'bot', true);
+          this.setSendingState(false);
+          this.input.focus();
+        });
+    }
+  };
+
+  DCloudChatbot.prototype.handleQuestionAnswerMessage = function (message) {
+    // Send to regular chat API
     this.callChatAPI(message)
       .then(response => {
         this.addMessage(response.response, 'bot');
@@ -309,6 +383,39 @@
       });
   };
 
+  DCloudChatbot.prototype.callModelContentAPI = function (contentDescription) {
+    return fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: contentDescription,
+        mode: 'model-content',
+        context: {
+          spaceId: this.getSpaceId(),
+          timestamp: Date.now(),
+        }
+      })
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(errorData => {
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }).catch(() => {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        return data;
+      });
+  };
+
   // Helper method to extract space ID from URL or configuration
   DCloudChatbot.prototype.getSpaceId = function () {
     // Try to get from drupalSettings first
@@ -354,12 +461,15 @@
                .replace(/"/g, '&quot;')
                .replace(/'/g, '&#039;');
 
+    // Convert newlines to line breaks for processing
+    text = text.replace(/\n/g, '<br>');
+
     // Parse markdown elements
     // Bold text **text**
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
-    // Italic text *text*
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // Italic text *text* (but not at start of line to avoid conflicts with lists)
+    text = text.replace(/(?<!^|\s)\*(.*?)\*/g, '<em>$1</em>');
     
     // Code `code`
     text = text.replace(/`(.*?)`/g, '<code>$1</code>');
@@ -415,7 +525,12 @@
           listType = null;
         }
         if (line) {
-          result.push(line);
+          // Handle paragraphs - wrap non-header, non-list content in <p> tags
+          if (!line.match(/^<h[123]>/) && line.length > 0) {
+            result.push(`<p>${line}</p>`);
+          } else {
+            result.push(line);
+          }
         }
       }
     }
@@ -425,7 +540,11 @@
       result.push(`</${listType}>`);
     }
     
-    text = result.join('<br>');
+    // Join without <br> since we're using proper HTML elements now
+    text = result.join('');
+    
+    // Clean up any remaining <br> tags that might interfere
+    text = text.replace(/<br>/g, '');
     
     return text;
   };

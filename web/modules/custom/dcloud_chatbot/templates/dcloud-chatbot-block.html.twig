@@ -54,10 +54,21 @@
     </div>
 
     <div id="dcloud-chatbot-messages" class="dcloud-chatbot-messages">
-      <div class="dcloud-chatbot-welcome">
+      <div id="dcloud-chatbot-welcome" class="dcloud-chatbot-welcome">
         <div class="dcloud-chatbot-message bot-message">
           <div class="message-content">{{ welcome_message }}</div>
           <div class="message-time"></div>
+        </div>
+      </div>
+      
+      <div id="dcloud-chatbot-initial-options" class="dcloud-chatbot-initial-options">
+        <div class="chatbot-action-buttons">
+          <button type="button" class="chatbot-action-btn" data-action="model-content">
+            Model Content
+          </button>
+          <button type="button" class="chatbot-action-btn" data-action="answer-question">
+            Answer a Question
+          </button>
         </div>
       </div>
     </div>

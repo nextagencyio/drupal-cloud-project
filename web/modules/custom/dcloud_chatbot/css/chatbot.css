@@ -322,7 +322,8 @@
 }
 
 .bot-message .message-content p {
-  margin: 8px 0;
+  margin: 0 0 12px 0;
+  line-height: 1.6;
 }
 
 .bot-message .message-content p:first-child {
@@ -330,6 +331,14 @@
 }
 
 .bot-message .message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.bot-message .message-content > *:first-child {
+  margin-top: 0;
+}
+
+.bot-message .message-content > *:last-child {
   margin-bottom: 0;
 }
 
@@ -359,23 +368,25 @@
 .input-wrapper {
   display: flex;
   flex: 1;
-  border: 2px solid #e5e7eb;
-  border-radius: 24px;
+  border: 2px solid #8b5cf6;
+  border-radius: 28px;
   overflow: hidden;
   background: white;
   transition: border-color 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  align-items: center;
 }
 
 .input-wrapper:focus-within {
-  border-color: #4f46e5;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+  border-color: #7c3aed;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
 }
 
 .dcloud-chatbot-input {
   flex: 1;
   border: none;
-  padding: 14px 18px;
+  border-right: none;
+  padding: 16px 20px;
   font-size: 14px;
   background: transparent;
   outline: none;
@@ -387,18 +398,20 @@
 }
 
 .dcloud-chatbot-send {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
   border: none;
   color: white;
-  padding: 14px 18px;
+  padding: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-radius: 20px;
-  margin: 2px;
+  border-radius: 50%;
+  margin: 4px;
+  margin-left: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 48px;
+  width: 44px;
+  height: 44px;
 }
 
 .dcloud-chatbot-send:hover {
@@ -554,6 +567,51 @@
   .loading-dots span {
     animation: none;
   }
+}
+
+/* Action Buttons */
+.chatbot-action-buttons {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px;
+  margin-top: 8px;
+}
+
+.chatbot-action-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chatbot-action-btn:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.chatbot-action-btn:active {
+  transform: translateY(0);
+}
+
+/* Initial options container */
+.dcloud-chatbot-initial-options {
+  display: block;
+}
+
+.dcloud-chatbot-initial-options.hidden {
+  display: none;
+}
+
+/* Input container hidden state */
+.dcloud-chatbot-input-container.hidden {
+  display: none;
 }
 
 /* High contrast mode */
