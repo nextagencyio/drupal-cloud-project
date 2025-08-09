@@ -1,0 +1,7 @@
+name: 'DCloud Chatbot'
+type: module
+description: 'Provides chatbot functionality for DCloud sites with API key authentication'
+package: Custom
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:system

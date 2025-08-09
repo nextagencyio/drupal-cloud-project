@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * DCloud Chatbot module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function dcloud_chatbot_theme() {
+  return [
+    'dcloud_chatbot_block' => [
+      'variables' => [
+        'button_text' => NULL,
+        'button_position' => NULL,
+        'button_color' => NULL,
+        'show_on_mobile' => NULL,
+        'trigger_delay' => NULL,
+        'welcome_message' => NULL,
+      ],
+      'template' => 'dcloud-chatbot-block',
+    ],
+  ];
+}

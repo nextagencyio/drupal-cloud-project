@@ -88,6 +88,7 @@ install:
   - dcloud_config
   - dcloud_usage
   - dcloud_import
+  - dcloud_chatbot
 
 config:
   strict:
@@ -172,6 +173,9 @@ config:
       - block.block.gin_primary_local_tasks
     gin_toolbar: '*'
     gin_login: '*'
+
+    # DCloud Chatbot configuration
+    dcloud_chatbot: '*'
 
 
 

@@ -1,0 +1,5 @@
+enabled: false
+api_key: ''
+welcome_message: 'Hello! How can I help you today?'
+rate_limit: 60
+nextjs_api_url: ''
