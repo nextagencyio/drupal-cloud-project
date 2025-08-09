@@ -132,17 +132,17 @@ class ChatbotService {
       $request = \Drupal::request();
       $host = $request->getHttpHost();
 
-      if (strpos($host, 'localhost') !== FALSE || strpos($host, '127.0.0.1') !== FALSE) {
-        $nextjsApiUrl = 'http://localhost:3000';
+      if (strpos($host, 'localhost') !== FALSE || strpos($host, '127.0.0.1') !== FALSE || strpos($host, '.ddev.site') !== FALSE) {
+        $nextjsApiUrl = 'http://host.docker.internal:3333/api/chatbot';
       }
       else {
         // Production: assume dashboard subdomain
         $parts = explode('.', $host);
         if (count($parts) >= 2) {
-          $nextjsApiUrl = 'https://dashboard.' . implode('.', array_slice($parts, 1));
+          $nextjsApiUrl = 'https://dashboard.' . implode('.', array_slice($parts, 1)) . '/api/chatbot';
         }
         else {
-          $nextjsApiUrl = 'https://dashboard.drupalcloud.com';
+          $nextjsApiUrl = 'https://dashboard.drupalcloud.com/api/chatbot';
         }
       }
     }
@@ -161,7 +161,7 @@ class ChatbotService {
       }
     }
 
-    $apiUrl = rtrim($nextjsApiUrl, '/') . '/api/chatbot';
+    $apiUrl = rtrim($nextjsApiUrl, '/');
 
     $payload = [
       'message' => $message,

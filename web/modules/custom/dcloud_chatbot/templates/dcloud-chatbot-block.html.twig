@@ -12,6 +12,9 @@
  * - welcome_message: Welcome message for the chatbot.
  */
 #}
+{# Backdrop for overlay effect #}
+<div id="dcloud-chatbot-backdrop" class="dcloud-chatbot-backdrop" aria-hidden="true"></div>
+
 <div id="dcloud-chatbot-container"
      class="dcloud-chatbot-container {{ button_position }}{% if not show_on_mobile %} hide-mobile{% endif %}"
      data-position="{{ button_position }}"
@@ -40,7 +43,7 @@
   {# Off-canvas chatbot panel #}
   <div id="dcloud-chatbot-panel" class="dcloud-chatbot-panel" aria-hidden="true">
     <div class="dcloud-chatbot-header">
-      <h3 class="dcloud-chatbot-title">{{ 'Chat Support'|t }}</h3>
+      <h3 class="dcloud-chatbot-title">{{ 'Drupal Cloud Chat'|t }}</h3>
       <button id="dcloud-chatbot-close"
               class="dcloud-chatbot-close"
               type="button"

@@ -46,30 +46,17 @@ class ChatbotConfigForm extends ConfigFormBase {
       '#maxlength' => 255,
     ];
 
-    $form['welcome_message'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Welcome Message'),
-      '#description' => $this->t('The message displayed when users first interact with the chatbot.'),
-      '#default_value' => $config->get('welcome_message', 'Hello! How can I help you today?'),
-      '#rows' => 3,
-    ];
 
-    $form['rate_limit'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Rate Limit (requests per minute)'),
-      '#description' => $this->t('Maximum number of chat requests allowed per minute per IP address.'),
-      '#default_value' => $config->get('rate_limit', 60),
-      '#min' => 1,
-      '#max' => 1000,
-    ];
 
     $form['nextjs_api_url'] = [
       '#type' => 'url',
-      '#title' => $this->t('Next.js API URL'),
-      '#description' => $this->t('The URL of the Next.js dashboard API (e.g., https://dashboard.example.com). Leave empty to use automatic detection.'),
+      '#title' => $this->t('Drupal Cloud Chatbot API URL'),
+      '#description' => $this->t('The URL endpoint for communicating with Drupal Cloud\'s centralized AI system. This connects your site\'s chatbot to our intelligent response engine.'),
       '#default_value' => $config->get('nextjs_api_url', ''),
       '#maxlength' => 255,
+      '#placeholder' => 'http://host.docker.internal:3333/api/chatbot',
     ];
+
 
     return parent::buildForm($form, $form_state);
   }
@@ -81,8 +68,6 @@ class ChatbotConfigForm extends ConfigFormBase {
     $this->config('dcloud_chatbot.settings')
       ->set('enabled', $form_state->getValue('enabled'))
       ->set('api_key', $form_state->getValue('api_key'))
-      ->set('welcome_message', $form_state->getValue('welcome_message'))
-      ->set('rate_limit', $form_state->getValue('rate_limit'))
       ->set('nextjs_api_url', $form_state->getValue('nextjs_api_url'))
       ->save();
 

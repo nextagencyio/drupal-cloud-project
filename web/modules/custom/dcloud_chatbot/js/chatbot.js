@@ -50,6 +50,7 @@
     this.messages = container.querySelector('#dcloud-chatbot-messages');
     this.loading = container.querySelector('#dcloud-chatbot-loading');
     this.sendBtn = container.querySelector('.dcloud-chatbot-send');
+    this.backdrop = document.querySelector('#dcloud-chatbot-backdrop');
   }
 
   DCloudChatbot.prototype.init = function () {
@@ -104,13 +105,14 @@
       }
     });
 
-    // Close when clicking outside (optional)
-    document.addEventListener('click', (e) => {
-      if (this.isOpen && !this.container.contains(e.target)) {
-        // Optional: close when clicking outside
-        // this.close();
-      }
-    });
+    // Close when clicking backdrop
+    if (this.backdrop) {
+      this.backdrop.addEventListener('click', (e) => {
+        if (this.isOpen) {
+          this.close();
+        }
+      });
+    }
   };
 
   DCloudChatbot.prototype.setupAutoTrigger = function () {
@@ -143,10 +145,16 @@
     this.panel.setAttribute('aria-hidden', 'false');
     this.isOpen = true;
 
+    // Show backdrop
+    if (this.backdrop) {
+      this.backdrop.classList.add('show');
+      this.backdrop.setAttribute('aria-hidden', 'false');
+    }
+
     // Focus input
     setTimeout(() => {
       this.input.focus();
-    }, 300);
+    }, 400);
 
     // Update trigger button
     this.trigger.setAttribute('aria-expanded', 'true');
@@ -156,6 +164,12 @@
     this.panel.classList.remove('open');
     this.panel.setAttribute('aria-hidden', 'true');
     this.isOpen = false;
+
+    // Hide backdrop
+    if (this.backdrop) {
+      this.backdrop.classList.remove('show');
+      this.backdrop.setAttribute('aria-hidden', 'true');
+    }
 
     // Update trigger button
     this.trigger.setAttribute('aria-expanded', 'false');
@@ -309,7 +323,7 @@
 
     // Development fallback
     if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
-      return 'http://localhost:3000';
+      return 'http://localhost:3333';
     }
 
     // Production fallback - assume same domain but different port or subdomain

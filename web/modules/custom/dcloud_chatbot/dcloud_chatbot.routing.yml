@@ -15,9 +15,9 @@ dcloud_chatbot.config:
   methods: [GET, POST]
 
 dcloud_chatbot.admin:
-  path: '/admin/config/services/dcloud-chatbot'
+  path: '/admin/config/dcloud/chatbot'
   defaults:
     _form: '\Drupal\dcloud_chatbot\Form\ChatbotConfigForm'
-    _title: 'DCloud Chatbot Settings'
+    _title: 'Chatbot Settings'
   requirements:
     _permission: 'administer dcloud chatbot'

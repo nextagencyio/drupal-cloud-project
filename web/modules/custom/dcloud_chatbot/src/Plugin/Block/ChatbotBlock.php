@@ -163,7 +163,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
       '#button_color' => $block_config['button_color'],
       '#show_on_mobile' => $block_config['show_on_mobile'],
       '#trigger_delay' => $block_config['trigger_delay'],
-      '#welcome_message' => $config->get('welcome_message', 'Hello! How can I help you today?'),
+      '#welcome_message' => 'Hello! I\'m your Drupal Cloud assistant. How can I help you today?',
       '#attached' => [
         'library' => [
           'dcloud_chatbot/chatbot',
@@ -175,7 +175,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
             'buttonColor' => $block_config['button_color'],
             'showOnMobile' => $block_config['show_on_mobile'],
             'triggerDelay' => $block_config['trigger_delay'] * 1000, // Convert to milliseconds
-            'welcomeMessage' => $config->get('welcome_message', 'Hello! How can I help you today?'),
+            'welcomeMessage' => 'Hello! I\'m your Drupal Cloud assistant. How can I help you today?',
             'spaceId' => $this->getSpaceId(),
             'nextjsApiUrl' => $this->getNextjsApiUrl(),
           ],
@@ -243,17 +243,17 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
     $request = \Drupal::request();
     $host = $request->getHttpHost();
     
-    if (strpos($host, 'localhost') !== FALSE || strpos($host, '127.0.0.1') !== FALSE) {
-      return 'http://localhost:3000';
+    if (strpos($host, 'localhost') !== FALSE || strpos($host, '127.0.0.1') !== FALSE || strpos($host, '.ddev.site') !== FALSE) {
+      return 'http://host.docker.internal:3333/api/chatbot';
     }
 
     // Production fallback - assume dashboard subdomain
     $parts = explode('.', $host);
     if (count($parts) >= 2) {
-      return 'https://dashboard.' . implode('.', array_slice($parts, 1));
+      return 'https://dashboard.' . implode('.', array_slice($parts, 1)) . '/api/chatbot';
     }
 
-    return 'https://dashboard.drupalcloud.com';
+    return 'https://dashboard.drupalcloud.com/api/chatbot';
   }
 
 }
