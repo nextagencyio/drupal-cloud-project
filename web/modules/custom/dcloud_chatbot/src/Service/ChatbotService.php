@@ -126,7 +126,7 @@ class ChatbotService {
     $config = $this->configFactory->get('dcloud_chatbot.settings');
 
     // Get Next.js API URL from configuration
-    $nextjsApiUrl = $config->get('nextjs_api_url');
+    $nextjsApiUrl = $config->get('api_url');
     if (empty($nextjsApiUrl)) {
       // Fallback to auto-detection based on current request
       $request = \Drupal::request();
@@ -168,6 +168,11 @@ class ChatbotService {
       'spaceId' => $spaceId,
       'context' => $context,
     ];
+
+    // Forward mode parameter if present in context
+    if (isset($context['mode'])) {
+      $payload['mode'] = $context['mode'];
+    }
 
     $options = [
       'http' => [

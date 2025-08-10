@@ -95,18 +95,34 @@ class ChatbotController extends ControllerBase {
   }
 
   /**
-   * Handle model content requests by forwarding to Next.js API.
+   * Handle model content requests by calling Next.js API and importing results.
    */
   private function handleModelContentRequest(array $data) {
     try {
-      // Generate the configuration
-      $json_config = $this->generateContentModelConfig($data['message']);
+      // Get AI-generated configuration from Next.js API
+      $aiResponse = $this->chatbotService->processMessage($data['message'], $data);
       
-      // Import the configuration using dcloud_import
-      $import_result = $this->importConfiguration($json_config);
+      // Extract JSON from AI response
+      if (preg_match('/```json\s*([\s\S]*?)\s*```/', $aiResponse, $matches)) {
+        $jsonConfig = json_decode($matches[1], TRUE);
+        
+        if (json_last_error() === JSON_ERROR_NONE && isset($jsonConfig['model'])) {
+          // Import directly using the dcloud_import service
+          $importer = \Drupal::service('dcloud_import.importer');
+          $importResult = $importer->import($jsonConfig, FALSE);
+          
+          // Format the success message
+          $response = $this->formatImportResult($importResult);
+          
+          return new JsonResponse([
+            'response' => $response,
+            'timestamp' => time(),
+          ]);
+        }
+      }
       
-      // Return the result
-      $response = $this->formatImportResult($import_result);
+      // Fallback: return AI response with manual import instructions
+      $response = $aiResponse . "\n\n⚠️ **Configuration generated successfully!**\n\nYou can use the JSON configuration above to manually import via the [Import Form](/admin/config/content/dcloud-import).";
       
       return new JsonResponse([
         'response' => $response,
@@ -124,138 +140,6 @@ class ChatbotController extends ControllerBase {
     }
   }
 
-  /**
-   * Forward request to Next.js API.
-   */
-  private function forwardToNextjsApi(string $nextjs_api_url, array $data) {
-    try {
-      // For now, let's use a simple mock response to test the flow
-      $mock_response = "I'll create a blog post content type with title, content, author, and tags.\n\n```json\n{\n  \"model\": [\n    {\n      \"bundle\": \"blog_post\",\n      \"label\": \"Blog Post\",\n      \"description\": \"Content type for blog posts with title, content, author, and tags\",\n      \"body\": true,\n      \"fields\": [\n        {\n          \"id\": \"author\",\n          \"label\": \"Author\",\n          \"type\": \"string!\"\n        },\n        {\n          \"id\": \"tags\",\n          \"label\": \"Tags\",\n          \"type\": \"term(tags)[]\"\n        }\n      ]\n    }\n  ]\n}\n```\n\nConfiguration ready for dcloud_import.";
-      
-      return $mock_response;
-      
-      // TODO: Uncomment when Next.js API is properly configured
-      /*
-      $url = rtrim($nextjs_api_url, '/') . '/api/chatbot';
-      
-      $context = stream_context_create([
-        'http' => [
-          'method' => 'POST',
-          'header' => 'Content-Type: application/json',
-          'content' => json_encode($data),
-          'timeout' => 30,
-        ],
-      ]);
-
-      $response = file_get_contents($url, FALSE, $context);
-      
-      if ($response === FALSE) {
-        throw new \Exception('Failed to connect to Next.js API');
-      }
-
-      $decoded = json_decode($response, TRUE);
-      
-      if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new \Exception('Invalid response from Next.js API');
-      }
-
-      return $decoded['response'] ?? 'No response from API';
-      */
-    }
-    catch (\Exception $e) {
-      $this->getLogger('dcloud_chatbot')->error('API forwarding error: @message', [
-        '@message' => $e->getMessage(),
-      ]);
-      throw $e;
-    }
-  }
-
-  /**
-   * Generate content model configuration based on user description.
-   */
-  private function generateContentModelConfig(string $description) {
-    // Simple logic to generate basic configuration with sample content
-    // In a full implementation, this would call the AI service
-    
-    if (stripos($description, 'blog') !== FALSE) {
-      return [
-        'model' => [
-          [
-            'bundle' => 'blog_post',
-            'label' => 'Blog Post',
-            'description' => 'Content type for blog posts',
-            'body' => TRUE,
-            'fields' => [
-              [
-                'id' => 'author',
-                'label' => 'Author',
-                'type' => 'string!',
-              ],
-              [
-                'id' => 'tags',
-                'label' => 'Tags', 
-                'type' => 'term(tags)[]',
-              ],
-            ],
-          ],
-        ],
-        'content' => [
-          [
-            'id' => 'sample_blog_1',
-            'type' => 'node.blog_post',
-            'path' => '/blog/getting-started-drupal-cloud',
-            'values' => [
-              'title' => 'Getting Started with Drupal Cloud',
-              'body' => '<p>Welcome to Drupal Cloud! This is your first blog post to help you get started with the platform...</p>',
-              'author' => 'Admin User',
-              'tags' => [
-                'drupal',
-                'getting-started'
-              ],
-            ],
-          ],
-          [
-            'id' => 'sample_blog_2', 
-            'type' => 'node.blog_post',
-            'path' => '/blog/headless-cms-benefits',
-            'values' => [
-              'title' => 'Benefits of Headless CMS Architecture',
-              'body' => '<p>Discover the advantages of using a headless CMS approach for modern web development...</p>',
-              'author' => 'Content Manager',
-              'tags' => [
-                'headless',
-                'cms'
-              ],
-            ],
-          ],
-        ],
-      ];
-    }
-    
-    // Default configuration with sample content
-    return [
-      'model' => [
-        [
-          'bundle' => 'custom_content',
-          'label' => 'Custom Content',
-          'description' => 'Generated content type',
-          'body' => TRUE,
-          'fields' => [],
-        ],
-      ],
-      'content' => [
-        [
-          'id' => 'sample_content_1',
-          'type' => 'node.custom_content',
-          'path' => '/content/sample-content',
-          'values' => [
-            'title' => 'Sample Content',
-            'body' => '<p>This is sample content created by the chatbot.</p>',
-          ],
-        ],
-      ],
-    ];
-  }
 
   /**
    * Import configuration using dcloud_import service.
@@ -264,10 +148,10 @@ class ChatbotController extends ControllerBase {
     try {
       // Get the dcloud_import service
       $importer = \Drupal::service('dcloud_import.importer');
-      
+
       // Perform the import
       $result = $importer->import($config, FALSE);
-      
+
       return $result;
     }
     catch (\Exception $e) {
@@ -282,16 +166,16 @@ class ChatbotController extends ControllerBase {
     $summary = $result['summary'] ?? [];
     $warnings = $result['warnings'] ?? [];
     $created_nodes = $result['created_nodes'] ?? [];
-    
+
     if (empty($summary)) {
       return 'Configuration imported successfully!';
     }
-    
+
     $response = "✅ **Content model created successfully!**\n\n";
-    
+
     // Deduplicate summary items
     $unique_summary = array_unique($summary);
-    
+
     // Extract node information from summary messages for later use
     $created_content = [];
     foreach ($unique_summary as $item) {
@@ -300,7 +184,7 @@ class ChatbotController extends ControllerBase {
         $title = $matches[1];
         $nid = $matches[2];
         $type = $matches[3];
-        
+
         $created_content[] = [
           'title' => $title,
           'nid' => $nid,
@@ -308,11 +192,11 @@ class ChatbotController extends ControllerBase {
         ];
       }
     }
-    
+
     foreach ($unique_summary as $item) {
       $response .= "• {$item}\n";
     }
-    
+
     if (!empty($warnings)) {
       $response .= "\n⚠️ **Warnings:**\n";
       // Deduplicate warnings too
@@ -321,19 +205,19 @@ class ChatbotController extends ControllerBase {
         $response .= "• {$warning}\n";
       }
     }
-    
+
     // Add links to created content at the end
     if (!empty($created_content)) {
       $response .= "\n📄 **Sample content created:**\n";
       foreach ($created_content as $node_info) {
         $title = $node_info['title'];
         $nid = $node_info['nid'];
-        
+
         $edit_link = "/node/{$nid}/edit";
         $response .= "• [{$title}]({$edit_link})\n";
       }
     }
-    
+
     return $response;
   }
 
@@ -357,12 +241,12 @@ class ChatbotController extends ControllerBase {
         $config_editable->set('api_key', $data['api_key']);
         // Auto-enable the chatbot when API key is configured
         $config_editable->set('enabled', TRUE);
-        
+
         // Set Next.js API URL if provided
-        if (isset($data['nextjs_api_url'])) {
-          $config_editable->set('nextjs_api_url', $data['nextjs_api_url']);
+        if (isset($data['api_url'])) {
+          $config_editable->set('api_url', $data['api_url']);
         }
-        
+
         $config_editable->save();
 
         return new JsonResponse(['status' => 'API key updated and chatbot enabled']);

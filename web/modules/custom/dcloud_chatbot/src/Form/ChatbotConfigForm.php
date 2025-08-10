@@ -48,11 +48,11 @@ class ChatbotConfigForm extends ConfigFormBase {
 
 
 
-    $form['nextjs_api_url'] = [
+    $form['api_url'] = [
       '#type' => 'url',
       '#title' => $this->t('Drupal Cloud Chatbot API URL'),
       '#description' => $this->t('The URL endpoint for communicating with Drupal Cloud\'s centralized AI system. This connects your site\'s chatbot to our intelligent response engine.'),
-      '#default_value' => $config->get('nextjs_api_url', ''),
+      '#default_value' => $config->get('api_url', 'http://host.docker.internal:3333/api/chatbot'),
       '#maxlength' => 255,
       '#placeholder' => 'http://host.docker.internal:3333/api/chatbot',
     ];
@@ -68,7 +68,7 @@ class ChatbotConfigForm extends ConfigFormBase {
     $this->config('dcloud_chatbot.settings')
       ->set('enabled', $form_state->getValue('enabled'))
       ->set('api_key', $form_state->getValue('api_key'))
-      ->set('nextjs_api_url', $form_state->getValue('nextjs_api_url'))
+      ->set('api_url', $form_state->getValue('api_url'))
       ->save();
 
     parent::submitForm($form, $form_state);

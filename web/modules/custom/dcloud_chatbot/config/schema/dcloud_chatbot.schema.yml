@@ -25,6 +25,6 @@ dcloud_chatbot.settings:
     api_key:
       type: string
       label: 'API key'
-    nextjs_api_url:
+    api_url:
       type: string
       label: 'Next.js API URL'

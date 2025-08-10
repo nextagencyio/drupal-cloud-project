@@ -87,14 +87,6 @@ install:
   - dcloud_import
   - dcloud_chatbot
 
-# Disable unused modules to keep the installation lean
-uninstall:
-  - search
-  - contact
-  - block_content
-  - announcements_feed
-  - update
-
 config:
   strict:
     # Treat field storages strictly, since they influence the database layout.

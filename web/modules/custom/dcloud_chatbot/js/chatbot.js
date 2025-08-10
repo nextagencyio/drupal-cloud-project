@@ -339,8 +339,7 @@
       .then(response => {
         this.addMessage(response.response, 'bot');
         this.setSendingState(false);
-        // Re-enable buttons after Q&A completion, keep input enabled
-        this.enableActionButtons();
+        // Keep buttons disabled after Q&A completion, keep input enabled for follow-up
         this.currentMode = null;
         this.input.focus();
       })
@@ -348,6 +347,7 @@
         console.error('Chat API error:', error);
         this.addMessage('Sorry, I encountered an error. Please try again later.', 'bot', true);
         this.setSendingState(false);
+        // On error, allow user to try the buttons again
         this.enableActionButtons();
         this.currentMode = null;
         this.input.focus();
@@ -618,8 +618,13 @@
       return drupalSettings.dcloudChatbot.spaceId;
     }
 
-    // Try to extract from URL pattern (e.g., subdomain or path)
+    // For ddev.site URLs, return the full hostname
     const hostname = window.location.hostname;
+    
+    if (hostname.includes('.ddev.site')) {
+      return hostname; // Return full hostname for ddev sites
+    }
+    
     const parts = hostname.split('.');
 
     // If it's a subdomain pattern like "spacename.domain.com"
@@ -633,7 +638,7 @@
 
   // Helper method to determine Next.js API URL
   DCloudChatbot.prototype.getNextjsApiUrl = function () {
-    // In development, the Next.js app typically runs on localhost:3000
+    // In development, the Next.js app typically runs on localhost:3333
     // In production, this should be configured via drupalSettings
     if (drupalSettings.dcloudChatbot && drupalSettings.dcloudChatbot.nextjsApiUrl) {
       return drupalSettings.dcloudChatbot.nextjsApiUrl;

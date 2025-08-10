@@ -66,7 +66,7 @@ class DcloudConfigController extends ControllerBase {
     if (!$this->currentUser()->hasPermission('administer site configuration')) {
       return new RedirectResponse('/user');
     }
-    
+
     // Show the configuration page for authorized users.
     return $this->configPage();
   }
@@ -180,7 +180,7 @@ class DcloudConfigController extends ControllerBase {
     // Get Next.js settings.
     $next_config = $this->configFactory->get('next.settings');
     $next_base_url = $next_config->get('base_url') ?: 'http://localhost:3000';
-    
+
     // Get revalidate secret from dcloud_revalidate.settings
     $revalidate_config = $this->configFactory->get('dcloud_revalidate.settings');
     $revalidate_secret = $revalidate_config->get('revalidate_secret');
@@ -423,7 +423,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
     if (!$this->currentUser()->hasPermission('administer site configuration')) {
       return new RedirectResponse('/user');
     }
-    
+
     // Verify CSRF token
     $token = $request->request->get('form_token');
     if (!\Drupal::csrfToken()->validate($token, 'dcloud_config_generate_secret')) {
@@ -480,7 +480,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
     if (!$this->currentUser()->hasPermission('administer site configuration')) {
       return new JsonResponse(['error' => 'Access denied'], 403);
     }
-    
+
     // Verify CSRF token
     $token = $request->request->get('form_token');
     if (!\Drupal::csrfToken()->validate($token, 'dcloud_config_generate_secret')) {
@@ -499,18 +499,18 @@ npm run dev", 'bash', 'Quick Start Commands') . '
       // Get existing revalidation secret to preserve it
       $revalidate_config = $this->configFactory->get('dcloud_revalidate.settings');
       $existing_revalidate_secret = $revalidate_config->get('revalidate_secret');
-      
+
       // If no existing revalidate secret, generate one
       if (empty($existing_revalidate_secret) || $existing_revalidate_secret === 'not-set') {
         $random = new Random();
         $existing_revalidate_secret = bin2hex(random_bytes(16));
-        
+
         // Save the new revalidate secret to config
         $revalidate_config_editable = $this->configFactory->getEditable('dcloud_revalidate.settings');
         $revalidate_config_editable->set('revalidate_secret', $existing_revalidate_secret);
         $revalidate_config_editable->save();
       }
-      
+
       $response_data['revalidate_secret'] = $existing_revalidate_secret;
 
       // Regenerate OAuth client secret

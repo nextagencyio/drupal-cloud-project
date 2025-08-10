@@ -197,7 +197,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
 
   /**
    * Get the space ID for this site.
-   * 
+   *
    * This method attempts to identify the current space/site ID
    * that can be used to map to the Next.js dashboard.
    */
@@ -211,13 +211,13 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
     // Try to extract from the site's base URL or hostname
     $request = \Drupal::request();
     $host = $request->getHttpHost();
-    
+
     // If using subdomain pattern (e.g., spacename.domain.com)
     $parts = explode('.', $host);
     if (count($parts) >= 3) {
       return $parts[0]; // Return subdomain as space ID
     }
-    
+
     // Fallback: use the full hostname
     return $host;
   }
@@ -234,7 +234,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
 
     // Check for site-specific configuration
     $config = $this->configFactory->get('dcloud_chatbot.settings');
-    $configured_url = $config->get('nextjs_api_url');
+    $configured_url = $config->get('api_url');
     if ($configured_url) {
       return rtrim($configured_url, '/');
     }
@@ -242,7 +242,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
     // Development/local fallback
     $request = \Drupal::request();
     $host = $request->getHttpHost();
-    
+
     if (strpos($host, 'localhost') !== FALSE || strpos($host, '127.0.0.1') !== FALSE || strpos($host, '.ddev.site') !== FALSE) {
       return 'http://host.docker.internal:3333/api/chatbot';
     }
