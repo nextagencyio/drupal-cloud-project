@@ -276,7 +276,7 @@
 
   DCloudChatbot.prototype.startModelContentFlow = function () {
     this.modelContentStep = 'description';
-    this.addMessage('Describe the content type you want to create (e.g., "blog post with title, author, and tags").', 'bot');
+    this.addMessage('Describe the content type you want to create (e.g., "blog post with title, body, author, and tags").', 'bot');
     this.input.placeholder = 'Describe your content type...';
     this.input.focus();
   };
