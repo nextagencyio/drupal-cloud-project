@@ -414,27 +414,40 @@
   flex: 1;
   border: 2px solid #8b5cf6;
   border-radius: 28px;
-  overflow: hidden;
   background: white;
   transition: border-color 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   align-items: center;
+  position: relative;
 }
 
 .input-wrapper:focus-within {
   border-color: #7c3aed;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  outline: none;
 }
 
 .dcloud-chatbot-input {
   flex: 1;
   border: none;
-  border-right: none;
-  padding: 16px 20px;
+  padding: 16px 20px 16px 20px;
   font-size: 14px;
   background: transparent;
   outline: none;
   color: #374151;
+  margin-right: -8px;
+}
+
+.dcloud-chatbot-input:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.input-wrapper:focus,
+.input-wrapper:focus-visible,
+.dcloud-chatbot-input:focus-visible {
+  outline: none !important;
 }
 
 .dcloud-chatbot-input::placeholder {
@@ -450,12 +463,12 @@
   transition: all 0.2s ease;
   border-radius: 50%;
   margin: 4px;
-  margin-left: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
+  flex-shrink: 0;
 }
 
 .dcloud-chatbot-send:hover {
