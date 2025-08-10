@@ -334,11 +334,11 @@
   margin-bottom: 0;
 }
 
-.bot-message .message-content > *:first-child {
+.bot-message .message-content>*:first-child {
   margin-top: 0;
 }
 
-.bot-message .message-content > *:last-child {
+.bot-message .message-content>*:last-child {
   margin-bottom: 0;
 }
 
@@ -376,7 +376,7 @@
 }
 
 /* Warning section spacing - paragraphs after bullet items */
-.bot-message .message-content .bullet-item + p {
+.bot-message .message-content .bullet-item+p {
   margin-top: 12px;
   margin-bottom: 6px;
 }
@@ -487,12 +487,15 @@
 }
 
 @keyframes button-loading {
-  0%, 100% { 
-    opacity: 0.5; 
+
+  0%,
+  100% {
+    opacity: 0.5;
     transform: scale(1);
   }
-  50% { 
-    opacity: 1; 
+
+  50% {
+    opacity: 1;
     transform: scale(1.1);
   }
 }
@@ -514,7 +517,8 @@
 /* Loading Indicator */
 .dcloud-chatbot-loading {
   margin: 16px 0;
-  display: none; /* Hidden by default */
+  display: none;
+  /* Hidden by default */
 }
 
 .dcloud-chatbot-loading[aria-hidden="false"] {
@@ -666,10 +670,7 @@
   display: none;
 }
 
-/* Input container hidden state */
-.dcloud-chatbot-input-container.hidden {
-  display: none;
-}
+/* Input container is always visible - no hidden state needed */
 
 /* High contrast mode */
 @media (prefers-contrast: high) {

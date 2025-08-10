@@ -193,84 +193,80 @@
   };
 
   DCloudChatbot.prototype.initializeInitialState = function () {
-    // Hide input container initially
-    this.inputContainer.classList.add('hidden');
+    // Keep input container visible but disabled initially, enable buttons
+    this.inputContainer.classList.remove('hidden');
+    this.disableInput();
+    this.enableActionButtons();
   };
 
   DCloudChatbot.prototype.returnToInitialState = function () {
     // Reset to initial state
     this.currentMode = null;
     this.modelContentStep = null;
-    
-    // Hide input container first
-    this.inputContainer.classList.add('hidden');
-    
-    // Show initial options again - remove hidden class and force display
-    this.initialOptions.classList.remove('hidden');
-    this.initialOptions.style.display = '';
-    this.initialOptions.style.visibility = 'visible';
-    
+
+    // Disable input and enable buttons
+    this.disableInput();
+    this.enableActionButtons();
+
     // Reset input placeholder
     this.input.placeholder = 'Type your message...';
     this.input.value = '';
-    
-    console.log('Initial options element:', this.initialOptions);
-    console.log('Initial options classes:', this.initialOptions.className);
-    console.log('Initial options display:', this.initialOptions.style.display);
   };
 
-  DCloudChatbot.prototype.addActionButtonsAfterCompletion = function () {
-    // Reset state and stop any loading indicators
-    this.currentMode = null;
-    this.modelContentStep = null;
-    this.setSendingState(false);
-    
-    // Hide input container
-    this.inputContainer.classList.add('hidden');
-    
-    // Create new button container (no bubble)
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'chatbot-action-buttons';
-    buttonContainer.innerHTML = `
-      <button type="button" class="chatbot-action-btn" data-action="model-content">
-        Model Content
-      </button>
-      <button type="button" class="chatbot-action-btn" data-action="answer-question">
-        Answer a Question
-      </button>
-    `;
-    
-    // Add to messages area
-    this.messages.appendChild(buttonContainer);
-    
-    // Scroll to bottom
-    this.messages.scrollTop = this.messages.scrollHeight;
-    
-    // Bind click events to new buttons
-    const newButtons = buttonContainer.querySelectorAll('.chatbot-action-btn');
-    newButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        const action = button.getAttribute('data-action');
-        this.handleActionButton(action);
-      });
+  DCloudChatbot.prototype.enableActionButtons = function () {
+    const buttons = this.container.querySelectorAll('.chatbot-action-btn');
+    buttons.forEach(button => {
+      button.disabled = false;
+      button.style.opacity = '1';
+      button.style.pointerEvents = 'auto';
     });
+    this.initialOptions.classList.remove('hidden');
   };
+
+  DCloudChatbot.prototype.disableActionButtons = function () {
+    const buttons = this.container.querySelectorAll('.chatbot-action-btn');
+    buttons.forEach(button => {
+      button.disabled = true;
+      button.style.opacity = '0.5';
+      button.style.pointerEvents = 'none';
+    });
+    // During workflows, keep buttons visible but disabled
+    // During completion, this will be overridden by hideActionButtons
+    this.initialOptions.classList.remove('hidden');
+    this.initialOptions.style.display = 'block';
+  };
+
+  DCloudChatbot.prototype.hideActionButtons = function () {
+    // Hide the action buttons completely (used after model content completion)
+    this.initialOptions.classList.add('hidden');
+  };
+
+  DCloudChatbot.prototype.enableInput = function () {
+    this.input.disabled = false;
+    this.sendBtn.disabled = false;
+    this.input.style.opacity = '1';
+    this.sendBtn.style.opacity = '1';
+    this.input.style.pointerEvents = 'auto';
+    this.sendBtn.style.pointerEvents = 'auto';
+  };
+
+  DCloudChatbot.prototype.disableInput = function () {
+    this.input.disabled = true;
+    this.sendBtn.disabled = true;
+    this.input.style.opacity = '0.5';
+    this.sendBtn.style.opacity = '0.5';
+    this.input.style.pointerEvents = 'none';
+    this.sendBtn.style.pointerEvents = 'none';
+  };
+
 
   DCloudChatbot.prototype.handleActionButton = function (action) {
     this.currentMode = action;
-    
-    // Hide initial options (original static buttons)
-    this.initialOptions.classList.add('hidden');
-    
-    // Hide any dynamically created action buttons
-    const dynamicButtons = this.messages.querySelectorAll('.chatbot-action-buttons');
-    dynamicButtons.forEach(buttonContainer => {
-      buttonContainer.style.display = 'none';
-    });
-    
-    // Show input container
-    this.inputContainer.classList.remove('hidden');
-    
+
+    // Disable buttons and enable input during workflow
+    this.disableActionButtons();
+    this.enableInput();
+
     if (action === 'model-content') {
       this.startModelContentFlow();
     } else if (action === 'answer-question') {
@@ -316,18 +312,23 @@
       // Process the content description and generate import configuration
       this.callModelContentAPI(message)
         .then(response => {
-          this.addMessage(response.response, 'bot');
+          this.addMessageWithStartOver(response.response, 'bot');
           this.hideLoading(); // Hide loading indicator immediately
-          // Add buttons back after completion
-          setTimeout(() => {
-            this.addActionButtonsAfterCompletion();
-          }, 2000);
+          this.setSendingState(false);
+          // After model content creation, disable input and hide buttons
+          this.disableInput();
+          this.hideActionButtons();
+          this.currentMode = null;
+          this.modelContentStep = null;
         })
         .catch(error => {
           console.error('Model content API error:', error);
           this.addMessage('Sorry, I encountered an error while generating your content model. Please try again.', 'bot', true);
+          this.hideLoading();
           this.setSendingState(false);
-          this.input.focus();
+          this.enableActionButtons();
+          this.currentMode = null;
+          this.modelContentStep = null;
         });
     }
   };
@@ -337,13 +338,18 @@
     this.callChatAPI(message)
       .then(response => {
         this.addMessage(response.response, 'bot');
+        this.setSendingState(false);
+        // Re-enable buttons after Q&A completion, keep input enabled
+        this.enableActionButtons();
+        this.currentMode = null;
+        this.input.focus();
       })
       .catch(error => {
         console.error('Chat API error:', error);
         this.addMessage('Sorry, I encountered an error. Please try again later.', 'bot', true);
-      })
-      .finally(() => {
         this.setSendingState(false);
+        this.enableActionButtons();
+        this.currentMode = null;
         this.input.focus();
       });
   };
@@ -354,7 +360,7 @@
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    
+
     // Render markdown for bot messages, plain text for user messages
     if (sender === 'bot') {
       contentDiv.innerHTML = this.parseMarkdown(content);
@@ -383,6 +389,126 @@
     });
   };
 
+  DCloudChatbot.prototype.addMessageWithStartOver = function (content, sender, isError = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `dcloud-chatbot-message ${sender}-message${isError ? ' error-message' : ''}`;
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+
+    // Render markdown for bot messages, plain text for user messages
+    if (sender === 'bot') {
+      contentDiv.innerHTML = this.parseMarkdown(content);
+    } else {
+      contentDiv.textContent = content;
+    }
+
+    // Add "Start Over" button for bot messages
+    if (sender === 'bot') {
+      const startOverDiv = document.createElement('div');
+      startOverDiv.className = 'start-over-container';
+      startOverDiv.style.marginTop = '12px';
+      startOverDiv.style.textAlign = 'center';
+
+      const startOverBtn = document.createElement('button');
+      startOverBtn.className = 'start-over-btn';
+      startOverBtn.textContent = 'Start Over';
+      startOverBtn.style.cssText = `
+        padding: 8px 16px;
+        border: none;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+      `;
+
+      // Add hover effects with JavaScript since we're using inline styles
+      startOverBtn.addEventListener('mouseenter', () => {
+        startOverBtn.style.background = 'linear-gradient(135deg, #5b52f5 0%, #8b5cf6 100%)';
+        startOverBtn.style.transform = 'translateY(-1px)';
+        startOverBtn.style.boxShadow = '0 4px 8px rgba(79, 70, 229, 0.3)';
+      });
+
+      startOverBtn.addEventListener('mouseleave', () => {
+        startOverBtn.style.background = 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)';
+        startOverBtn.style.transform = 'translateY(0)';
+        startOverBtn.style.boxShadow = '0 2px 6px rgba(79, 70, 229, 0.2)';
+      });
+
+      startOverBtn.addEventListener('click', () => {
+        this.startOver();
+      });
+
+      startOverDiv.appendChild(startOverBtn);
+      contentDiv.appendChild(startOverDiv);
+    }
+
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'message-time';
+    timeDiv.textContent = this.formatTime(new Date());
+
+    messageDiv.appendChild(contentDiv);
+    messageDiv.appendChild(timeDiv);
+
+    this.messages.appendChild(messageDiv);
+
+    // Scroll to bottom
+    this.messages.scrollTop = this.messages.scrollHeight;
+
+    // Store in history
+    this.messageHistory.push({
+      content: content,
+      sender: sender,
+      timestamp: Date.now(),
+      isError: isError
+    });
+  };
+
+  DCloudChatbot.prototype.startOver = function () {
+    // Clear all messages except the welcome message
+    const welcomeMessage = this.messages.querySelector('#dcloud-chatbot-welcome');
+    this.messages.innerHTML = '';
+    if (welcomeMessage) {
+      this.messages.appendChild(welcomeMessage);
+    }
+
+    // Add the initial options back
+    const initialOptionsClone = this.initialOptions.cloneNode(true);
+    this.messages.appendChild(initialOptionsClone);
+
+    // Re-bind action button events for the cloned buttons
+    const actionButtons = initialOptionsClone.querySelectorAll('.chatbot-action-btn');
+    actionButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const action = button.getAttribute('data-action');
+        this.handleActionButton(action);
+      });
+    });
+
+    // Reset state
+    this.currentMode = null;
+    this.modelContentStep = null;
+    this.messageHistory = [];
+
+    // Return to initial state: buttons enabled, input disabled
+    this.disableInput();
+    this.enableActionButtons();
+
+    // Clear input
+    this.input.value = '';
+    this.input.placeholder = 'Type your message...';
+
+    // Update welcome time
+    this.updateWelcomeTime();
+
+    // Scroll to top
+    this.messages.scrollTop = 0;
+  };
+
   DCloudChatbot.prototype.setSendingState = function (sending) {
     this.sendBtn.disabled = sending;
     this.input.disabled = sending;
@@ -401,7 +527,7 @@
       this.messages.appendChild(this.loading);
       this.loading.setAttribute('aria-hidden', 'false');
       this.loading.style.display = 'block';
-      
+
       // Scroll to bottom to show loading
       this.messages.scrollTop = this.messages.scrollHeight;
     }
@@ -412,7 +538,7 @@
     if (this.loading && this.loading.parentNode === this.messages) {
       this.loading.setAttribute('aria-hidden', 'true');
       this.loading.style.display = 'none';
-      
+
       // Remove from messages area
       this.messages.removeChild(this.loading);
     }
@@ -525,10 +651,10 @@
   DCloudChatbot.prototype.parseMarkdown = function (text) {
     // Escape HTML to prevent XSS
     text = text.replace(/&/g, '&amp;')
-               .replace(/</g, '&lt;')
-               .replace(/>/g, '&gt;')
-               .replace(/"/g, '&quot;')
-               .replace(/'/g, '&#039;');
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
     // Convert newlines to line breaks for processing
     text = text.replace(/\n/g, '<br>');
@@ -536,34 +662,34 @@
     // Parse markdown elements
     // Bold text **text**
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
+
     // Italic text *text* (but not at start of line to avoid conflicts with lists)
     text = text.replace(/(?<!^|\s)\*(.*?)\*/g, '<em>$1</em>');
-    
+
     // Code `code`
     text = text.replace(/`(.*?)`/g, '<code>$1</code>');
-    
+
     // Headers (simple # support)
     text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
     text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-    
+
     // Links [text](url)
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    
+
     // Process lists more carefully
     const lines = text.split('<br>');
     let result = [];
     let inList = false;
     let listType = null;
-    
+
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i].trim();
-      
+
       // Check if this is a list item
       const ulMatch = line.match(/^\* (.*)$/);
       const olMatch = line.match(/^\d+\. (.*)$/);
-      
+
       if (ulMatch) {
         // Unordered list item
         if (!inList || listType !== 'ul') {
@@ -609,18 +735,18 @@
         }
       }
     }
-    
+
     // Close any open list
     if (inList) {
       result.push(`</${listType}>`);
     }
-    
+
     // Join without <br> since we're using proper HTML elements now
     text = result.join('');
-    
+
     // Clean up any remaining <br> tags that might interfere
     text = text.replace(/<br>/g, '');
-    
+
     return text;
   };
 
