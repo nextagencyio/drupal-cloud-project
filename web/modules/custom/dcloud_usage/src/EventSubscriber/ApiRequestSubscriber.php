@@ -144,6 +144,17 @@ class ApiRequestSubscriber implements EventSubscriberInterface {
    *   TRUE if this is an API endpoint to track.
    */
   protected function isApiEndpoint($path) {
+    // Exclude usage reporting endpoints from tracking to avoid counting usage checks as API usage
+    $excluded_patterns = [
+      '/^\/api\/dcloud\/usage/',
+    ];
+
+    foreach ($excluded_patterns as $pattern) {
+      if (preg_match($pattern, $path)) {
+        return FALSE;
+      }
+    }
+
     $api_patterns = [
       '/^\/jsonapi\//',
       '/^\/graphql/',
