@@ -215,7 +215,7 @@
 
   DCloudChatbot.prototype.startModelContentFlow = function () {
     this.modelContentStep = 'description';
-    this.addMessage('I\'ll help you create a content model. Please describe the type of content you want to model (e.g., "a blog post with title, content, author, and tags" or "an event with date, location, and details").', 'bot');
+    this.addMessage('Describe the content type you want to create (e.g., "blog post with title, author, and tags").', 'bot');
     this.input.placeholder = 'Describe your content type...';
     this.input.focus();
   };
@@ -384,6 +384,7 @@
   };
 
   DCloudChatbot.prototype.callModelContentAPI = function (contentDescription) {
+    // For now, use the Drupal endpoint with mode parameter
     return fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -526,8 +527,14 @@
         }
         if (line) {
           // Handle paragraphs - wrap non-header, non-list content in <p> tags
-          if (!line.match(/^<h[123]>/) && line.length > 0) {
+          // But don't wrap single bullet points in <p> tags
+          if (!line.match(/^<h[123]>/) && !line.match(/^•/) && line.length > 0) {
             result.push(`<p>${line}</p>`);
+          } else if (line.match(/^•/)) {
+            // Handle standalone bullet points that aren't in lists
+            // Remove the bullet character since CSS will add it
+            const cleanedLine = line.replace(/^•\s*/, '');
+            result.push(`<div class="bullet-item">${cleanedLine}</div>`);
           } else {
             result.push(line);
           }
