@@ -197,11 +197,76 @@
     this.inputContainer.classList.add('hidden');
   };
 
+  DCloudChatbot.prototype.returnToInitialState = function () {
+    // Reset to initial state
+    this.currentMode = null;
+    this.modelContentStep = null;
+    
+    // Hide input container first
+    this.inputContainer.classList.add('hidden');
+    
+    // Show initial options again - remove hidden class and force display
+    this.initialOptions.classList.remove('hidden');
+    this.initialOptions.style.display = '';
+    this.initialOptions.style.visibility = 'visible';
+    
+    // Reset input placeholder
+    this.input.placeholder = 'Type your message...';
+    this.input.value = '';
+    
+    console.log('Initial options element:', this.initialOptions);
+    console.log('Initial options classes:', this.initialOptions.className);
+    console.log('Initial options display:', this.initialOptions.style.display);
+  };
+
+  DCloudChatbot.prototype.addActionButtonsAfterCompletion = function () {
+    // Reset state and stop any loading indicators
+    this.currentMode = null;
+    this.modelContentStep = null;
+    this.setSendingState(false);
+    
+    // Hide input container
+    this.inputContainer.classList.add('hidden');
+    
+    // Create new button container (no bubble)
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'chatbot-action-buttons';
+    buttonContainer.innerHTML = `
+      <button type="button" class="chatbot-action-btn" data-action="model-content">
+        Model Content
+      </button>
+      <button type="button" class="chatbot-action-btn" data-action="answer-question">
+        Answer a Question
+      </button>
+    `;
+    
+    // Add to messages area
+    this.messages.appendChild(buttonContainer);
+    
+    // Scroll to bottom
+    this.messages.scrollTop = this.messages.scrollHeight;
+    
+    // Bind click events to new buttons
+    const newButtons = buttonContainer.querySelectorAll('.chatbot-action-btn');
+    newButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const action = button.getAttribute('data-action');
+        this.handleActionButton(action);
+      });
+    });
+  };
+
   DCloudChatbot.prototype.handleActionButton = function (action) {
     this.currentMode = action;
     
-    // Hide initial options
+    // Hide initial options (original static buttons)
     this.initialOptions.classList.add('hidden');
+    
+    // Hide any dynamically created action buttons
+    const dynamicButtons = this.messages.querySelectorAll('.chatbot-action-buttons');
+    dynamicButtons.forEach(buttonContainer => {
+      buttonContainer.style.display = 'none';
+    });
     
     // Show input container
     this.inputContainer.classList.remove('hidden');
@@ -252,8 +317,11 @@
       this.callModelContentAPI(message)
         .then(response => {
           this.addMessage(response.response, 'bot');
-          this.setSendingState(false);
-          this.input.focus();
+          this.hideLoading(); // Hide loading indicator immediately
+          // Add buttons back after completion
+          setTimeout(() => {
+            this.addActionButtonsAfterCompletion();
+          }, 2000);
         })
         .catch(error => {
           console.error('Model content API error:', error);
