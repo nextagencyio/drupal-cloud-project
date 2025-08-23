@@ -1,0 +1,104 @@
+#ddev-generated
+# If you remove the ddev-generated line above you
+# are responsible for maintaining this file. DDEV will not then
+# update it, for example if you add `additional_hostnames`, etc.
+
+http:
+  routers:
+    next-drupal-web-80-http:
+      entrypoints:
+        - http-80
+      rule: HostRegexp(`^next-drupal\.ddev\.site$`)|| HostRegexp(`^[a-zA-Z0-9-]+\.next-drupal\.ddev\.site$`)
+      
+      service: "next-drupal-web-80"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "next-drupal-redirectHttps"
+    next-drupal-web-8025-http:
+      entrypoints:
+        - http-8025
+      rule: HostRegexp(`^next-drupal\.ddev\.site$`)|| HostRegexp(`^[a-zA-Z0-9-]+\.next-drupal\.ddev\.site$`)
+      
+      service: "next-drupal-web-8025"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "next-drupal-redirectHttps"
+    next-drupal-xhgui-80-http:
+      entrypoints:
+        - http-8143
+      rule: HostRegexp(`^next-drupal\.ddev\.site$`)|| HostRegexp(`^[a-zA-Z0-9-]+\.next-drupal\.ddev\.site$`)
+      
+      service: "next-drupal-xhgui-80"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "next-drupal-redirectHttps"
+    
+    
+    
+    next-drupal-web-80-https:
+      entrypoints:
+        - http-443
+      rule: HostRegexp(`^next-drupal\.ddev\.site$`) || HostRegexp(`^[a-zA-Z0-9-]+\.next-drupal\.ddev\.site$`)
+      
+      service: "next-drupal-web-80"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    next-drupal-web-8025-https:
+      entrypoints:
+        - http-8026
+      rule: HostRegexp(`^next-drupal\.ddev\.site$`) || HostRegexp(`^[a-zA-Z0-9-]+\.next-drupal\.ddev\.site$`)
+      
+      service: "next-drupal-web-8025"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    
+    next-drupal-xhgui-80-https:
+      entrypoints:
+        - http-8142
+      rule: HostRegexp(`^next-drupal\.ddev\.site$`) || HostRegexp(`^[a-zA-Z0-9-]+\.next-drupal\.ddev\.site$`)
+      
+      service: "next-drupal-xhgui-80"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    
+
+  middlewares:
+    next-drupal-redirectHttps:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    next-drupal-web-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-next-drupal-web:80
+        
+    next-drupal-web-8025:
+      loadbalancer:
+        servers:
+          - url: http://ddev-next-drupal-web:8025
+        
+    
+    
+    next-drupal-xhgui-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-next-drupal-xhgui:80
+        
+    
+    
+
+tls:
+  certificates:
+    - certFile: /mnt/ddev-global-cache/traefik/certs/next-drupal.crt
+      keyFile: /mnt/ddev-global-cache/traefik/certs/next-drupal.key

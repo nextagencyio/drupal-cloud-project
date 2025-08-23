@@ -1,0 +1,238 @@
+name: 'Drupal Cloud Core'
+description: 'Drupal Cloud headless CMS configuration with GraphQL, OAuth, and modern content tools.'
+type: 'Site'
+recipes:
+  - core/recipes/basic_shortcuts
+  - core/recipes/article_tags
+  - core/recipes/article_content_type
+  - core/recipes/page_content_type
+  - core/recipes/basic_html_format_editor
+  - core/recipes/full_html_format_editor
+  - core/recipes/core_recommended_performance
+  - core/recipes/core_recommended_maintenance
+  - core/recipes/core_recommended_admin_theme
+  # Provides a fallback text format which is available to all users.
+  - core/recipes/restricted_html_format
+  - core/recipes/administrator_role
+  - core/recipes/content_editor_role
+
+install:
+  # Core modules for modern Drupal
+  - ckeditor5
+  - config
+  - content_moderation
+  - help
+  - datetime
+  - datetime_range
+  - field_ui
+  - file
+  - image
+  - language
+  - link
+  - media
+  - media_library
+  - menu_link_content
+  - menu_ui
+  - node
+  - options
+  - path
+  - shortcut
+  - taxonomy
+  - views
+  - views_ui
+
+  # JSON:API for headless compatibility
+  - jsonapi
+
+  # Decoupled preview iframe for content preview
+  - decoupled_preview_iframe
+
+  # GraphQL modules for modern API
+  - graphql
+  - graphql_compose
+  - graphql_compose_edges
+  - graphql_compose_image_style
+  - graphql_compose_menus
+  - graphql_compose_routes
+  - graphql_compose_users
+  - graphql_compose_views
+
+  # Content structure modules
+  - paragraphs
+  - entity_reference_revisions
+  - field_group
+
+  # URL and path management
+  - pathauto
+  - token
+
+    # OAuth authentication for headless apps (must be before dcloud modules)
+  - simple_oauth
+  - serialization
+  - consumers
+
+  # Admin experience with Gin theme
+  - gin
+  - gin_login
+  - gin_toolbar
+
+  # Admin toolbar for enhanced navigation
+  - admin_toolbar
+  - admin_toolbar_tools
+
+  # Drupal Cloud configuration and usage tracking (order matters)
+  - dcloud_revalidate
+  - dcloud_config
+  - dcloud_usage
+  - dcloud_import
+  - dcloud_chatbot
+  - dcloud_user_redirect
+
+config:
+  strict:
+    # Treat field storages strictly, since they influence the database layout.
+    - field.storage.node.field_hero_title
+    - field.storage.node.field_hero_subtitle
+    - field.storage.node.field_hero_description
+    - field.storage.node.field_primary_cta
+    - field.storage.node.field_secondary_cta
+    - field.storage.node.field_features_title
+    - field.storage.node.field_features_subtitle
+    - field.storage.node.field_features_items
+    - field.storage.node.field_cta_title
+    - field.storage.node.field_cta_description
+    - field.storage.node.field_cta_primary
+    - field.storage.node.field_cta_secondary
+    # Paragraph field storages for feature items
+    - field.storage.paragraph.field_feature_title
+    - field.storage.paragraph.field_feature_description
+    - field.storage.paragraph.field_feature_icon
+
+
+  import:
+    # Core configuration imports
+    admin_toolbar: '*'
+    admin_toolbar_tools: '*'
+    editor: '*'
+    file: '*'
+    field_ui: '*'
+    media_library:
+      - core.entity_view_mode.media.media_library
+      - core.entity_form_mode.media.media_library
+      - image.style.media_library
+      - views.view.media_library
+    media:
+      - core.entity_view_mode.media.full
+      - system.action.media_delete_action
+      - system.action.media_publish_action
+      - system.action.media_save_action
+      - system.action.media_unpublish_action
+      - views.view.media
+    image:
+      - image.style.medium
+      - image.style.large
+      - image.style.thumbnail
+    menu_ui: '*'
+    node:
+      - views.view.content
+      - views.view.content_recent
+    datetime: '*'
+    views: '*'
+    views_ui: '*'
+
+    # JSON:API configuration
+    jsonapi: '*'
+
+    # GraphQL configuration
+    graphql: '*'
+    graphql_compose: '*'
+
+    # Content modules
+    paragraphs: '*'
+
+    # Path and URL configuration
+    pathauto: '*'
+    token: '*'
+
+    # Decoupled preview iframe configuration
+    decoupled_preview_iframe: '*'
+
+
+
+    # Gin admin theme configuration
+    gin:
+      - gin.settings
+      - block.block.gin_breadcrumbs
+      - block.block.gin_content
+      - block.block.gin_help
+      - block.block.gin_local_actions
+      - block.block.gin_messages
+      - block.block.gin_page_title
+      - block.block.gin_primary_local_tasks
+    gin_toolbar: '*'
+    gin_login: '*'
+
+    # Drupal Cloud Chatbot configuration
+    dcloud_chatbot: '*'
+
+
+
+  actions:
+    # Set Gin as both default and admin theme
+    system.theme:
+      simple_config_update:
+        admin: 'gin'
+        default: 'gin'
+
+    # Use admin theme for content editing
+    node.settings:
+      simple_config_update:
+        use_admin_theme: true
+
+    # Configure Gin blocks for better admin experience
+    block.block.gin_local_actions:
+      simple_config_update:
+        region: content
+        weight: -10
+    block.block.gin_page_title:
+      simple_config_update:
+        region: header
+        weight: -10
+    block.block.gin_primary_local_tasks:
+      simple_config_update:
+        region: header
+        weight: -5
+        settings.secondary: true
+
+    # Configure GraphQL for headless usage - using config import instead of ensure_exists
+    # The GraphQL server configuration is handled via config import
+
+    # Configure JSON:API settings for headless compatibility
+    jsonapi.settings:
+      simple_config_update:
+        read_only: false
+
+    # Configure pathauto for clean URLs
+    pathauto.settings:
+      simple_config_update:
+        enabled_entity_types:
+          - node
+          - taxonomy_term
+        punctuation.hyphen: 1
+
+    # Configure OAuth settings - keys will be generated per site
+    simple_oauth.settings:
+      simple_config_update:
+        access_token_expiration: 2592000
+        authorization_code_expiration: 2592000
+        refresh_token_expiration: 2592000
+        token_cron_batch_size: 0
+        remember_clients: true
+        use_implicit: false
+        disable_openid_connect: false
+
+    # Configure dcloud_revalidate with default frontend URL
+    dcloud_revalidate.settings:
+      simple_config_update:
+        enabled: false
+        frontend_url: 'http://host.docker.internal:3333'

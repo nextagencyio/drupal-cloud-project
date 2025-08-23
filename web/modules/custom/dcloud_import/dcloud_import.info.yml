@@ -1,0 +1,16 @@
+name: Drupal Content Import
+description: 'Import Drupal model and content from concise JSON.'
+type: module
+core_version_requirement: ^10 || ^11
+package: Drupal Cloud
+dependencies:
+  - drupal:node
+  - drupal:field
+  - drupal:text
+  - drupal:options
+  - drupal:link
+  - drupal:image
+  - drupal:datetime
+  - drupal:datetime_range
+  - paragraphs:paragraphs
+  - drupal:entity_reference_revisions

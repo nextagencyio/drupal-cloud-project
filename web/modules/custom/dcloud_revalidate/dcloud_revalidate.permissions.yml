@@ -1,0 +1,4 @@
+administer dcloud revalidate:
+  title: 'Administer Dcloud Revalidate'
+  description: 'Configure Dcloud revalidation settings'
+  restrict access: true

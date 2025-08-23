@@ -1,0 +1,11 @@
+name: 'Drupal Cloud Usage'
+type: module
+description: 'Provides usage statistics and tracking for Drupal Cloud spaces'
+core_version_requirement: ^9 || ^10 || ^11
+package: 'Drupal Cloud'
+dependencies:
+  - drupal:system
+  - drupal:node
+  - drupal:user
+  - drupal:file
+  - drupal:jsonapi

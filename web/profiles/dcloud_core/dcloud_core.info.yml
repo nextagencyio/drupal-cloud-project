@@ -1,0 +1,7 @@
+name: 'Drupal Cloud Core'
+type: profile
+description: 'Drupal Cloud headless CMS configuration with GraphQL, OAuth, and modern content tools.'
+version: VERSION
+core_version_requirement: ^9 || ^10 || ^11
+distribution:
+  name: 'Drupal Cloud Core'

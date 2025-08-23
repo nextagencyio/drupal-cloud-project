@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Drupal Cloud Usage module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function dcloud_usage_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.dcloud_usage':
+      return '<p>' . t('Provides usage statistics and tracking for Drupal Cloud spaces.') . '</p>';
+  }
+}

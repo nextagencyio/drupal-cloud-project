@@ -1,0 +1,9 @@
+admin:
+  css:
+    theme:
+      css/dcloud-import-admin.css: {}
+  js:
+    js/dcloud-import-admin.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal

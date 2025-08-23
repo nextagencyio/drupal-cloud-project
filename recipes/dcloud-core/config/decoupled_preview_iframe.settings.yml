@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: null
+redirect_anonymous: false
+redirect_url: '/modules/custom/dcloud_config/preview-setup.html?'
+preview_url: '/modules/custom/dcloud_config/preview-setup.html?'
+preview_types:
+  node:
+    homepage: homepage
+    article: article
+    page: page

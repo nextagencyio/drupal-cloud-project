@@ -1,0 +1,10 @@
+dcloud_config:
+  version: 1.0
+  css:
+    theme:
+      css/dcloud-config.css: {}
+  js:
+    js/dcloud-config.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Dcloud Revalidate module hooks.
+ */
+
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_node_update().
+ */
+function dcloud_revalidate_node_update(NodeInterface $node) {
+  _dcloud_revalidate_trigger_revalidation($node);
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function dcloud_revalidate_node_insert(NodeInterface $node) {
+  _dcloud_revalidate_trigger_revalidation($node);
+}
+
+/**
+ * Helper function to trigger revalidation for a node.
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The node to revalidate.
+ */
+function _dcloud_revalidate_trigger_revalidation(NodeInterface $node) {
+  // Only trigger revalidation for published nodes.
+  if (!$node->isPublished()) {
+    return;
+  }
+
+  /** @var \Drupal\dcloud_revalidate\Service\RevalidationService $revalidation_service */
+  $revalidation_service = \Drupal::service('dcloud_revalidate.revalidation_service');
+  $revalidation_service->revalidateNode($node);
+}

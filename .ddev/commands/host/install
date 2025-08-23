@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Install Dcloud site
+echo "Installing Dcloud site..."
+ddev drush site:install --account-name=admin --account-pass=admin --account-mail=admin@example.com --site-name="Drupal Cloud Site" --site-mail=noreply@example.com --yes
+echo "Applying dcloud-core recipe..."
+ddev drush recipe ../recipes/dcloud-core
+echo "Clearing cache..."
+ddev drush cr
+echo "Run consumers-next script..."
+ddev drush scr ../scripts/consumers-next.php
+echo "Generating login link..."
+ddev drush uli

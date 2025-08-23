@@ -1,0 +1,69 @@
+_meta:
+  version: '1.0'
+  entity_type: node
+  uuid: 3c4d5e6f-7890-abcd-ef12-345678901234
+  bundle: article
+  default_langcode: en
+  depends:
+    b891166c-ae6d-46c9-bd1a-c102a9b238d0: file
+default:
+  revision_uid:
+    -
+      target_id: 1
+  status:
+    -
+      value: true
+  uid:
+    -
+      target_id: 1
+  title:
+    -
+      value: 'Content Authoring with Paragraphs'
+  created:
+    -
+      value: 1723000120
+  promote:
+    -
+      value: false
+  sticky:
+    -
+      value: false
+  revision_translation_affected:
+    -
+      value: true
+  path:
+    -
+      alias: /content-authoring-with-paragraphs
+      langcode: en
+      pathauto: 0
+  body:
+    -
+      value: |
+        <p>Drupal Cloud includes the Paragraphs module for creating rich, structured content with reusable components.</p>
+
+        <h3>Benefits of Paragraphs</h3>
+        <ul>
+          <li><strong>Modular Content</strong> - Build pages with reusable components</li>
+          <li><strong>Consistent Design</strong> - Predefined layouts and styles</li>
+          <li><strong>Editorial Freedom</strong> - Mix and match different content types</li>
+          <li><strong>API-Friendly</strong> - Structured data perfect for headless</li>
+        </ul>
+
+        <h3>Getting Started</h3>
+        <ol>
+          <li>Navigate to <em>Structure > Paragraph types</em></li>
+          <li>Create custom paragraph types for your content</li>
+          <li>Add paragraph fields to your content types</li>
+          <li>Start building rich, modular content</li>
+        </ol>
+
+        <p>This approach gives you the flexibility of a page builder with the structure needed for API consumption.</p>
+      format: basic_html
+      summary: 'Learn how to create rich, structured content using the Paragraphs module in Drupal Cloud.'
+  field_image:
+    -
+      entity: b891166c-ae6d-46c9-bd1a-c102a9b238d0
+      alt: 'Content Authoring with Paragraphs'
+      title: ''
+      width: 1992
+      height: 990

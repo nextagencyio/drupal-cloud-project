@@ -1,0 +1,47 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.homepage.field_hero_description
+    - field.field.node.homepage.field_hero_title
+    - node.type.homepage
+  module:
+    - text
+id: node.homepage.teaser
+targetEntityType: node
+bundle: homepage
+mode: teaser
+content:
+  field_hero_title:
+    type: string
+    label: hidden
+    weight: 0
+    region: content
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  field_hero_description:
+    type: text_trimmed
+    label: hidden
+    weight: 1
+    region: content
+    settings:
+      trim_length: 200
+    third_party_settings: {  }
+  links:
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_cta_description: true
+  field_cta_primary: true
+  field_cta_secondary: true
+  field_cta_title: true
+  field_features_items: true
+  field_features_subtitle: true
+  field_features_title: true
+  field_hero_subtitle: true
+  field_primary_cta: true
+  field_secondary_cta: true
