@@ -49,117 +49,202 @@ class ImportApiController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The JSON response.
    */
-  public function import(Request $request): JsonResponse {
-    // Only allow POST requests.
-    if ($request->getMethod() !== 'POST') {
-      return new JsonResponse([
-        'error' => 'Method not allowed. Use POST.',
-      ], Response::HTTP_METHOD_NOT_ALLOWED);
-    }
-
-    // Get JSON from request body.
-    $json_data = $request->getContent();
-    if (empty($json_data)) {
-      return new JsonResponse([
-        'error' => 'Empty request body. JSON data required.',
-      ], Response::HTTP_BAD_REQUEST);
-    }
-
-    // Decode JSON.
-    $data = json_decode($json_data, TRUE);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      return new JsonResponse([
-        'error' => 'Invalid JSON format: ' . json_last_error_msg(),
-      ], Response::HTTP_BAD_REQUEST);
-    }
-
-    // Validate the structure.
-    if (!$this->validateImportData($data)) {
-      return new JsonResponse([
-        'error' => 'Invalid JSON structure. Expected "model" and optionally "content" arrays.',
-      ], Response::HTTP_BAD_REQUEST);
-    }
-
-    // Check for preview mode.
-    $preview_mode = $request->query->get('preview', FALSE);
-    $preview_mode = filter_var($preview_mode, FILTER_VALIDATE_BOOLEAN);
-
+  public function import(Request $request) {
     try {
-      // Perform the import.
-      $result = $this->importer->import($data, $preview_mode);
+      // Check authentication
+      if (!$this->authenticateRequest($request)) {
+        return new JsonResponse([
+          'success' => false,
+          'error' => 'Authentication required. Please provide a valid DrupalCloud personal access token (Authorization: Bearer dc_tok_...) or platform API key.',
+          'help' => 'Get a token from your DrupalCloud dashboard at /organization/tokens',
+        ], 401);
+      }
 
-      // Return success response.
-      $response_data = [
-        'success' => TRUE,
-        'preview' => $preview_mode,
-        'operations' => count($result['summary'] ?? []),
-        'messages' => [
-          'summary' => $result['summary'] ?? [],
-          'warnings' => $result['warnings'] ?? [],
-        ],
-      ];
+      // Check method
+      if ($request->getMethod() !== 'POST') {
+        return new JsonResponse([
+          'success' => false,
+          'error' => 'Only POST method is allowed',
+        ], 405);
+      }
 
-      return new JsonResponse($response_data, Response::HTTP_OK);
+      // Get and validate JSON data
+      $content = $request->getContent();
+      if (empty($content)) {
+        return new JsonResponse([
+          'success' => false,
+          'error' => 'Request body cannot be empty',
+        ], 400);
+      }
+
+      $data = json_decode($content, TRUE);
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        return new JsonResponse([
+          'success' => false,
+          'error' => 'Invalid JSON: ' . json_last_error_msg(),
+        ], 400);
+      }
+
+      // Validate required structure
+      if (!isset($data['model']) || !is_array($data['model'])) {
+        return new JsonResponse([
+          'success' => false,
+          'error' => 'Invalid JSON structure. Expected "model" array.',
+        ], 400);
+      }
+
+      // Check for preview mode
+      $preview = $request->query->get('preview') === 'true';
+
+      // Perform the import
+      $result = $this->importer->import($data, $preview);
+
+      return new JsonResponse($result);
 
     } catch (\Exception $e) {
-      // Return error response.
+      \Drupal::logger('dcloud_import')->error('Import error: @message', [
+        '@message' => $e->getMessage(),
+      ]);
+
       return new JsonResponse([
-        'success' => FALSE,
-        'error' => $e->getMessage(),
-      ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        'success' => false,
+        'error' => 'Import failed: ' . $e->getMessage(),
+      ], 500);
     }
   }
 
   /**
-   * Get import status/health check.
+   * Get service status.
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The JSON response.
    */
-  public function status(): JsonResponse {
-    try {
-      return new JsonResponse([
-        'service' => 'dcloud_import',
-        'version' => '1.0.0',
-        'status' => 'ready',
-        'endpoints' => [
-          'POST /api/dcloud-import' => 'Import content from JSON',
-          'GET /api/dcloud-import/status' => 'Service status',
-        ],
-        'authentication' => 'OAuth 2.0 Bearer token required',
-        'documentation' => [
-          'preview' => 'Add ?preview=true to test import without making changes',
-          'format' => 'Send JSON with "model" array for content types and optional "content" array for content',
-        ],
-      ], Response::HTTP_OK);
-    } catch (\Exception $e) {
-      return new JsonResponse([
-        'error' => 'Controller error: ' . $e->getMessage(),
-      ], Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
+  public function status() {
+    return new JsonResponse([
+      'success' => true,
+      'service' => 'DCloud Import API',
+      'version' => '1.0.0',
+      'endpoints' => [
+        'POST /api/dcloud-import' => 'Import content models and data',
+        'GET /api/dcloud-import/status' => 'Get service status',
+      ],
+      'authentication' => [
+        'platform_token' => 'Authorization: Bearer dc_tok_... (DrupalCloud personal access token)',
+        'platform_api_key' => 'X-Platform-API-Key header (if configured)',
+        'none' => 'Skip authentication (development only)',
+      ],
+      'documentation' => 'See module README for JSON format and examples',
+    ]);
   }
 
   /**
-   * Validates the import data structure.
+   * Authenticate the request using platform tokens.
    *
-   * @param array $data
-   *   The decoded JSON data.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return bool
+   *   TRUE if authenticated, FALSE otherwise.
+   */
+  private function authenticateRequest(Request $request) {
+    // Method 1: Platform Personal Access Token (primary method)
+    $authHeader = $request->headers->get('Authorization');
+    if ($authHeader && str_starts_with($authHeader, 'Bearer dc_tok_')) {
+      $token = substr($authHeader, 7);
+      if ($this->validatePlatformToken($token)) {
+        return TRUE;
+      }
+    }
+
+    // Method 2: Platform API Key (fallback)
+    $platformApiKey = $request->headers->get('X-Platform-API-Key');
+    if ($platformApiKey && $this->validatePlatformApiKey($platformApiKey)) {
+      return TRUE;
+    }
+
+    // Method 3: No authentication required (for testing/development)
+    $skipAuth = getenv('DCLOUD_SKIP_AUTH') === 'true' ||
+                \Drupal::state()->get('dcloud_import.skip_auth', FALSE);
+    if ($skipAuth) {
+      \Drupal::logger('dcloud_import')->warning('Authentication skipped - development mode');
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Validate platform API key.
+   *
+   * @param string $apiKey
+   *   The API key to validate.
    *
    * @return bool
    *   TRUE if valid, FALSE otherwise.
    */
-  private function validateImportData(array $data): bool {
-    if (!isset($data['model']) || !is_array($data['model'])) {
+  private function validatePlatformApiKey($apiKey) {
+    // Get platform API key from environment or settings
+    $validApiKey = getenv('DCLOUD_PLATFORM_API_KEY') ?:
+                   \Drupal::state()->get('dcloud_import.platform_api_key');
+
+    return $validApiKey && hash_equals($validApiKey, $apiKey);
+  }
+
+
+
+  /**
+   * Validate platform personal access token.
+   *
+   * @param string $token
+   *   The platform token to validate.
+   *
+   * @return bool
+   *   TRUE if valid, FALSE otherwise.
+   */
+  private function validatePlatformToken($token) {
+    // Get platform URL from environment or settings
+    $platformUrl = getenv('DCLOUD_PLATFORM_URL') ?:
+                   \Drupal::state()->get('dcloud_import.platform_url', 'https://drupalcloud.vercel.app');
+
+    // For local development, support localhost
+    if (str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site')) {
+      $platformUrl = 'http://host.docker.internal:3333';
+    }
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $platformUrl . '/api/auth/validate');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      'Authorization: Bearer ' . $token,
+      'Accept: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For local development
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+      \Drupal::logger('dcloud_import')->warning('Platform token validation failed: @error', [
+        '@error' => $error
+      ]);
       return FALSE;
     }
 
-    foreach ($data['model'] as $item) {
-      if (!is_array($item) || !isset($item['bundle']) || !isset($item['label'])) {
-        return FALSE;
+    if ($httpCode === 200) {
+      $data = json_decode($response, TRUE);
+      if (isset($data['valid']) && $data['valid'] === TRUE) {
+        \Drupal::logger('dcloud_import')->info('Platform token validated successfully');
+        return TRUE;
       }
     }
 
-    return TRUE;
+    \Drupal::logger('dcloud_import')->warning('Platform token validation failed: HTTP @code', [
+      '@code' => $httpCode
+    ]);
+    return FALSE;
   }
 
 }
