@@ -55,8 +55,9 @@ class ImportApiController extends ControllerBase {
       if (!$this->authenticateRequest($request)) {
         return new JsonResponse([
           'success' => false,
-          'error' => 'Authentication required. Please provide a valid DrupalCloud personal access token (Authorization: Bearer dc_tok_...) or platform API key.',
-          'help' => 'Get a token from your DrupalCloud dashboard at /organization/tokens',
+          'error' => 'Authentication required. Please provide a valid DrupalCloud personal access token.',
+          'format' => 'Authorization: Bearer dc_tok_...',
+          'help' => 'Get your token from the DrupalCloud dashboard at /organization/tokens',
         ], 401);
       }
 
@@ -129,16 +130,15 @@ class ImportApiController extends ControllerBase {
         'GET /api/dcloud-import/status' => 'Get service status',
       ],
       'authentication' => [
-        'platform_token' => 'Authorization: Bearer dc_tok_... (DrupalCloud personal access token)',
-        'platform_api_key' => 'X-Platform-API-Key header (if configured)',
-        'none' => 'Skip authentication (development only)',
+        'required' => 'Authorization: Bearer dc_tok_... (DrupalCloud personal access token)',
+        'note' => 'Get your token from the DrupalCloud dashboard at /organization/tokens',
       ],
       'documentation' => 'See module README for JSON format and examples',
     ]);
   }
 
-  /**
-   * Authenticate the request using platform tokens.
+    /**
+   * Authenticate the request using personal access tokens.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request object.
@@ -147,7 +147,7 @@ class ImportApiController extends ControllerBase {
    *   TRUE if authenticated, FALSE otherwise.
    */
   private function authenticateRequest(Request $request) {
-    // Method 1: Platform Personal Access Token (primary method)
+    // Personal Access Token authentication
     $authHeader = $request->headers->get('Authorization');
     if ($authHeader && str_starts_with($authHeader, 'Bearer dc_tok_')) {
       $token = substr($authHeader, 7);
@@ -156,13 +156,7 @@ class ImportApiController extends ControllerBase {
       }
     }
 
-    // Method 2: Platform API Key (fallback)
-    $platformApiKey = $request->headers->get('X-Platform-API-Key');
-    if ($platformApiKey && $this->validatePlatformApiKey($platformApiKey)) {
-      return TRUE;
-    }
-
-    // Method 3: No authentication required (for testing/development)
+    // Development mode only (skip authentication)
     $skipAuth = getenv('DCLOUD_SKIP_AUTH') === 'true' ||
                 \Drupal::state()->get('dcloud_import.skip_auth', FALSE);
     if ($skipAuth) {
@@ -173,22 +167,7 @@ class ImportApiController extends ControllerBase {
     return FALSE;
   }
 
-  /**
-   * Validate platform API key.
-   *
-   * @param string $apiKey
-   *   The API key to validate.
-   *
-   * @return bool
-   *   TRUE if valid, FALSE otherwise.
-   */
-  private function validatePlatformApiKey($apiKey) {
-    // Get platform API key from environment or settings
-    $validApiKey = getenv('DCLOUD_PLATFORM_API_KEY') ?:
-                   \Drupal::state()->get('dcloud_import.platform_api_key');
 
-    return $validApiKey && hash_equals($validApiKey, $apiKey);
-  }
 
 
 
