@@ -181,9 +181,9 @@ class ImportApiController extends ControllerBase {
    *   TRUE if valid, FALSE otherwise.
    */
   private function validatePlatformToken($token) {
-    // Get platform URL from environment or settings
-    $platformUrl = getenv('DCLOUD_PLATFORM_URL') ?:
-                   \Drupal::state()->get('dcloud_import.platform_url', 'https://drupalcloud.vercel.app');
+        // Get platform URL from environment or settings
+    $platformUrl = getenv('DCLOUD_PLATFORM_URL') ?: 
+                   \Drupal::state()->get('dcloud_import.platform_url', 'https://dashboard.dcloud.dev');
 
     // For local development, support localhost
     if (str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site')) {
