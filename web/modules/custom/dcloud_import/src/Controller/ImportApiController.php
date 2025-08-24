@@ -182,7 +182,7 @@ class ImportApiController extends ControllerBase {
    */
   private function validatePlatformToken($token) {
         // Get platform URL from environment or settings
-    $platformUrl = getenv('DCLOUD_PLATFORM_URL') ?: 
+    $platformUrl = getenv('DCLOUD_PLATFORM_URL') ?:
                    \Drupal::state()->get('dcloud_import.platform_url', 'https://dashboard.dcloud.dev');
 
     // For local development, support localhost
