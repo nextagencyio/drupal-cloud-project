@@ -7,7 +7,5 @@ echo "Applying dcloud-core recipe..."
 ddev drush --uri=http://template.dcloud.ddev.site recipe ../recipes/dcloud-core
 echo "Clearing cache..."
 ddev drush --uri=http://template.dcloud.ddev.site cr
-echo "Run consumers-next script..."
-ddev drush --uri=http://template.dcloud.ddev.site scr ../scripts/consumers-next.php
 echo "Generating login link..."
 ddev drush --uri=http://template.dcloud.ddev.site uli
