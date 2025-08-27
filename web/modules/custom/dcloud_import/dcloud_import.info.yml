@@ -1,4 +1,4 @@
-name: Drupal Content Import
+name: Drupal Cloud Content Import
 description: 'Import Drupal model and content from concise JSON.'
 type: module
 core_version_requirement: ^10 || ^11

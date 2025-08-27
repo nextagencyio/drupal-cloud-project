@@ -394,12 +394,12 @@ class DrupalContentImporter {
     }
     $node = $node_storage->create($node_data);
     $node->save();
-    
+
     // Handle path alias if specified.
     if (isset($item['path']) && !empty($item['path'])) {
       $this->createPathAlias($node, $item['path'], $result);
     }
-    
+
     $result['summary'][] = "Created node: {$node_data['title']} (ID: {$node->id()}, type: {$bundle})";
     return $node;
   }
@@ -426,7 +426,7 @@ class DrupalContentImporter {
       if ($is_assoc) {
         return $value;
       }
-      
+
       // Check if this is an array of image objects (each item has 'uri' property)
       $is_image_array = !empty($value) && is_array($value[0]) && isset($value[0]['uri']);
       if ($is_image_array) {
@@ -441,7 +441,7 @@ class DrupalContentImporter {
         }
         return $processed_images;
       }
-      
+
       return array_map(function ($item) {
         return ['value' => $item];
       }, $value);
@@ -528,18 +528,18 @@ class DrupalContentImporter {
             break;
           }
         }
-        
+
         if ($all_refs) {
           $field_type = $field_definition->getType();
           $items = [];
           $resolved_refs = [];
-          
+
           foreach ($value as $item) {
             $ref = substr($item, 1);
             if (isset($created[$ref])) {
               $ref_entity = $created[$ref];
               $resolved_refs[] = $ref;
-              
+
               if ($field_type === 'entity_reference_revisions') {
                 // Paragraph reference: set using explicit IDs as item list.
                 $items[] = [
@@ -559,7 +559,7 @@ class DrupalContentImporter {
               $result['warnings'][] = "Could not resolve reference {$field_id} -> {$ref}";
             }
           }
-          
+
           if (!empty($items)) {
             if ($field_type === 'entity_reference_revisions') {
               $field_list = $entity->get($drupal_field_name);
@@ -805,28 +805,28 @@ class DrupalContentImporter {
 
     $config_name = "graphql_compose.settings";
     $config = $this->configFactory->getEditable($config_name);
-    
+
     // Get current settings.
     $entity_config = $config->get('entity_config') ?: [];
     $field_config = $config->get('field_config') ?: [];
-    
+
     // Configure the entity type and bundle in entity_config.
     if (!isset($entity_config[$entity_type])) {
       $entity_config[$entity_type] = [];
     }
-    
+
     // Enable all the main GraphQL options.
     $entity_config[$entity_type][$bundle] = [
       'enabled' => TRUE,
       'query_load_enabled' => TRUE,
       'edges_enabled' => TRUE,
     ];
-    
+
     // Enable routes for nodes only.
     if ($entity_type === 'node') {
       $entity_config[$entity_type][$bundle]['routes_enabled'] = TRUE;
     }
-    
+
     // Configure field_config section.
     if (!isset($field_config[$entity_type])) {
       $field_config[$entity_type] = [];
@@ -834,13 +834,13 @@ class DrupalContentImporter {
     if (!isset($field_config[$entity_type][$bundle])) {
       $field_config[$entity_type][$bundle] = [];
     }
-    
+
     // Get all fields for this bundle and enable them.
     $field_definitions = $this->entityTypeManager->getStorage('field_config')->loadByProperties([
       'entity_type' => $entity_type,
       'bundle' => $bundle,
     ]);
-    
+
     // Enable base fields for nodes.
     if ($entity_type === 'node') {
       $base_fields = ['body', 'title', 'created', 'changed', 'status', 'path'];
@@ -848,18 +848,18 @@ class DrupalContentImporter {
         $field_config[$entity_type][$bundle][$base_field] = ['enabled' => TRUE];
       }
     }
-    
+
     // Enable all custom fields.
     foreach ($field_definitions as $field_definition) {
       $field_name = $field_definition->getName();
       $field_config[$entity_type][$bundle][$field_name] = ['enabled' => TRUE];
     }
-    
+
     // Save both configurations.
     $config->set('entity_config', $entity_config);
     $config->set('field_config', $field_config);
     $config->save();
-    
+
     $result['summary'][] = "Configured GraphQL Compose for {$entity_type}.{$bundle} with all fields enabled";
   }
 
@@ -882,14 +882,14 @@ class DrupalContentImporter {
 
     // Get the path alias storage.
     $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
-    
+
     // Create the path alias.
     $path_alias = $path_alias_storage->create([
       'path' => '/node/' . $node->id(),
       'alias' => $path,
       'langcode' => $node->language()->getId(),
     ]);
-    
+
     try {
       $path_alias->save();
       $result['summary'][] = "Created path alias: {$path} for node {$node->id()}";
@@ -924,19 +924,19 @@ class DrupalContentImporter {
       $path_parts = explode('/', substr($uri, 9)); // Remove 'module://'
       $module_name = array_shift($path_parts);
       $relative_path = implode('/', $path_parts);
-      
+
       $module_path = \Drupal::service('extension.list.module')->getPath($module_name);
       $source_path = $module_path . '/' . $relative_path;
       $filename = basename($relative_path);
     } elseif (strpos($uri, '/') === 0) {
-      // Relative path from Drupal root (e.g., /modules/custom/dcloud_import/resources/article.png)
+      // Relative path from Drupal root (e.g., /modules/custom/dcloud_import/resources/placeholder.png)
       $source_path = \Drupal::root() . $uri;
       $filename = basename($uri);
     } elseif (strpos($uri, 'http://') === 0 || strpos($uri, 'https://') === 0) {
       // HTTP/HTTPS URL - download the file
       $filename = basename(parse_url($uri, PHP_URL_PATH)) ?: 'imported_image_' . uniqid() . '.png';
       $temp_file = \Drupal::service('file_system')->tempnam('temporary://', 'import_');
-      
+
       // Download the file
       $context = stream_context_create([
         'http' => [
@@ -944,7 +944,7 @@ class DrupalContentImporter {
           'user_agent' => 'Drupal dcloud_import module'
         ]
       ]);
-      
+
       if (copy($uri, $temp_file, $context)) {
         $source_path = $temp_file;
       }
@@ -953,29 +953,29 @@ class DrupalContentImporter {
       $source_path = $uri;
       $filename = basename($uri);
     }
-    
+
     if (!$source_path || !file_exists($source_path)) {
       return NULL;
     }
 
     // Create the file entity.
     $file_storage = $this->entityTypeManager->getStorage('file');
-    
+
     // Generate destination path with date-based directory.
     $destination_dir = 'public://' . date('Y-m');
     $destination = $destination_dir . '/' . $filename;
-    
+
     // Ensure directory exists.
     \Drupal::service('file_system')->prepareDirectory($destination_dir, \Drupal\Core\File\FileSystemInterface::CREATE_DIRECTORY);
-    
+
     // Copy file to destination.
     $file_uri = \Drupal::service('file_system')->copy($source_path, $destination, \Drupal\Core\File\FileSystemInterface::EXISTS_REPLACE);
-    
+
     // Clean up temp file if it was downloaded
     if (strpos($uri, 'http') === 0 && $source_path !== $uri) {
       unlink($source_path);
     }
-    
+
     if ($file_uri) {
       // Create file entity.
       $file = $file_storage->create([
@@ -985,7 +985,7 @@ class DrupalContentImporter {
         'uid' => 1,
       ]);
       $file->save();
-      
+
       // Return image field value structure.
       return [
         'target_id' => $file->id(),
@@ -995,7 +995,7 @@ class DrupalContentImporter {
         'height' => $value['height'] ?? NULL,
       ];
     }
-    
+
     return NULL;
   }
 
@@ -1012,7 +1012,7 @@ class DrupalContentImporter {
     // Fallback: Clear individual GraphQL cache bins.
     $cache_bins = [
       'cache.graphql.apq',
-      'cache.graphql.ast', 
+      'cache.graphql.ast',
       'cache.graphql.definitions',
       'cache.graphql.results',
       'cache.graphql_compose.definitions',

@@ -11,7 +11,7 @@ dcloud_import.api_import:
   defaults:
     _controller: '\Drupal\dcloud_import\Controller\ImportApiController::import'
   requirements:
-    _permission: 'access dcloud import api'
+    _access: 'TRUE'
   methods: [POST]
 
 dcloud_import.api_test:

@@ -7,7 +7,7 @@ The DCloud Import module provides a REST API for importing Drupal content types 
 ### POST `/api/dcloud-import`
 Import content types and content from JSON data.
 
-**Authentication Required:** OAuth 2.0 Bearer token with `import dcloud config` permission.
+**Authentication Required:** DrupalCloud personal access token via `X-DCloud-Token` header.
 
 ### GET `/api/dcloud-import/status`
 Get service status and API documentation.
@@ -26,7 +26,7 @@ Test endpoint for service health check.
 ```bash
 curl -X POST https://your-site.com/api/dcloud-import \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "X-DCloud-Token: dc_tok_YOUR_ACCESS_TOKEN" \
   -d @import-data.json
 ```
 
@@ -37,7 +37,7 @@ Test your import without making actual changes by adding the `preview` parameter
 ```bash
 curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "X-DCloud-Token: dc_tok_YOUR_ACCESS_TOKEN" \
   -d @import-data.json
 ```
 
@@ -315,7 +315,7 @@ curl https://your-site.com/api/dcloud-import/status
 ```bash
 curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-DCloud-Token: dc_tok_YOUR_TOKEN" \
   -d '{"model":[{"bundle":"test","label":"Test Content Type"}]}'
 ```
 
@@ -344,7 +344,7 @@ Enable preview mode to test imports without making changes:
 ```bash
 curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-DCloud-Token: dc_tok_YOUR_TOKEN" \
   -d @your-import-file.json
 ```
 

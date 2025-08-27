@@ -56,7 +56,7 @@ class ImportApiController extends ControllerBase {
         return new JsonResponse([
           'success' => false,
           'error' => 'Authentication required. Please provide a valid DrupalCloud personal access token.',
-          'format' => 'Authorization: Bearer dc_tok_...',
+          'format' => 'X-DCloud-Token: dc_tok_...',
           'help' => 'Get your token from the DrupalCloud dashboard at /organization/tokens',
         ], 401);
       }
@@ -130,8 +130,9 @@ class ImportApiController extends ControllerBase {
         'GET /api/dcloud-import/status' => 'Get service status',
       ],
       'authentication' => [
-        'required' => 'Authorization: Bearer dc_tok_... (DrupalCloud personal access token)',
+        'required' => 'X-DCloud-Token: dc_tok_... (DrupalCloud personal access token)',
         'note' => 'Get your token from the DrupalCloud dashboard at /organization/tokens',
+        'oauth' => 'This endpoint does not use OAuth - use DCloud personal access tokens only',
       ],
       'documentation' => 'See module README for JSON format and examples',
     ]);
@@ -147,18 +148,19 @@ class ImportApiController extends ControllerBase {
    *   TRUE if authenticated, FALSE otherwise.
    */
   private function authenticateRequest(Request $request) {
-    // Personal Access Token authentication
-    $authHeader = $request->headers->get('Authorization');
-    if ($authHeader && str_starts_with($authHeader, 'Bearer dc_tok_')) {
-      $token = substr($authHeader, 7);
+    // DCloud Personal Access Token authentication (no OAuth dependency)
+    $token = $request->headers->get('X-DCloud-Token');
+    
+    if ($token && str_starts_with($token, 'dc_tok_')) {
       if ($this->validatePlatformToken($token)) {
         return TRUE;
       }
     }
 
-    // Development mode only (skip authentication)
+    // Development mode bypass for .ddev.site domains
     $skipAuth = getenv('DCLOUD_SKIP_AUTH') === 'true' ||
-                \Drupal::state()->get('dcloud_import.skip_auth', FALSE);
+                \Drupal::state()->get('dcloud_import.skip_auth', FALSE) ||
+                ($request->headers->get('X-DCloud-Dev-Mode') === 'true' && str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site'));
     if ($skipAuth) {
       \Drupal::logger('dcloud_import')->warning('Authentication skipped - development mode');
       return TRUE;
@@ -189,6 +191,8 @@ class ImportApiController extends ControllerBase {
     if (str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site')) {
       $platformUrl = 'http://host.docker.internal:3333';
     }
+    
+    \Drupal::logger('dcloud_import')->info('Attempting token validation against: @url', ['@url' => $platformUrl . '/api/auth/validate']);
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $platformUrl . '/api/auth/validate');

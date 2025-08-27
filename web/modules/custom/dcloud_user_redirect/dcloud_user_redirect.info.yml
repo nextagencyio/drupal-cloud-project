@@ -1,4 +1,4 @@
-name: 'DCloud User Redirect'
+name: 'Drupal Cloud User Redirect'
 type: module
 description: 'Redirects logged-in users from password reset links to their user page instead of showing access denied'
 core_version_requirement: ^9 || ^10 || ^11
