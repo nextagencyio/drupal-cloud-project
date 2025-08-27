@@ -55,8 +55,8 @@ class DrupalContentImporter {
    *   Result array with summary and warnings.
    */
   public function import(array $data, $preview_mode = FALSE) {
-    if (!isset($data['model'])) {
-      throw new \InvalidArgumentException('JSON must contain a "model" array.');
+    if (!isset($data['model']) && !isset($data['content'])) {
+      throw new \InvalidArgumentException('JSON must contain a "model" and/or "content" array.');
     }
     return $this->importConcise($data, $preview_mode);
   }
@@ -70,21 +70,23 @@ class DrupalContentImporter {
       'warnings' => [],
     ];
 
-    $model = $data['model'];
-    // Support both: an array of bundle defs, or keyed by entity type.
     $bundle_defs = [];
-    if (is_array($model) && (isset($model['node']) || isset($model['paragraph']))) {
-      foreach (['node', 'paragraph'] as $entity_type) {
-        if (!empty($model[$entity_type]) && is_array($model[$entity_type])) {
-          foreach ($model[$entity_type] as $def) {
-            $def['entity'] = $entity_type;
-            $bundle_defs[] = $def;
+    if (isset($data['model'])) {
+      $model = $data['model'];
+      // Support both: an array of bundle defs, or keyed by entity type.
+      if (is_array($model) && (isset($model['node']) || isset($model['paragraph']))) {
+        foreach (['node', 'paragraph'] as $entity_type) {
+          if (!empty($model[$entity_type]) && is_array($model[$entity_type])) {
+            foreach ($model[$entity_type] as $def) {
+              $def['entity'] = $entity_type;
+              $bundle_defs[] = $def;
+            }
           }
         }
+      } else {
+        // Assume $model is a flat array of bundle definitions.
+        $bundle_defs = is_array($model) ? $model : [];
       }
-    } else {
-      // Assume $model is a flat array of bundle definitions.
-      $bundle_defs = is_array($model) ? $model : [];
     }
 
     // Create bundles.
@@ -267,11 +269,28 @@ class DrupalContentImporter {
       }
       $field_name = 'field_' . $this->sanitizeFieldName($field_id);
       $widget_type = $drupal['widget'] ?? 'string_textfield';
+      
+      // Configure widget settings
+      $widget_settings = [];
+      
+      // Set paragraphs to be collapsed by default
+      if ($widget_type === 'paragraphs') {
+        $widget_settings = [
+          'edit_mode' => 'closed',
+          'closed_mode' => 'summary',
+          'autocollapse' => 'none',
+          'closed_mode_threshold' => 0,
+          'add_mode' => 'dropdown',
+          'form_display_mode' => 'default',
+          'default_paragraph_type' => '',
+        ];
+      }
+      
       $display_config['content'][$field_name] = [
         'type' => $widget_type,
         'weight' => $weight++,
         'region' => 'content',
-        'settings' => [],
+        'settings' => $widget_settings,
         'third_party_settings' => [],
       ];
     }
@@ -912,8 +931,14 @@ class DrupalContentImporter {
   private function handleImageFieldValue(array $value, string $field_id) {
     $uri = $value['uri'] ?? NULL;
     if (!$uri) {
+      \Drupal::logger('dcloud_import')->warning('No URI provided for image field @field_id', ['@field_id' => $field_id]);
       return NULL;
     }
+
+    \Drupal::logger('dcloud_import')->info('Processing image field @field_id with URI: @uri', [
+      '@field_id' => $field_id,
+      '@uri' => $uri
+    ]);
 
     $source_path = NULL;
     $filename = NULL;
@@ -955,6 +980,10 @@ class DrupalContentImporter {
     }
 
     if (!$source_path || !file_exists($source_path)) {
+      \Drupal::logger('dcloud_import')->warning('Image source not found or accessible: @path for field @field_id', [
+        '@path' => $source_path,
+        '@field_id' => $field_id
+      ]);
       return NULL;
     }
 
@@ -986,6 +1015,11 @@ class DrupalContentImporter {
       ]);
       $file->save();
 
+      \Drupal::logger('dcloud_import')->info('Successfully created file entity ID @file_id for field @field_id', [
+        '@file_id' => $file->id(),
+        '@field_id' => $field_id
+      ]);
+
       // Return image field value structure.
       return [
         'target_id' => $file->id(),
@@ -996,8 +1030,10 @@ class DrupalContentImporter {
       ];
     }
 
+    \Drupal::logger('dcloud_import')->warning('Failed to copy file to destination for field @field_id', ['@field_id' => $field_id]);
     return NULL;
   }
+
 
   /**
    * Clear GraphQL-specific caches instead of all caches.

@@ -13,9 +13,9 @@ class FileValidationService {
   use StringTranslationTrait;
 
   /**
-   * Default maximum file size (2.5MB).
+   * Default maximum file size (unlimited).
    */
-  const DEFAULT_MAX_SIZE = 2621440; // 2.5MB in bytes
+  const DEFAULT_MAX_SIZE = 0; // 0 = unlimited
 
   /**
    * Default allowed image extensions.
@@ -36,15 +36,6 @@ class FileValidationService {
   public function validateFile(FileInterface $file, array $settings = []): array {
     $errors = [];
 
-    // Validate file size.
-    $max_size = $this->parseFileSize($settings['max_filesize'] ?? '2.5MB');
-    if ($file->getSize() > $max_size) {
-      $errors[] = $this->t('The file @filename is @actual_size which exceeds the maximum allowed size of @max_size.', [
-        '@filename' => $file->getFilename(),
-        '@actual_size' => $this->formatBytes($file->getSize()),
-        '@max_size' => $this->formatBytes($max_size),
-      ]);
-    }
 
     // Validate file extension.
     $allowed_extensions = $this->parseFileExtensions($settings['file_extensions'] ?? 'png gif jpg jpeg svg webp');

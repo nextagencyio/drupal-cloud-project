@@ -109,7 +109,7 @@ class DrupalImportForm extends FormBase {
 
     // Validate the concise model structure.
     if (!$this->validateConciseModel($data)) {
-      $form_state->setErrorByName('json_data', $this->t('Invalid JSON structure. Expected "model" and optionally "content" arrays.'));
+      $form_state->setErrorByName('json_data', $this->t('Invalid JSON structure. Expected "model" and/or "content" arrays.'));
     }
   }
 
@@ -123,13 +123,17 @@ class DrupalImportForm extends FormBase {
    *   TRUE if valid, FALSE otherwise.
    */
   private function validateConciseModel(array $data): bool {
-    if (!isset($data['model']) || !is_array($data['model'])) {
+    // Allow either "model" or "content" or both
+    if (!isset($data['model']) && !isset($data['content'])) {
       return FALSE;
     }
 
-    foreach ($data['model'] as $item) {
-      if (!is_array($item) || !isset($item['bundle']) || !isset($item['label'])) {
-        return FALSE;
+    // If model exists, validate its structure
+    if (isset($data['model']) && is_array($data['model'])) {
+      foreach ($data['model'] as $item) {
+        if (!is_array($item) || !isset($item['bundle']) || !isset($item['label'])) {
+          return FALSE;
+        }
       }
     }
 

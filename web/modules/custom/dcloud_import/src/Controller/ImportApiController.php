@@ -86,11 +86,11 @@ class ImportApiController extends ControllerBase {
         ], 400);
       }
 
-      // Validate required structure
-      if (!isset($data['model']) || !is_array($data['model'])) {
+      // Validate required structure - allow either "model" or "content" or both
+      if (!isset($data['model']) && !isset($data['content'])) {
         return new JsonResponse([
           'success' => false,
-          'error' => 'Invalid JSON structure. Expected "model" array.',
+          'error' => 'Invalid JSON structure. Expected "model" and/or "content" arrays.',
         ], 400);
       }
 

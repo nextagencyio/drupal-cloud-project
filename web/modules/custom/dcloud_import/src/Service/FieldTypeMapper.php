@@ -160,7 +160,6 @@ class FieldTypeMapper {
         'settings' => [
           'file_directory' => '[date:custom:Y]-[date:custom:m]',
           'file_extensions' => 'png gif jpg jpeg svg webp',
-          'max_filesize' => '2.5MB',
           'max_resolution' => '2048x2048',
           'min_resolution' => '',
           'alt_field' => TRUE,
@@ -405,7 +404,6 @@ class FieldTypeMapper {
           'settings' => [
             'file_directory' => '[date:custom:Y]-[date:custom:m]',
             'file_extensions' => 'png gif jpg jpeg svg webp',
-            'max_filesize' => '2.5MB',
             'max_resolution' => '2048x2048',
             'min_resolution' => '',
             'alt_field' => TRUE,
