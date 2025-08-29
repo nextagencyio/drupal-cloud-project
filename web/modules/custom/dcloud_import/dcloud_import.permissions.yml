@@ -2,8 +2,3 @@
   title: 'Access DCloud Import API'
   description: 'Allow access to the REST API endpoints for importing content via JSON.'
   restrict access: TRUE
-
-'import dcloud config':
-  title: 'Import DCloud Configuration'
-  description: 'Allow importing of content types, fields, and configuration via UI or API.'
-  restrict access: TRUE

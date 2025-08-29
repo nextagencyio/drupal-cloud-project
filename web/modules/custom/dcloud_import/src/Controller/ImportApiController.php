@@ -3,11 +3,10 @@
 namespace Drupal\dcloud_import\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\dcloud_import\Service\DrupalContentImporter;
+use Drupal\json_import\Service\DrupalContentImporter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * REST API controller for dcloud_import.
@@ -17,14 +16,14 @@ class ImportApiController extends ControllerBase {
   /**
    * The Drupal content importer service.
    *
-   * @var \Drupal\dcloud_import\Service\DrupalContentImporter
+   * @var \Drupal\json_import\Service\DrupalContentImporter
    */
   protected $importer;
 
   /**
    * Constructs a new ImportApiController.
    *
-   * @param \Drupal\dcloud_import\Service\DrupalContentImporter $importer
+   * @param \Drupal\json_import\Service\DrupalContentImporter $importer
    *   The Drupal content importer service.
    */
   public function __construct(DrupalContentImporter $importer) {
@@ -36,7 +35,7 @@ class ImportApiController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('dcloud_import.importer')
+      $container->get('json_import.importer')
     );
   }
 
@@ -150,7 +149,7 @@ class ImportApiController extends ControllerBase {
   private function authenticateRequest(Request $request) {
     // DCloud Personal Access Token authentication (no OAuth dependency)
     $token = $request->headers->get('X-DCloud-Token');
-    
+
     if ($token && str_starts_with($token, 'dc_tok_')) {
       if ($this->validatePlatformToken($token)) {
         return TRUE;
@@ -191,7 +190,7 @@ class ImportApiController extends ControllerBase {
     if (str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site')) {
       $platformUrl = 'http://host.docker.internal:3333';
     }
-    
+
     \Drupal::logger('dcloud_import')->info('Attempting token validation against: @url', ['@url' => $platformUrl . '/api/auth/validate']);
 
     $ch = curl_init();

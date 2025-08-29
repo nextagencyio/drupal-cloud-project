@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "57a9ce148871a68c9ff0f3ad3341d7ff",
+    "content-hash": "513d061298056bbf33dd325ab2c6f5b0",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3470,6 +3470,71 @@
             "time": "2025-03-27T12:30:47+00:00"
         },
         {
+            "name": "justinrainbow/json-schema",
+            "version": "5.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jsonrainbow/json-schema.git",
+                "reference": "feb2ca6dd1cebdaf1ed60a4c8de2e53ce11c4fd8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/feb2ca6dd1cebdaf1ed60a4c8de2e53ce11c4fd8",
+                "reference": "feb2ca6dd1cebdaf1ed60a4c8de2e53ce11c4fd8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~2.2.20||~2.15.1",
+                "json-schema/json-schema-test-suite": "1.2.0",
+                "phpunit/phpunit": "^4.8.35"
+            },
+            "bin": [
+                "bin/validate-json"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JsonSchema\\": "src/JsonSchema/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bruno Prieto Reis",
+                    "email": "bruno.p.reis@gmail.com"
+                },
+                {
+                    "name": "Justin Rainbow",
+                    "email": "justin.rainbow@gmail.com"
+                },
+                {
+                    "name": "Igor Wiedler",
+                    "email": "igor@wiedler.ch"
+                },
+                {
+                    "name": "Robert Schönthal",
+                    "email": "seroscho@googlemail.com"
+                }
+            ],
+            "description": "A library to validate a json schema.",
+            "homepage": "https://github.com/justinrainbow/json-schema",
+            "keywords": [
+                "json",
+                "schema"
+            ],
+            "support": {
+                "issues": "https://github.com/jsonrainbow/json-schema/issues",
+                "source": "https://github.com/jsonrainbow/json-schema/tree/5.x.x"
+            },
+            "time": "2024-07-06T21:00:26+00:00"
+        },
+        {
             "name": "laravel/prompts",
             "version": "v0.3.6",
             "source": {
@@ -4179,6 +4244,58 @@
                 "source": "https://github.com/mck89/peast/tree/v1.17.2"
             },
             "time": "2025-07-01T09:30:45+00:00"
+        },
+        {
+            "name": "nextagencyio/json_import",
+            "version": "1.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nextagencyio/json_import.git",
+                "reference": "d2321fbffc6ed1203f1278d410ec6c96fce449ab"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nextagencyio/json_import/zipball/d2321fbffc6ed1203f1278d410ec6c96fce449ab",
+                "reference": "d2321fbffc6ed1203f1278d410ec6c96fce449ab",
+                "shasum": ""
+            },
+            "require": {
+                "drupal/core": "^10 || ^11",
+                "drupal/paragraphs": "*",
+                "justinrainbow/json-schema": "^5.2"
+            },
+            "require-dev": {
+                "drupal/core-dev": "^10 || ^11"
+            },
+            "default-branch": true,
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "1.0.0",
+                    "datestamp": 1693411200,
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "Project has not opted into security advisory coverage!"
+                    }
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Next Agency",
+                    "homepage": "https://nextagency.io"
+                }
+            ],
+            "description": "Import Drupal model and content from JSON via admin form or drush command.",
+            "homepage": "https://github.com/nextagencyio/json_import",
+            "support": {
+                "issues": "https://github.com/nextagencyio/json_import/issues",
+                "source": "https://github.com/nextagencyio/json_import/tree/1.x"
+            },
+            "time": "2025-08-29T00:30:02+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -8253,13 +8370,14 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
         "drupal/decoupled_preview_iframe": 20,
         "drupal/gin": 5,
-        "drupal/simple_oauth": 20
+        "drupal/simple_oauth": 20,
+        "nextagencyio/json_import": 20
     },
-    "prefer-stable": true,
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},

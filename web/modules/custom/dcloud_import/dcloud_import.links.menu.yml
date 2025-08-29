@@ -1,6 +1,0 @@
-dcloud_import.import_form:
-  title: 'Drupal Content Import'
-  description: 'Import Drupal model and content from concise JSON.'
-  route_name: dcloud_import.import_form
-  parent: dcloud.admin_category
-  weight: 20
