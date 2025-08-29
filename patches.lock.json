@@ -1,8 +1,17 @@
 {
-    "_hash": "8544b69401e92761ca0ad083d55b81c4",
+    "_hash": "e90bef3594fc5c068acdb60c79ab9fd20004d034f48cd1fc13bef52f697ff379",
     "patches": {
-        "drupal/decoupled_preview_iframe": {
-            "Drupal 11 compatibility: Add TypedConfigManagerInterface support": "patches/decoupled-preview-iframe-drupal11-fix.patch"
-        }
+        "drupal/decoupled_preview_iframe": [
+            {
+                "package": "drupal/decoupled_preview_iframe",
+                "description": "Drupal 11 compatibility: Add TypedConfigManagerInterface support",
+                "url": "patches/decoupled-preview-iframe-drupal11-fix.patch",
+                "sha256": "30eba18050eb3db68ff07f1129e85221b4da840df9d2a9f02dd9d55351cd531d",
+                "depth": 1,
+                "extra": {
+                    "provenance": "patches-file:patches.json"
+                }
+            }
+        ]
     }
 }

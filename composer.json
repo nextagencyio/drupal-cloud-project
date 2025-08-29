@@ -117,6 +117,7 @@
                 "type:drupal-recipe"
             ]
         },
+        "patches-file": "patches.json",
         "drupal-core-project-message": {
             "include-keys": [
                 "homepage",
@@ -140,6 +141,7 @@
         }
     },
     "scripts": {
-        "post-drupal-scaffold-cmd": "cd web/sites/default && test -z \"$(grep 'include \\\\$devpanel_settings;' settings.php)\" && patch -Np1 -r /dev/null < $APP_ROOT/.devpanel/drupal-settings.patch || :"
+        "post-drupal-scaffold-cmd": "cd web/sites/default && test -z \"$(grep 'include \\\\$devpanel_settings;' settings.php)\" && patch -Np1 -r /dev/null < $APP_ROOT/.devpanel/drupal-settings.patch || :",
+        "prl": "patches:lock"
     }
 }
