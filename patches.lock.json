@@ -1,0 +1,17 @@
+{
+    "_hash": "50b00a554ed15735d7739953e85c435cde2ed7b02f62b57dd4681a82a2526b08",
+    "patches": {
+        "drupal/core": [
+            {
+                "package": "drupal/core",
+                "description": "#3531174: Add configuration for additional known files in project root",
+                "url": "https://git.drupalcode.org/project/drupal/-/merge_requests/12432.patch",
+                "sha256": "9ed489bbb24e3e445bcb25df69cd9201464da818416abf29eb5ec60d087a67aa",
+                "depth": 2,
+                "extra": {
+                    "provenance": "patches-file:patches.json"
+                }
+            }
+        ]
+    }
+}
