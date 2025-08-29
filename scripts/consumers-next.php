@@ -27,24 +27,36 @@ if (!is_dir($private_path)) {
   mkdir($private_path, 0755, TRUE);
 }
 
-// Generate keys and configure OAuth.
+// Configure OAuth settings with key paths (always set these).
+try {
+  $config = \Drupal::configFactory()->getEditable('simple_oauth.settings');
+  $config->set('public_key', $site_path . '/private/public.key');
+  $config->set('private_key', $site_path . '/private/private.key');
+  $config->save();
+  $messages[] = 'OAuth key paths configured: ' . $site_path . '/private/';
+}
+catch (Exception $e) {
+  $messages[] = 'Error configuring OAuth key paths: ' . $e->getMessage();
+}
+
+// Generate keys if private path is writable and keys don't exist.
 if (is_writable($private_path)) {
-  try {
-    // Generate OAuth keys.
-    \Drupal::service('simple_oauth.key.generator')->generateKeys($private_path);
-
-    // Configure OAuth settings with the generated key paths (relative to
-    // Drupal root).
-    $config = \Drupal::configFactory()->getEditable('simple_oauth.settings');
-    $config->set('public_key', $site_path . '/private/public.key');
-    $config->set('private_key', $site_path . '/private/private.key');
-    $config->save();
-
-    $messages[] = 'OAuth keys generated successfully in ' . $private_path;
+  $public_key_path = $private_path . '/public.key';
+  $private_key_path = $private_path . '/private.key';
+  
+  if (!file_exists($public_key_path) || !file_exists($private_key_path)) {
+    try {
+      // Generate OAuth keys.
+      \Drupal::service('simple_oauth.key.generator')->generateKeys($private_path);
+      $messages[] = 'OAuth keys generated successfully in ' . $private_path;
+    }
+    catch (Exception $e) {
+      $messages[] = 'Error generating OAuth keys: ' . $e->getMessage();
+    }
+  } else {
+    $messages[] = 'OAuth keys already exist in ' . $private_path;
   }
-  catch (Exception $e) {
-    $messages[] = 'Error generating OAuth keys: ' . $e->getMessage();
-  }
+}
 
   // Copy recipe content files to site files directory.
   try {
@@ -88,6 +100,15 @@ if (is_writable($private_path)) {
 
   $random = new Random();
   $consumerStorage = \Drupal::entityTypeManager()->getStorage('consumer');
+
+  // Delete existing consumers before creating new ones.
+  $existing_consumers = $consumerStorage->loadByProperties([
+    'label' => ['Next.js Frontend', 'Next.js Viewer']
+  ]);
+  foreach ($existing_consumers as $consumer) {
+    $consumer->delete();
+    $messages[] = 'Deleted existing consumer: ' . $consumer->label();
+  }
 
   $previewerClientId = Crypt::randomBytesBase64();
   $previewerClientSecret = $random->word(8);
@@ -139,12 +160,6 @@ if (is_writable($private_path)) {
     'DRUPAL_CLIENT_ID=' . $viewerClientId,
     'DRUPAL_CLIENT_SECRET=' . $viewerClientSecret,
   ];
-}
-else {
-  $messages[] = 'Error: Private directory is not writable: ' . $private_path;
-
-  $messages[] = 'Please ensure the private directory exists and has proper permissions.';
-}
 
 // Check to see if ../drupal-cloud-starter/ is writable.
 // If so go ahead and update configuration files.
