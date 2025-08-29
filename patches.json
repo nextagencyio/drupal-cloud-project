@@ -1,7 +1,0 @@
-{
-  "patches": {
-    "drupal/decoupled_preview_iframe": {
-      "Drupal 11 compatibility: Add TypedConfigManagerInterface support": "patches/decoupled-preview-iframe-drupal11-fix.v2.patch"
-    }
-  }
-}
