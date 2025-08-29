@@ -42,7 +42,7 @@
         "drupal/core-project-message": "^11.2",
         "drupal/core-recipe-unpack": "^11.2",
         "drupal/core-recommended": "^11.2",
-        "drupal/decoupled_preview_iframe": "1.0.x-dev",
+        "drupal/decoupled_preview_iframe": "1.0.x-dev#9b932fef43e9baf59ad6a03f4594da1c8cb049ff",
         "drupal/field_group": "^3.6",
         "drupal/gin": "^3.0@RC",
         "drupal/gin_login": "^2.1",
