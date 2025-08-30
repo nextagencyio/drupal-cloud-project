@@ -29,20 +29,24 @@
             "url": "https://git.drupalcode.org/issue/simple_oauth-3532181.git"
         },
         {
+            "type": "vcs",
+            "url": "https://git.drupalcode.org/issue/decoupled_preview_iframe-3543929.git"
+        },
+        {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         }
     ],
     "require": {
         "composer/installers": "^2.3",
-        "cweagans/composer-patches": "^1.7",
+        "cweagans/composer-patches": "^2.0",
         "drupal/admin_toolbar": "^3.4",
         "drupal/admin_toolbar_tools": "^3.4",
         "drupal/core-composer-scaffold": "^11.2",
         "drupal/core-project-message": "^11.2",
         "drupal/core-recipe-unpack": "^11.2",
         "drupal/core-recommended": "^11.2",
-        "drupal/decoupled_preview_iframe": "1.0.x-dev#9b932fef43e9baf59ad6a03f4594da1c8cb049ff",
+        "drupal/decoupled_preview_iframe": "dev-3543929-drupal-11-fixes",
         "drupal/field_group": "^3.6",
         "drupal/gin": "^3.0@RC",
         "drupal/gin_login": "^2.1",
@@ -131,11 +135,6 @@
                 "  * Remove the plugin that prints this message:",
                 "      composer remove drupal/core-project-message"
             ]
-        },
-        "patches": {
-            "drupal/decoupled_preview_iframe": {
-                "Drupal 11 compatibility: Add TypedConfigManagerInterface support": "patches/decoupled-preview-iframe-drupal11-fix.patch"
-            }
         }
     }
 }
