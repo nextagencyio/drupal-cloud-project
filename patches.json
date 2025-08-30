@@ -1,0 +1,7 @@
+{
+  "patches": {
+    "drupal/decoupled_preview_iframe": {
+      "Drupal 11 typed config manager constructor + container wiring": "patches/decoupled-preview-iframe-drupal11-fix.v3.patch"
+    }
+  }
+}
