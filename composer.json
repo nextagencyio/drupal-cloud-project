@@ -35,6 +35,7 @@
     ],
     "require": {
         "composer/installers": "^2.3",
+        "cweagans/composer-patches": "^2.0@beta",
         "drupal/admin_toolbar": "^3.4",
         "drupal/admin_toolbar_tools": "^3.4",
         "drupal/core-composer-scaffold": "^11.2",
@@ -73,6 +74,7 @@
         "sort-packages": true
     },
     "extra": {
+        "patches-file": "patches.json",
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"

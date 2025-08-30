@@ -1,0 +1,17 @@
+{
+    "_hash": "d949a393285d63a4909a7b21b4e9ba5ee82b9cb4eed88a5f4508b3799dd8defd",
+    "patches": {
+        "drupal/decoupled_preview_iframe": [
+            {
+                "package": "drupal/decoupled_preview_iframe",
+                "description": "Drupal 11 typed config manager constructor + container wiring",
+                "url": "patches/decoupled-preview-iframe-drupal11-fix.v5.patch",
+                "sha256": "e54fb3584f5ab6b0a050575425ef7f831e77a87faced1229b0cddf1454b03233",
+                "depth": 1,
+                "extra": {
+                    "provenance": "patches-file:patches.json"
+                }
+            }
+        ]
+    }
+}
