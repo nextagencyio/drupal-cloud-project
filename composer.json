@@ -35,7 +35,6 @@
     ],
     "require": {
         "composer/installers": "^2.3",
-        "cweagans/composer-patches": "^2@beta",
         "drupal/admin_toolbar": "^3.4",
         "drupal/admin_toolbar_tools": "^3.4",
         "drupal/core-composer-scaffold": "^11.2",
@@ -117,7 +116,6 @@
                 "type:drupal-recipe"
             ]
         },
-        "patches-file": "patches.json",
         "drupal-core-project-message": {
             "include-keys": [
                 "homepage",
@@ -141,7 +139,6 @@
         }
     },
     "scripts": {
-        "post-drupal-scaffold-cmd": "cd web/sites/default && test -z \"$(grep 'include \\\\$devpanel_settings;' settings.php)\" && patch -Np1 -r /dev/null < $APP_ROOT/.devpanel/drupal-settings.patch || :",
-        "prl": "patches:lock"
+        "post-drupal-scaffold-cmd": "cd web/sites/default && test -z \"$(grep 'include \\\\$devpanel_settings;' settings.php)\" && patch -Np1 -r /dev/null < $APP_ROOT/.devpanel/drupal-settings.patch || :"
     }
 }
