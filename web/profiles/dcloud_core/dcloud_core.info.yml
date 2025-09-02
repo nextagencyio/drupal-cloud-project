@@ -5,3 +5,12 @@ version: VERSION
 core_version_requirement: ^9 || ^10 || ^11
 distribution:
   name: 'Drupal Cloud Core'
+
+dependencies:
+  # Drupal Cloud custom modules
+  - dcloud_chatbot
+  - dcloud_config
+  - dcloud_import
+  - dcloud_revalidate
+  - dcloud_usage
+  - dcloud_user_redirect
