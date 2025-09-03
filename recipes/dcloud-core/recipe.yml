@@ -27,7 +27,6 @@ install:
   - field_ui
   - file
   - image
-  - language
   - link
   - media
   - media_library
@@ -38,24 +37,6 @@ install:
   - path
   - shortcut
   - taxonomy
-  - views
-  - views_ui
-
-  # JSON:API for headless compatibility
-  - jsonapi
-
-  # Decoupled preview iframe for content preview
-  - decoupled_preview_iframe
-
-  # GraphQL modules for modern API
-  - graphql
-  - graphql_compose
-  - graphql_compose_edges
-  - graphql_compose_image_style
-  - graphql_compose_menus
-  - graphql_compose_routes
-  - graphql_compose_users
-  - graphql_compose_views
 
   # Content structure modules
   - paragraphs
@@ -66,11 +47,6 @@ install:
   - pathauto
   - token
 
-    # OAuth authentication for headless apps (must be before dcloud modules)
-  - simple_oauth
-  - serialization
-  - consumers
-
   # Admin experience with Gin theme
   - gin
   - gin_login
@@ -79,14 +55,6 @@ install:
   # Admin toolbar for enhanced navigation
   - admin_toolbar
   - admin_toolbar_tools
-
-  # Drupal Cloud configuration and usage tracking (order matters)
-  - dcloud_revalidate
-  - dcloud_config
-  - dcloud_usage
-  - dcloud_import
-  - dcloud_chatbot
-  - dcloud_user_redirect
 
 config:
   strict:
@@ -107,7 +75,6 @@ config:
     - field.storage.paragraph.field_feature_title
     - field.storage.paragraph.field_feature_description
     - field.storage.paragraph.field_feature_icon
-
 
   import:
     # Core configuration imports
@@ -140,23 +107,12 @@ config:
     views: '*'
     views_ui: '*'
 
-    # JSON:API configuration
-    jsonapi: '*'
-
-    # GraphQL configuration
-    graphql: '*'
-    graphql_compose: '*'
-
     # Content modules
     paragraphs: '*'
 
     # Path and URL configuration
     pathauto: '*'
     token: '*'
-
-    # Decoupled preview iframe configuration
-    decoupled_preview_iframe: '*'
-
 
 
     # Gin admin theme configuration
@@ -171,11 +127,6 @@ config:
       - block.block.gin_primary_local_tasks
     gin_toolbar: '*'
     gin_login: '*'
-
-    # Drupal Cloud Chatbot configuration
-    dcloud_chatbot: '*'
-
-
 
   actions:
     # Set Gin as both default and admin theme
@@ -204,14 +155,6 @@ config:
         weight: -5
         settings.secondary: true
 
-    # Configure GraphQL for headless usage - using config import instead of ensure_exists
-    # The GraphQL server configuration is handled via config import
-
-    # Configure JSON:API settings for headless compatibility
-    jsonapi.settings:
-      simple_config_update:
-        read_only: false
-
     # Configure pathauto for clean URLs
     pathauto.settings:
       simple_config_update:
@@ -219,20 +162,3 @@ config:
           - node
           - taxonomy_term
         punctuation.hyphen: 1
-
-    # Configure OAuth settings - keys will be generated per site
-    simple_oauth.settings:
-      simple_config_update:
-        access_token_expiration: 2592000
-        authorization_code_expiration: 2592000
-        refresh_token_expiration: 2592000
-        token_cron_batch_size: 0
-        remember_clients: true
-        use_implicit: false
-        disable_openid_connect: false
-
-    # Configure dcloud_revalidate with default frontend URL
-    dcloud_revalidate.settings:
-      simple_config_update:
-        enabled: false
-        frontend_url: 'http://host.docker.internal:3333'

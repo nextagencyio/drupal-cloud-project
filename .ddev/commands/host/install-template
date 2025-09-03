@@ -3,8 +3,12 @@
 # Install template site
 echo "Installing template site..."
 ddev drush --uri=http://template.dcloud.ddev.site si -y dcloud_core
+echo "Applying dcloud-api recipe..."
+ddev drush --uri=http://template.dcloud.ddev.site recipe ../recipes/dcloud-api
 echo "Applying dcloud-core recipe..."
 ddev drush --uri=http://template.dcloud.ddev.site recipe ../recipes/dcloud-core
+echo "Applying dcloud-content recipe..."
+ddev drush --uri=http://template.dcloud.ddev.site recipe ../recipes/dcloud-content
 echo "Clearing cache..."
 ddev drush --uri=http://template.dcloud.ddev.site cr
 echo "Run consumers script..."
