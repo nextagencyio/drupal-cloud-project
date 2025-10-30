@@ -8,6 +8,16 @@ applications:
 
     type: "php:8.3"
 
+    dependencies:
+      php:
+        composer/composer: "^2"
+
+    runtime:
+      extensions:
+        - sodium
+        - apcu
+        - redis
+
     size: "AUTO"
 
     web:
