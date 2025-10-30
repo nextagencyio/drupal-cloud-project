@@ -19,8 +19,8 @@ applications:
         - sodium
         - apcu
 
-    # Set explicit minimal size
-    size: "0.25"
+    # Set minimal size for cost optimization
+    size: "XS"
 
     web:
       locations:
@@ -120,7 +120,7 @@ applications:
 services:
   mariadb:
     type: mariadb:11.4
-    size: "0.25"
+    size: "S"
     configuration:
       schemas:
         - main
