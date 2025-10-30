@@ -67,13 +67,19 @@ applications:
         else
           echo "Installing Drupal site..."
 
-          # Install using dcloud_core profile
-          ../vendor/bin/drush si -y dcloud_core \
+          # Install Drupal (no profile - matches Docker/DDEV approach)
+          ../vendor/bin/drush site-install -y \
             --site-name="DrupalCloud Site" \
             --account-name=admin \
-            --account-pass=admin
+            --account-pass=admin \
+            --account-mail=admin@example.com \
+            --site-mail=noreply@example.com \
+            --notify=false
 
-          # Apply recipes in order
+          # Apply recipes in correct order (admin FIRST to set up Gin theme)
+          echo "Applying dcloud-admin recipe..."
+          ../vendor/bin/drush recipe ../recipes/dcloud-admin -y
+
           echo "Applying dcloud-api recipe..."
           ../vendor/bin/drush recipe ../recipes/dcloud-api -y
 
@@ -82,9 +88,6 @@ applications:
 
           echo "Applying dcloud-core recipe..."
           ../vendor/bin/drush recipe ../recipes/dcloud-core -y
-
-          echo "Applying dcloud-admin recipe..."
-          ../vendor/bin/drush recipe ../recipes/dcloud-admin -y
 
           echo "Applying dcloud-content recipe..."
           ../vendor/bin/drush recipe ../recipes/dcloud-content -y
