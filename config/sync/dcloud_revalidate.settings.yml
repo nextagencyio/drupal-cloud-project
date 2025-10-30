@@ -1,0 +1,5 @@
+_core:
+  default_config_hash: vWoRyRMhg9XBDq5myIaZy1jrozmlJeIaqjDX8NztGPk
+enabled: false
+frontend_url: 'http://host.docker.internal:3333'
+revalidate_secret: 75b612a8a54e9c8a42ed060b84f011af

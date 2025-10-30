@@ -1,0 +1,21 @@
+uuid: d59ac75d-6fdf-49ad-b039-07b7959533de
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+_core:
+  default_config_hash: pDUz9pMDpvWKWWWd_ty0UwVIH0cxycp9Xo8JItgwaW8
+id: node.field_cta_description
+field_name: field_cta_description
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

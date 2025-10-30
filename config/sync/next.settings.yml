@@ -1,0 +1,4 @@
+_core:
+  default_config_hash: t02sle-Zf3TYmi0m8Tbv0x1kU88j0uBO-i7-oDr7JQ8
+base_url: 'http://host.docker.internal:3333'
+revalidate_secret: not-set

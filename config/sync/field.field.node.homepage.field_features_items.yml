@@ -1,0 +1,33 @@
+uuid: 04afc50f-140e-4211-a1ee-3dfaa7ca481d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_features_items
+    - node.type.homepage
+    - paragraphs.paragraphs_type.feature_item
+  module:
+    - entity_reference_revisions
+_core:
+  default_config_hash: ZdtV56OVoyljcZva7p48zRY__0X9LzDNr0Z7YXQ7smY
+id: node.homepage.field_features_items
+field_name: field_features_items
+entity_type: node
+bundle: homepage
+label: 'Feature Items'
+description: 'Individual feature items with structured content'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      feature_item: feature_item
+    target_bundles_drag_drop:
+      feature_item:
+        enabled: true
+        weight: 2
+field_type: entity_reference_revisions

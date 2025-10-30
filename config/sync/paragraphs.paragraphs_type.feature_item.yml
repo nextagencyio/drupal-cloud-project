@@ -1,0 +1,12 @@
+uuid: 92b88bc2-ad80-4810-bfaf-acb10c0b925e
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: VfcJxJMUeT7wjKFUODOaDZ53m8kHge4yOIxXczjKKDM
+id: feature_item
+label: 'Feature Item'
+icon_uuid: null
+icon_default: null
+description: 'A feature item with title and description for marketing pages'
+behavior_plugins: {  }

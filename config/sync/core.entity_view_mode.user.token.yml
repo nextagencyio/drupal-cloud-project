@@ -1,0 +1,11 @@
+uuid: ca227981-aceb-49dc-ade8-38644ad9725c
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: user.token
+label: Token
+description: null
+targetEntityType: user
+cache: true

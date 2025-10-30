@@ -1,0 +1,25 @@
+uuid: e1deed95-3183-4fa9-a418-2975659aa3d9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_primary_cta
+    - node.type.homepage
+  module:
+    - link
+_core:
+  default_config_hash: 5XjaUisyrKae3sdfI-0rfBzFgHPP4xd7b0KA64jF4qk
+id: node.homepage.field_primary_cta
+field_name: field_primary_cta
+entity_type: node
+bundle: homepage
+label: 'Primary CTA'
+description: 'Primary call-to-action button'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

@@ -1,0 +1,35 @@
+uuid: 0e32594e-2f1d-4bc6-8ff3-122c68bae96c
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.paragraph.preview
+    - field.field.paragraph.feature_item.field_feature_description
+    - field.field.paragraph.feature_item.field_feature_icon
+    - field.field.paragraph.feature_item.field_feature_title
+    - paragraphs.paragraphs_type.feature_item
+_core:
+  default_config_hash: QAROn3Z9v88feb5ZwE0BaxlEaN7sy3T-GSacw6YH35M
+id: paragraph.feature_item.preview
+targetEntityType: paragraph
+bundle: feature_item
+mode: preview
+content:
+  field_feature_icon:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_feature_title:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  field_feature_description: true

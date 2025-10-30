@@ -1,0 +1,5 @@
+_core:
+  default_config_hash: krVf6JrAiqowLvhQv-7p2HMKl8DFgWQkM5FTAtzDX6E
+enabled: false
+api_key: ''
+api_url: 'http://host.docker.internal:3333/api/chatbot'

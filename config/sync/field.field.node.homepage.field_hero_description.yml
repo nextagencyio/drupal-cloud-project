@@ -1,0 +1,24 @@
+uuid: ff30ad1a-7351-43f7-8d6a-0dc620a72f0f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hero_description
+    - node.type.homepage
+  module:
+    - text
+_core:
+  default_config_hash: iBYksGqNmocBy235IK3iMAqIgVBd17fUNVbe_khCebw
+id: node.homepage.field_hero_description
+field_name: field_hero_description
+entity_type: node
+bundle: homepage
+label: 'Hero Description'
+description: 'The description text displayed in the hero section'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

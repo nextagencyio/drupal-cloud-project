@@ -1,0 +1,24 @@
+uuid: 62708a0b-bfb6-4a4e-8d2e-18dd72bb8d96
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_feature_description
+    - paragraphs.paragraphs_type.feature_item
+  module:
+    - text
+_core:
+  default_config_hash: Bpr2OcpgjIh7aKhmho7ocDX_qXmhoV8X_Yo23Ts8hqE
+id: paragraph.feature_item.field_feature_description
+field_name: field_feature_description
+entity_type: paragraph
+bundle: feature_item
+label: 'Feature Description'
+description: 'The description of this feature'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

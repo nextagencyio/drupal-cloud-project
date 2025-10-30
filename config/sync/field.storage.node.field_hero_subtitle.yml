@@ -1,0 +1,23 @@
+uuid: dd18ab48-3623-4352-9dca-047c2a56f4d2
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+_core:
+  default_config_hash: GbNg6iznTSzwyDaKoFGLKriNkdCprZ8lktzQGgTdfpM
+id: node.field_hero_subtitle
+field_name: field_hero_subtitle
+entity_type: node
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,25 @@
+uuid: 14153f1d-3017-4af6-bb09-baa16ed367ba
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_secondary_cta
+    - node.type.homepage
+  module:
+    - link
+_core:
+  default_config_hash: 8XD9mkdgxquQxEkIprtQuWZ-yo0gc9DU_Rvr2g-Pp0w
+id: node.homepage.field_secondary_cta
+field_name: field_secondary_cta
+entity_type: node
+bundle: homepage
+label: 'Secondary CTA'
+description: 'Secondary call-to-action button'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

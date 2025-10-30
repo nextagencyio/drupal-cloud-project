@@ -1,0 +1,16 @@
+uuid: f6ffe847-0406-4341-83ef-2ac8cafcf1b3
+langcode: en
+status: true
+dependencies:
+  module:
+    - graphql
+    - simple_oauth
+_core:
+  default_config_hash: uCFCJ2XGksVma40VYIAvEJqvjCs2XItT9MjeGZVugSM
+id: viewer
+label: Viewer
+weight: 4
+is_admin: false
+permissions:
+  - 'execute graphql_compose_server arbitrary graphql requests'
+  - 'grant simple_oauth codes'

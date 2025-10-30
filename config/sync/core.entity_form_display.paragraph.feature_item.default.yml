@@ -1,0 +1,45 @@
+uuid: 933206af-9a78-4596-b5da-962202d9d0bb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.feature_item.field_feature_description
+    - field.field.paragraph.feature_item.field_feature_icon
+    - field.field.paragraph.feature_item.field_feature_title
+    - paragraphs.paragraphs_type.feature_item
+  module:
+    - text
+_core:
+  default_config_hash: gWKviOO8Z9tv48ateYqGezFXHhHtgkEOCesjiFET_ug
+id: paragraph.feature_item.default
+targetEntityType: paragraph
+bundle: feature_item
+mode: default
+content:
+  field_feature_description:
+    type: text_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 4
+      placeholder: 'Describe this feature and its benefits...'
+    third_party_settings: {  }
+  field_feature_icon:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 30
+      placeholder: 'e.g., database, zap, shield'
+    third_party_settings: {  }
+  field_feature_title:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: 'e.g., Lightning Fast Performance'
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

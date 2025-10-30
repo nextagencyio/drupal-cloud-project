@@ -1,0 +1,21 @@
+uuid: 91acef68-da89-482e-a848-1d80b99aff56
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_feature_title
+    - paragraphs.paragraphs_type.feature_item
+_core:
+  default_config_hash: xrvPeGOG_y-TzWU8UPjGRuRJfh6-qekgupsAIiAyx6Y
+id: paragraph.feature_item.field_feature_title
+field_name: field_feature_title
+entity_type: paragraph
+bundle: feature_item
+label: 'Feature Title'
+description: 'The title of this feature'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

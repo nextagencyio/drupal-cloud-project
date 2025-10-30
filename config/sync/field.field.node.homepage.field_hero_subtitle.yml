@@ -1,0 +1,21 @@
+uuid: a1b46ad8-a011-4435-a44c-c03e2bf55b9b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hero_subtitle
+    - node.type.homepage
+_core:
+  default_config_hash: FM4xtVtOl_DpVhcqtW9XzKdBEH8MN7XmxAKtqXLNO5g
+id: node.homepage.field_hero_subtitle
+field_name: field_hero_subtitle
+entity_type: node
+bundle: homepage
+label: 'Hero Subtitle'
+description: 'The subtitle displayed in the hero section'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

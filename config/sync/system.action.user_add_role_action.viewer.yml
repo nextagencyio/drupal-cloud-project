@@ -1,0 +1,14 @@
+uuid: 4123ecaa-aeaa-40d5-b929-198a6284c499
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.viewer
+  module:
+    - user
+id: user_add_role_action.viewer
+label: 'Add the Viewer role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: viewer

@@ -1,0 +1,21 @@
+uuid: cf4ba92f-3911-49da-8520-0bd04ea56ecb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_features_title
+    - node.type.homepage
+_core:
+  default_config_hash: gD44rrLM-t8wozWXUgUZGtsn0540IBgQ0TIOgfM7eKc
+id: node.homepage.field_features_title
+field_name: field_features_title
+entity_type: node
+bundle: homepage
+label: 'Features Title'
+description: 'Title for the features section'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

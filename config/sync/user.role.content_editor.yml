@@ -1,0 +1,16 @@
+uuid: 173bd7d0-3229-4cc9-8aea-418278016744
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - system
+_core:
+  default_config_hash: g-zSnaBXJnH7VoimReFb6KcLjIgHCU-hisiShtZ9hjQ
+id: content_editor
+label: 'Content editor'
+weight: 2
+is_admin: false
+permissions:
+  - 'access administration pages'
+  - 'view own unpublished content'
