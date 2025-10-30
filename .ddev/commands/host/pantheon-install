@@ -34,49 +34,61 @@ if ! terminus site:info "$SITE_ID" &> /dev/null; then
     exit 1
 fi
 
-# Set connection mode to SFTP for installation
-echo "Setting connection mode to SFTP..."
+# Step 1: Install locally with DDEV
+echo ""
+echo "Step 1: Installing Drupal locally with DDEV..."
+echo "=================================================="
+if ! ddev install; then
+    echo "Error: Local installation failed"
+    exit 1
+fi
+
+echo ""
+echo "✅ Local installation complete!"
+
+# Step 2: Export local database
+echo ""
+echo "Step 2: Exporting local database..."
+echo "=================================================="
+DB_DUMP="/tmp/drupal-cloud-${SITE_ID}.sql.gz"
+if ! ddev export-db --gzip --file="$DB_DUMP"; then
+    echo "Error: Database export failed"
+    exit 1
+fi
+
+echo "✅ Database exported to: $DB_DUMP"
+
+# Step 3: Set Pantheon to SFTP mode
+echo ""
+echo "Step 3: Setting Pantheon to SFTP mode..."
+echo "=================================================="
 terminus connection:set "$SITE_ID.$ENV" sftp
 
-# Install Drupal core
-echo "Installing Drupal core..."
-terminus drush "$SITE_ID.$ENV" -- site:install \
-    --account-name=admin \
-    --account-pass=admin \
-    --account-mail=admin@example.com \
-    --site-name="Drupal Cloud Site" \
-    --site-mail=noreply@example.com \
-    --yes
+# Step 4: Import database to Pantheon
+echo ""
+echo "Step 4: Importing database to Pantheon..."
+echo "=================================================="
+if ! terminus import:database "$SITE_ID.$ENV" "$DB_DUMP"; then
+    echo "Error: Database import failed"
+    exit 1
+fi
 
-echo "Base Drupal installation complete!"
+echo "✅ Database imported to Pantheon!"
 
-# Apply recipes in correct order (uses project's Drush 13 from vendor)
-echo "Applying dcloud-admin recipe..."
-terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-admin
-
-echo "Applying dcloud-api recipe..."
-terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-api
-
-echo "Applying dcloud-fields recipe..."
-terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-fields
-
-echo "Applying dcloud-core recipe..."
-terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-core
-
-echo "Applying dcloud-content recipe..."
-terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-content
-
-# Clear caches
-echo "Clearing cache..."
+# Step 5: Clear caches on Pantheon
+echo ""
+echo "Step 5: Clearing caches on Pantheon..."
+echo "=================================================="
 terminus drush "$SITE_ID.$ENV" -- cache:rebuild
 
-# Run consumers-next script
-echo "Setting up OAuth consumers..."
-terminus drush "$SITE_ID.$ENV" -- scr scripts/consumers-next.php
-
-# Set connection mode back to git
-echo "Setting connection mode back to git..."
+# Step 6: Set connection mode back to git
+echo ""
+echo "Step 6: Setting connection mode back to git..."
+echo "=================================================="
 terminus connection:set "$SITE_ID.$ENV" git
+
+# Clean up local database dump
+rm -f "$DB_DUMP"
 
 # Generate login link
 echo "Generating admin login link..."
