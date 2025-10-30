@@ -50,21 +50,21 @@ terminus drush "$SITE_ID.$ENV" -- site:install \
 
 echo "Base Drupal installation complete!"
 
-# Apply recipes in correct order using project's Drush 13 (vendor/bin/drush)
+# Apply recipes in correct order (uses project's Drush 13 from vendor)
 echo "Applying dcloud-admin recipe..."
-terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-admin --yes"
+terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-admin
 
 echo "Applying dcloud-api recipe..."
-terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-api --yes"
+terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-api
 
 echo "Applying dcloud-fields recipe..."
-terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-fields --yes"
+terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-fields
 
 echo "Applying dcloud-core recipe..."
-terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-core --yes"
+terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-core
 
 echo "Applying dcloud-content recipe..."
-terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-content --yes"
+terminus drush "$SITE_ID.$ENV" -- recipe ../recipes/dcloud-content
 
 # Clear caches
 echo "Clearing cache..."
