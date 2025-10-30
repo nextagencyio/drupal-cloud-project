@@ -1,0 +1,100 @@
+#!/bin/bash
+
+## Description: Install Drupal Cloud on Pantheon site
+## Usage: pantheon-install [site-id]
+## Example: "ddev pantheon-install drupal-cloud"
+
+# Check if terminus is available
+if ! command -v terminus &> /dev/null; then
+    echo "Error: Terminus CLI is not installed or not in PATH"
+    echo "Install it from: https://pantheon.io/docs/terminus/install"
+    exit 1
+fi
+
+# Check if site ID is provided
+if [ -z "$1" ]; then
+    echo "Error: Site ID is required"
+    echo "Usage: ddev pantheon-install [site-id]"
+    echo "Example: ddev pantheon-install drupal-cloud"
+    exit 1
+fi
+
+SITE_ID="$1"
+ENV="${2:-dev}"
+
+echo "=================================================="
+echo "Drupal Cloud Pantheon Installation Starting..."
+echo "Site: $SITE_ID"
+echo "Environment: $ENV"
+echo "=================================================="
+
+# Check if site exists
+if ! terminus site:info "$SITE_ID" &> /dev/null; then
+    echo "Error: Site '$SITE_ID' not found or you don't have access"
+    exit 1
+fi
+
+# Set connection mode to SFTP for installation
+echo "Setting connection mode to SFTP..."
+terminus connection:set "$SITE_ID.$ENV" sftp
+
+# Install Drupal core
+echo "Installing Drupal core..."
+terminus drush "$SITE_ID.$ENV" -- site:install \
+    --account-name=admin \
+    --account-pass=admin \
+    --account-mail=admin@example.com \
+    --site-name="Drupal Cloud Site" \
+    --site-mail=noreply@example.com \
+    --yes
+
+echo "Base Drupal installation complete!"
+
+# Apply recipes in correct order using project's Drush 13 (vendor/bin/drush)
+echo "Applying dcloud-admin recipe..."
+terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-admin --yes"
+
+echo "Applying dcloud-api recipe..."
+terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-api --yes"
+
+echo "Applying dcloud-fields recipe..."
+terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-fields --yes"
+
+echo "Applying dcloud-core recipe..."
+terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-core --yes"
+
+echo "Applying dcloud-content recipe..."
+terminus env:exec "$SITE_ID.$ENV" -- "cd /code && vendor/bin/drush recipe recipes/dcloud-content --yes"
+
+# Clear caches
+echo "Clearing cache..."
+terminus drush "$SITE_ID.$ENV" -- cache:rebuild
+
+# Run consumers-next script
+echo "Setting up OAuth consumers..."
+terminus drush "$SITE_ID.$ENV" -- scr scripts/consumers-next.php
+
+# Set connection mode back to git
+echo "Setting connection mode back to git..."
+terminus connection:set "$SITE_ID.$ENV" git
+
+# Generate login link
+echo "Generating admin login link..."
+LOGIN_URL=$(terminus drush "$SITE_ID.$ENV" -- uli)
+
+# Get site URL
+SITE_URL=$(terminus env:view "$SITE_ID.$ENV" --print)
+
+echo "=================================================="
+echo "✅ Drupal Cloud installation completed successfully!"
+echo "=================================================="
+echo ""
+echo "🌐 Site URL: $SITE_URL"
+echo "👤 Admin login: $LOGIN_URL"
+echo "📋 Admin credentials: admin/admin"
+echo ""
+echo "🔧 Available APIs:"
+echo "   - GraphQL: ${SITE_URL}graphql"
+echo "   - JSON:API: ${SITE_URL}jsonapi"
+echo ""
+echo "Happy Drupaling on Pantheon! 🚀"
