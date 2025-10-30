@@ -67,13 +67,11 @@ applications:
         # Include Platform.sh settings if not already included
         if ! grep -q "settings.platformsh.php" sites/default/settings.php; then
           echo "Adding Platform.sh configuration to settings.php..."
-          cat >> sites/default/settings.php <<'PHPEOF'
-
-// Include Platform.sh/Upsun configuration
-if (file_exists(__DIR__ . '/settings.platformsh.php')) {
-  include __DIR__ . '/settings.platformsh.php';
-}
-PHPEOF
+          echo "" >> sites/default/settings.php
+          echo "// Include Platform.sh/Upsun configuration" >> sites/default/settings.php
+          echo "if (file_exists(__DIR__ . '/settings.platformsh.php')) {" >> sites/default/settings.php
+          echo "  include __DIR__ . '/settings.platformsh.php';" >> sites/default/settings.php
+          echo "}" >> sites/default/settings.php
         fi
 
         # Check if site is already installed
