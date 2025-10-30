@@ -57,23 +57,6 @@ applications:
         set -e
         cd web
 
-        # Ensure settings.php exists with Platform.sh configuration
-        if [ ! -f sites/default/settings.php ]; then
-          echo "Creating settings.php..."
-          cp sites/default/default.settings.php sites/default/settings.php
-          chmod 644 sites/default/settings.php
-        fi
-
-        # Include Platform.sh settings if not already included
-        if ! grep -q "settings.platformsh.php" sites/default/settings.php; then
-          echo "Adding Platform.sh configuration to settings.php..."
-          echo "" >> sites/default/settings.php
-          echo "// Include Platform.sh/Upsun configuration" >> sites/default/settings.php
-          echo "if (file_exists(__DIR__ . '/settings.platformsh.php')) {" >> sites/default/settings.php
-          echo "  include __DIR__ . '/settings.platformsh.php';" >> sites/default/settings.php
-          echo "}" >> sites/default/settings.php
-        fi
-
         # Check if site is already installed
         if ../vendor/bin/drush status bootstrap 2>/dev/null | grep -q "Successful"; then
           echo "Site already installed, running updates..."
