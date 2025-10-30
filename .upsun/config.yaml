@@ -10,8 +10,6 @@ applications:
 
     size: "AUTO"
 
-    disk: 2048
-
     web:
       locations:
         "/":
@@ -108,7 +106,6 @@ applications:
 services:
   mariadb:
     type: mariadb:11.4
-    disk: 2048
     configuration:
       schemas:
         - main
