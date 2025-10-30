@@ -51,7 +51,7 @@ applications:
     hooks:
       build: |
         set -e
-        echo "Running composer install..."
+        echo "Running composer install for Drupal Cloud..."
         composer install --no-dev --no-interaction --optimize-autoloader
 
       deploy: |
