@@ -35,6 +35,10 @@
         {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "path",
+            "url": "upstream-configuration"
         }
     ],
     "require": {
@@ -56,7 +60,9 @@
         "drupal/pathauto": "^1.13",
         "drupal/simple_oauth": "5.2.x-dev",
         "drush/drush": "^13.6",
-        "nextagencyio/json_import": "1.x-dev"
+        "nextagencyio/json_import": "1.x-dev",
+        "pantheon-systems/drupal-integrations": "^9",
+        "pantheon-upstreams/upstream-configuration": "dev-main"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -81,6 +87,14 @@
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"
+            },
+            "allowed-packages": [
+                "pantheon-systems/drupal-integrations"
+            ],
+            "file-mapping": {
+                "[project-root]/.editorconfig": false,
+                "[project-root]/pantheon.upstream.yml": false,
+                "[project-root]/.gitattributes": false
             }
         },
         "installer-paths": {
@@ -113,6 +127,9 @@
             ],
             "recipes/{$name}": [
                 "type:drupal-recipe"
+            ],
+            "web/private/scripts/quicksilver/{$name}/": [
+                "type:quicksilver-script"
             ]
         },
         "drupal-core-project-message": {
@@ -136,5 +153,10 @@
                 "      composer remove drupal/core-project-message"
             ]
         }
+    },
+    "autoload": {
+        "classmap": [
+            "upstream-configuration/scripts/ComposerScripts.php"
+        ]
     }
 }
