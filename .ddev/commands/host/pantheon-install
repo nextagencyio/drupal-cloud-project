@@ -75,11 +75,11 @@ fi
 
 echo "✅ Database imported to Pantheon!"
 
-# Step 5: Clear caches on Pantheon
+# Step 5: Clear caches on Pantheon (skip if it fails due to MemoryBackend bug)
 echo ""
 echo "Step 5: Clearing caches on Pantheon..."
 echo "=================================================="
-terminus drush "$SITE_ID.$ENV" -- cache:rebuild
+terminus drush "$SITE_ID.$ENV" -- cache:rebuild || echo "⚠️  Cache rebuild failed (known Pantheon bug), but site should work"
 
 # Step 6: Set connection mode back to git
 echo ""
@@ -90,9 +90,10 @@ terminus connection:set "$SITE_ID.$ENV" git
 # Clean up local database dump
 rm -f "$DB_DUMP"
 
-# Generate login link
+# Generate login link (may fail due to MemoryBackend bug)
+echo ""
 echo "Generating admin login link..."
-LOGIN_URL=$(terminus drush "$SITE_ID.$ENV" -- uli)
+LOGIN_URL=$(terminus drush "$SITE_ID.$ENV" -- uli 2>/dev/null || echo "Login link generation failed")
 
 # Get site URL
 SITE_URL=$(terminus env:view "$SITE_ID.$ENV" --print)
