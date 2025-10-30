@@ -19,8 +19,8 @@ applications:
         - sodium
         - apcu
 
-    # Set minimal size for cost optimization
-    size: "XS"
+    # Size M: 1.0 CPU, 384 MB RAM
+    size: "M"
 
     web:
       locations:
@@ -113,9 +113,9 @@ applications:
 
     variables:
       php:
-        memory_limit: "512M"
-        upload_max_filesize: "128M"
-        post_max_size: "128M"
+        memory_limit: "256M"
+        upload_max_filesize: "64M"
+        post_max_size: "64M"
 
 services:
   mariadb:
