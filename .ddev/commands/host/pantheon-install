@@ -35,11 +35,11 @@ if ! terminus site:info "$SITE_ID" &> /dev/null; then
     exit 1
 fi
 
-# Step 1: Set Pantheon to SFTP mode
+# Step 1: Ensure Pantheon is in git mode
 echo ""
-echo "Step 1: Setting Pantheon to SFTP mode..."
+echo "Step 1: Ensuring Pantheon is in git mode..."
 echo "=================================================="
-terminus connection:set "$SITE_ID.$ENV" sftp
+terminus connection:set "$SITE_ID.$ENV" git
 
 # Step 2: Install Drupal with existing config
 echo ""
@@ -57,12 +57,6 @@ echo ""
 echo "Step 3: Setting up OAuth consumers..."
 echo "=================================================="
 terminus drush "$SITE_ID.$ENV" -- scr scripts/consumers-next.php || echo "⚠️  OAuth setup failed, you may need to run this manually"
-
-# Step 4: Set connection mode back to git
-echo ""
-echo "Step 4: Setting connection mode back to git..."
-echo "=================================================="
-terminus connection:set "$SITE_ID.$ENV" git
 
 # Generate login link (may fail due to MemoryBackend bug)
 echo ""
