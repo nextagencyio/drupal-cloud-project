@@ -25,15 +25,8 @@ if (getenv('PLATFORM_RELATIONSHIPS')) {
     ];
   }
 
-  // Configure Redis if available and module is enabled.
-  if (isset($relationships['redis']) && extension_loaded('redis')) {
-    $redis = $relationships['redis'][0];
-    $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = $redis['host'];
-    $settings['redis.connection']['port'] = $redis['port'];
-    // Only configure Redis cache if the Redis module is installed
-    // Check will be done by recipes/modules that enable Redis
-  }
+  // Redis removed for minimal resource configuration
+  // Can be re-enabled by adding Redis service to .upsun/config.yaml
 
   // Set file paths for Upsun.
   $settings['file_private_path'] = '../private';

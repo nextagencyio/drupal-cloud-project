@@ -1,6 +1,7 @@
 # Upsun Configuration for Drupal Cloud Project
 # Repository: https://github.com/nextagencyio/drupal-cloud-project
 # Automatically installs Drupal and applies all recipes on first deployment
+# MINIMAL RESOURCE CONFIGURATION for cost optimization
 
 applications:
   drupal:
@@ -17,9 +18,9 @@ applications:
       extensions:
         - sodium
         - apcu
-        - redis
 
-    size: "AUTO"
+    # Set explicit minimal size
+    size: "0.25"
 
     web:
       locations:
@@ -103,7 +104,6 @@ applications:
 
     relationships:
       database: "mariadb:mysql"
-      redis: "redis:redis"
 
     crons:
       drupal:
@@ -113,13 +113,14 @@ applications:
 
     variables:
       php:
-        memory_limit: "256M"
-        upload_max_filesize: "128M"
-        post_max_size: "128M"
+        memory_limit: "192M"
+        upload_max_filesize: "64M"
+        post_max_size: "64M"
 
 services:
   mariadb:
     type: mariadb:11.4
+    size: "0.25"
     configuration:
       schemas:
         - main
@@ -128,9 +129,6 @@ services:
           default_schema: main
           privileges:
             main: admin
-
-  redis:
-    type: redis:7.2
 
 routes:
   "https://{default}/":
