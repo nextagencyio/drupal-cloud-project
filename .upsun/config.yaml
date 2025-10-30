@@ -1,0 +1,132 @@
+# Upsun Configuration for Drupal Cloud Project
+# Repository: https://github.com/nextagencyio/drupal-cloud-project
+
+applications:
+  drupal:
+    source:
+      root: "/"
+
+    type: "php:8.3"
+
+    size: "AUTO"
+
+    disk: 2048
+
+    web:
+      locations:
+        "/":
+          root: "web"
+          passthru: "/index.php"
+          allow: false
+          rules:
+            '\.(jpe?g|png|gif|svgz?|css|js|map|ico|bmp|eot|woff2?|otf|ttf|webp|avif)$':
+              allow: true
+            '^/robots\.txt$':
+              allow: true
+            '^/sitemap\.xml$':
+              allow: true
+            '^/\.well-known/':
+              allow: true
+
+    mounts:
+      "/web/sites/default/files":
+        source: "storage"
+        source_path: "files"
+      "/tmp":
+        source: "tmp"
+        source_path: "tmp"
+      "/private":
+        source: "storage"
+        source_path: "private"
+
+    hooks:
+      build: |
+        set -e
+        echo "Running composer install..."
+        composer install --no-dev --no-interaction --optimize-autoloader
+
+      deploy: |
+        set -e
+        cd web
+
+        # Check if site is already installed
+        if drush status bootstrap 2>/dev/null | grep -q "Successful"; then
+          echo "Site already installed, running updates..."
+          drush -y cache:rebuild
+          drush -y updatedb
+          drush -y config:import || true
+        else
+          echo "Installing Drupal site..."
+
+          # Install using dcloud_core profile
+          drush si -y dcloud_core \
+            --site-name="DrupalCloud Site" \
+            --account-name=admin \
+            --account-pass=admin
+
+          # Apply recipes in order
+          echo "Applying dcloud-api recipe..."
+          drush recipe ../recipes/dcloud-api -y
+
+          echo "Applying dcloud-fields recipe..."
+          drush recipe ../recipes/dcloud-fields -y
+
+          echo "Applying dcloud-core recipe..."
+          drush recipe ../recipes/dcloud-core -y
+
+          echo "Applying dcloud-admin recipe..."
+          drush recipe ../recipes/dcloud-admin -y
+
+          echo "Applying dcloud-content recipe..."
+          drush recipe ../recipes/dcloud-content -y
+
+          echo "Running consumers script..."
+          drush scr ../scripts/consumers-next.php
+
+          echo "Clearing cache..."
+          drush cr
+
+          echo "Site installation complete!"
+        fi
+
+    relationships:
+      database: "mariadb:mysql"
+      redis: "redis:redis"
+
+    crons:
+      drupal:
+        spec: "*/20 * * * *"
+        commands:
+          start: "cd web && drush core:cron"
+
+    variables:
+      php:
+        memory_limit: "256M"
+        upload_max_filesize: "128M"
+        post_max_size: "128M"
+
+services:
+  mariadb:
+    type: mariadb:11.4
+    disk: 2048
+    configuration:
+      schemas:
+        - main
+      endpoints:
+        mysql:
+          default_schema: main
+
+  redis:
+    type: redis:7.2
+
+routes:
+  "https://{default}/":
+    type: upstream
+    upstream: "drupal:http"
+    cache:
+      enabled: true
+      cookies: ['/^SS?ESS/', '/^Drupal.visitor/']
+
+  "https://www.{default}/":
+    type: redirect
+    to: "https://{default}/"
