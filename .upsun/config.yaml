@@ -1,5 +1,6 @@
 # Upsun Configuration for Drupal Cloud Project
 # Repository: https://github.com/nextagencyio/drupal-cloud-project
+# Automatically installs Drupal and applies all recipes on first deployment
 
 applications:
   drupal:
