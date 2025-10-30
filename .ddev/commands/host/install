@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Install Dcloud site
 echo "Installing Dcloud site..."
 ddev drush site:install --account-name=admin --account-pass=admin --account-mail=admin@example.com --site-name="Drupal Cloud Site" --site-mail=noreply@example.com --yes
