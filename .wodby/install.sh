@@ -5,6 +5,16 @@ echo "=================================================="
 echo "Drupal Cloud Installation Script"
 echo "=================================================="
 
+# Change to web root
+cd web
+
+# Check if Drupal is already installed
+if drush status bootstrap 2>/dev/null | grep -q "Successful"; then
+  echo "Drupal already installed, skipping installation"
+  echo "To force reinstall, run: drush sql:drop -y"
+  exit 0
+fi
+
 # Install Drupal
 echo "Installing Drupal..."
 drush site:install --account-name=admin --account-pass="${DRUPAL_ADMIN_PASSWORD:-admin}" --account-mail="${DRUPAL_ADMIN_EMAIL:-admin@example.com}" --site-name="Drupal Cloud Site" --site-mail="${DRUPAL_SITE_EMAIL:-noreply@example.com}" --yes
