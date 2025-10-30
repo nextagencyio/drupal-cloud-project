@@ -1,20 +1,4 @@
 pipeline:
-  - name: Install Composer dependencies
+  - name: Hello World
     type: command
-    command: composer install --no-interaction --prefer-dist --optimize-autoloader
-    directory: $APP_ROOT
-
-  - name: Run installation script
-    type: command
-    command: bash .wodby/install.sh
-    directory: $APP_ROOT
-
-  - name: Run database updates
-    type: command
-    command: drush updatedb --yes
-    directory: $HTTP_ROOT
-
-  - name: Clear Drupal cache
-    type: command
-    command: drush cache:rebuild
-    directory: $HTTP_ROOT
+    command: echo "Pipeline is working"
