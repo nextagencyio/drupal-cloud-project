@@ -1,0 +1,53 @@
+# Wodby ignore file - files and directories to exclude from deployment
+
+# DDEV local development
+.ddev/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Composer
+/vendor/
+composer.lock
+
+# Drupal
+web/sites/*/files/
+web/sites/*/private/
+web/sites/simpletest/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Documentation (optional - remove if you want docs deployed)
+README.md
+CHANGELOG.md
+docs/
+
+# Pantheon-specific files
+pantheon.yml
+.pantheon/
+
+# Local environment files
+.env.local
+.env.*.local

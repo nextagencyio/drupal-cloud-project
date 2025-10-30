@@ -1,0 +1,80 @@
+pipeline:
+  # Install dependencies
+  - name: Install Composer dependencies
+    type: command
+    command: composer install --no-interaction --prefer-dist --optimize-autoloader
+    directory: $APP_ROOT
+
+  # Check if Drupal is already installed
+  - name: Check Drupal installation status
+    type: command
+    command: drush status bootstrap 2>/dev/null || echo "not_installed"
+    directory: $HTTP_ROOT
+
+  # Install Drupal with recipes (only if not installed)
+  - name: Install Drupal site
+    type: command
+    command: |
+      if drush status bootstrap 2>/dev/null | grep -q "Successful"; then
+        echo "Drupal already installed, skipping installation"
+      else
+        echo "Installing Drupal Cloud..."
+        drush site:install --account-name=admin --account-pass=admin --account-mail=admin@example.com --site-name="Drupal Cloud Site" --site-mail=noreply@example.com --yes
+
+        echo "Applying dcloud-admin recipe..."
+        drush recipe ../recipes/dcloud-admin
+
+        echo "Applying dcloud-api recipe..."
+        drush recipe ../recipes/dcloud-api
+
+        echo "Applying dcloud-fields recipe..."
+        drush recipe ../recipes/dcloud-fields
+
+        echo "Applying dcloud-core recipe..."
+        drush recipe ../recipes/dcloud-core
+
+        echo "Applying dcloud-content recipe..."
+        drush recipe ../recipes/dcloud-content
+
+        echo "Setting up OAuth consumers..."
+        drush scr ../scripts/consumers-next.php || echo "OAuth setup failed, continuing..."
+      fi
+    directory: $HTTP_ROOT
+    only_if: test "$WODBY_ENVIRONMENT_TYPE" = "dev" || test "$WODBY_ENVIRONMENT_TYPE" = "stage"
+
+  # Import configuration (for existing installations on production)
+  - name: Import configuration
+    type: command
+    command: |
+      if drush status bootstrap 2>/dev/null | grep -q "Successful"; then
+        echo "Importing configuration..."
+        drush config:import -y || echo "Config import failed or no changes"
+      fi
+    directory: $HTTP_ROOT
+    only_if: test "$WODBY_ENVIRONMENT_TYPE" = "prod"
+
+  # Run database updates
+  - name: Run database updates
+    type: command
+    command: drush updatedb --yes
+    directory: $HTTP_ROOT
+
+  # Rebuild cache
+  - name: Clear Drupal cache
+    type: command
+    command: drush cache:rebuild
+    directory: $HTTP_ROOT
+
+  # Set correct file permissions
+  - name: Set file permissions
+    type: command
+    command: |
+      chmod -R 755 sites/default/files 2>/dev/null || true
+      chown -R www-data:www-data sites/default/files 2>/dev/null || true
+    directory: $HTTP_ROOT
+
+cleanup:
+  - name: Cleanup temporary files
+    type: command
+    command: rm -rf /tmp/drush-* 2>/dev/null || true
+    directory: $APP_ROOT
