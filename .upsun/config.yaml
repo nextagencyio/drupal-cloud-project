@@ -112,6 +112,8 @@ services:
       endpoints:
         mysql:
           default_schema: main
+          privileges:
+            main: admin
 
   redis:
     type: redis:7.2
