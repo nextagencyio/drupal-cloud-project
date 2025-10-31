@@ -29,7 +29,7 @@ applications:
           passthru: "/index.php"
           allow: false
           rules:
-            '\.(jpe?g|png|gif|svgz?|css|js|map|ico|bmp|eot|woff2?|otf|ttf|webp|avif)$':
+            '\.(jpe?g|png|gif|svgz?|css|js|map|ico|bmp|eot|woff2?|otf|ttf|webp|avif|html?)$':
               allow: true
             '^/robots\.txt$':
               allow: true
