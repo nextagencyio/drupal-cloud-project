@@ -66,40 +66,8 @@ applications:
           ../vendor/bin/drush -y updatedb
           ../vendor/bin/drush -y config:import || true
         else
-          echo "Installing Drupal site..."
-
-          # Install Drupal (no profile - matches Docker/DDEV approach)
-          ../vendor/bin/drush site-install -y \
-            --site-name="DrupalCloud Site" \
-            --account-name=admin \
-            --account-pass=admin \
-            --account-mail=admin@example.com \
-            --site-mail=noreply@example.com \
-            --notify=false
-
-          # Apply recipes in correct order (admin FIRST to set up Gin theme)
-          echo "Applying dcloud-admin recipe..."
-          ../vendor/bin/drush recipe ../recipes/dcloud-admin -y
-
-          echo "Applying dcloud-api recipe..."
-          ../vendor/bin/drush recipe ../recipes/dcloud-api -y
-
-          echo "Applying dcloud-fields recipe..."
-          ../vendor/bin/drush recipe ../recipes/dcloud-fields -y
-
-          echo "Applying dcloud-core recipe..."
-          ../vendor/bin/drush recipe ../recipes/dcloud-core -y
-
-          echo "Applying dcloud-content recipe..."
-          ../vendor/bin/drush recipe ../recipes/dcloud-content -y
-
-          echo "Running consumers script..."
-          ../vendor/bin/drush scr ../scripts/consumers-next.php
-
-          echo "Clearing cache..."
-          ../vendor/bin/drush cr
-
-          echo "Site installation complete!"
+          echo "Site not yet installed. Skipping installation - database will be imported separately."
+          echo "If this is a new site (not an upgrade), the database import will handle setup."
         fi
 
     relationships:
