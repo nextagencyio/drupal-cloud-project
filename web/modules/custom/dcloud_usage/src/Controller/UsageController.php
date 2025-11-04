@@ -714,6 +714,17 @@ class UsageController extends ControllerBase {
         $database_name = $database_info['database'] ?? '';
 
         if ($database_name) {
+          // Handle both string and array prefix formats.
+          $prefix = '';
+          if (isset($database_info['prefix'])) {
+            if (is_array($database_info['prefix'])) {
+              $prefix = $database_info['prefix']['default'] ?? '';
+            }
+            else {
+              $prefix = $database_info['prefix'];
+            }
+          }
+
           $query = $this->database->query(
             "SELECT SUM(data_length + index_length) as size
              FROM information_schema.TABLES
@@ -721,7 +732,7 @@ class UsageController extends ControllerBase {
              AND table_name LIKE :prefix",
             [
               ':database' => $database_name,
-              ':prefix' => $database_info['prefix']['default'] . '%',
+              ':prefix' => $prefix . '%',
             ]
           );
           $result = $query->fetchField();
