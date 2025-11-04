@@ -38,6 +38,13 @@ class UsageController extends ControllerBase {
   protected $fileSystem;
 
   /**
+   * The usage limits service.
+   *
+   * @var \Drupal\dcloud_usage\Service\UsageLimitsService
+   */
+  protected $limitsService;
+
+  /**
    * Constructs a UsageController object.
    *
    * @param \Drupal\Core\Database\Connection $database
@@ -46,11 +53,14 @@ class UsageController extends ControllerBase {
    *   The entity type manager.
    * @param \Drupal\Core\File\FileSystemInterface $file_system
    *   The file system service.
+   * @param \Drupal\dcloud_usage\Service\UsageLimitsService $limits_service
+   *   The usage limits service.
    */
-  public function __construct(Connection $database, EntityTypeManagerInterface $entity_type_manager, FileSystemInterface $file_system) {
+  public function __construct(Connection $database, EntityTypeManagerInterface $entity_type_manager, FileSystemInterface $file_system, $limits_service = NULL) {
     $this->database = $database;
     $this->entityTypeManager = $entity_type_manager;
     $this->fileSystem = $file_system;
+    $this->limitsService = $limits_service ?? \Drupal::service('dcloud_usage.limits');
   }
 
   /**
@@ -60,7 +70,8 @@ class UsageController extends ControllerBase {
     return new static(
       $container->get('database'),
       $container->get('entity_type.manager'),
-      $container->get('file_system')
+      $container->get('file_system'),
+      $container->get('dcloud_usage.limits')
     );
   }
 
@@ -75,6 +86,9 @@ class UsageController extends ControllerBase {
    */
   public function getUsageStats(Request $request) {
     try {
+      // Get usage with limits
+      $usage_with_limits = $this->limitsService->getUsageWithLimits();
+
       $stats = [
         'content_types' => $this->getContentTypeCount(),
         'entities' => $this->getEntityStats(),
@@ -82,6 +96,7 @@ class UsageController extends ControllerBase {
         'storage' => $this->getStorageStats(),
         'bandwidth' => $this->getBandwidthStats(),
         'users' => $this->getUserCount(),
+        'limits' => $usage_with_limits,
         'timestamp' => time(),
       ];
 
@@ -693,11 +708,24 @@ class UsageController extends ControllerBase {
     try {
       $database_type = $this->database->databaseType();
 
-      if ($database_type === 'sqlite') {
-        // For SQLite, get the database file size
+      if ($database_type === 'mysql') {
+        // For MySQL/MariaDB, query the information schema.
         $database_info = $this->database->getConnectionOptions();
-        if (isset($database_info['database']) && file_exists($database_info['database'])) {
-          return filesize($database_info['database']);
+        $database_name = $database_info['database'] ?? '';
+
+        if ($database_name) {
+          $query = $this->database->query(
+            "SELECT SUM(data_length + index_length) as size
+             FROM information_schema.TABLES
+             WHERE table_schema = :database
+             AND table_name LIKE :prefix",
+            [
+              ':database' => $database_name,
+              ':prefix' => $database_info['prefix']['default'] . '%',
+            ]
+          );
+          $result = $query->fetchField();
+          return $result ? (int) $result : 0;
         }
       }
 

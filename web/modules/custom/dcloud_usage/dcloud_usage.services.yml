@@ -4,3 +4,7 @@ services:
     arguments: ['@database']
     tags:
       - { name: event_subscriber }
+
+  dcloud_usage.limits:
+    class: Drupal\dcloud_usage\Service\UsageLimitsService
+    arguments: ['@entity_type.manager', '@logger.factory']
