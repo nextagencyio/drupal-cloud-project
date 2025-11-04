@@ -8,14 +8,17 @@ name: Deploy Drupal Cloud
 # - PROJECT_USER: User that owns the project files (e.g., drupalcloud)
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - 'README.md'
-      - 'docs/**'
-      - '.gitignore'
-      - '.ddev/**'
+  # Disabled automatic deployment - now using Upsun for Growth plans
+  # and multisite Docker for Starter plans
+  # push:
+  #   branches: [main]
+  #   paths-ignore:
+  #     - 'README.md'
+  #     - 'docs/**'
+  #     - '.gitignore'
+  #     - '.ddev/**'
 
+  # Keep manual trigger option for legacy purposes
   workflow_dispatch:
 
 jobs:
