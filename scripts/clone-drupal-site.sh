@@ -159,12 +159,12 @@ clone_site_structure() {
 create_target_database() {
     log "Creating target database..."
 
-    local source_db="drupal"
+    local source_db="template"
     local target_db="drupal_${TARGET_SITE}"
 
     # Special handling for template source
     if [[ "$SOURCE_SITE" == "template" ]]; then
-        source_db="drupal"  # Template uses main drupal database
+        source_db="template"  # Template uses its own database
     else
         source_db="drupal_${SOURCE_SITE}"
     fi
@@ -231,10 +231,16 @@ create_target_database() {
 
 update_target_settings() {
     log "Updating target site settings..."
-    
+
     local target_db="drupal_${TARGET_SITE}"
     local settings_file="$TARGET_PATH/settings.php"
-    
+
+    # Make settings.php writable (it's typically read-only for security)
+    chmod u+w "$settings_file" || {
+        log_error "Failed to make settings.php writable"
+        exit 1
+    }
+
     # Create new settings.php for the target site
     cat > "$settings_file" << EOF
 <?php
