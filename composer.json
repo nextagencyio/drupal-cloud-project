@@ -62,7 +62,7 @@
         "drupal/drupal": "*"
     },
     "minimum-stability": "dev",
-    "prefer-stable": false,
+    "prefer-stable": true,
     "config": {
         "allow-plugins": {
             "composer/installers": true,
