@@ -1,4 +1,0 @@
-services:
-  dcloud_revalidate.revalidation_service:
-    class: Drupal\dcloud_revalidate\Service\RevalidationService
-    arguments: ['@http_client', '@config.factory', '@logger.factory']

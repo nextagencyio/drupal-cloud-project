@@ -1,6 +1,0 @@
-dcloud_chatbot.admin:
-  title: 'Chatbot'
-  route_name: dcloud_chatbot.admin
-  description: 'Configure AI chatbot settings and Next.js integration'
-  parent: dcloud.admin_category
-  weight: 20

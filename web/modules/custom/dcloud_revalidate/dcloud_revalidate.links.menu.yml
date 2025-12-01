@@ -1,6 +1,0 @@
-dcloud_revalidate.settings:
-  title: 'Revalidation'
-  route_name: dcloud_revalidate.settings
-  description: 'Configure Next.js revalidation settings'
-  parent: dcloud.admin_category
-  weight: 10

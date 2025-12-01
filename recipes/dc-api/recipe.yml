@@ -1,0 +1,52 @@
+name: 'DC API'
+description: 'Decoupled API capabilities with GraphQL, JSON:API, and OAuth authentication for headless Drupal applications.'
+type: 'Site'
+
+install:
+  # JSON:API for headless compatibility
+  - jsonapi
+
+  # Decoupled preview iframe for content preview
+  - decoupled_preview_iframe
+
+  # GraphQL modules for modern API
+  - graphql
+  - graphql_compose
+  - graphql_compose_edges
+  - graphql_compose_image_style
+  - graphql_compose_menus
+  - graphql_compose_routes
+
+  # OAuth authentication for headless apps
+  - simple_oauth
+  - serialization
+  - consumers
+
+config:
+  import:
+    # JSON:API configuration
+    jsonapi: '*'
+
+    # GraphQL configuration
+    graphql: '*'
+    graphql_compose: '*'
+
+    # Decoupled preview iframe configuration
+    decoupled_preview_iframe: '*'
+
+  actions:
+    # Configure JSON:API settings for headless compatibility
+    jsonapi.settings:
+      simple_config_update:
+        read_only: false
+
+    # Configure OAuth settings - keys will be generated per site
+    simple_oauth.settings:
+      simple_config_update:
+        access_token_expiration: 2592000
+        authorization_code_expiration: 2592000
+        refresh_token_expiration: 2592000
+        token_cron_batch_size: 0
+        remember_clients: true
+        use_implicit: false
+        disable_openid_connect: false

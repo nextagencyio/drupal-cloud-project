@@ -1,0 +1,4 @@
+administer dcloud revalidate:
+  title: 'Administer Dc Revalidate'
+  description: 'Configure Dc revalidation settings'
+  restrict access: true

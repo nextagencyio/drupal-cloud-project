@@ -1,0 +1,36 @@
+name: 'DC Fields'
+description: 'Custom content types, fields, and field configurations for DC sites.'
+type: 'Site'
+
+install:
+  # Field and content structure modules
+  - field_ui
+  - paragraphs
+  - entity_reference_revisions
+  - field_group
+
+config:
+  strict:
+    # Treat field storages strictly, since they influence the database layout.
+    - field.storage.node.field_hero_title
+    - field.storage.node.field_hero_subtitle
+    - field.storage.node.field_hero_description
+    - field.storage.node.field_primary_cta
+    - field.storage.node.field_secondary_cta
+    - field.storage.node.field_features_title
+    - field.storage.node.field_features_subtitle
+    - field.storage.node.field_features_items
+    - field.storage.node.field_cta_title
+    - field.storage.node.field_cta_description
+    - field.storage.node.field_cta_primary
+    - field.storage.node.field_cta_secondary
+    # Paragraph field storages for feature items
+    - field.storage.paragraph.field_feature_title
+    - field.storage.paragraph.field_feature_description
+    - field.storage.paragraph.field_feature_icon
+
+  import:
+    # Field UI configuration
+    field_ui: '*'
+    # Paragraphs configuration
+    paragraphs: '*'
