@@ -11,11 +11,11 @@ use Drupal\Core\Config\FileStorage;
  * Implements hook_install().
  */
 function dc_api_install() {
-  // Get the module path and config directory.
+  // Get the module path and config templates directory.
   $module_path = \Drupal::service('extension.list.module')->getPath('dc_api');
-  $config_path = $module_path . '/config/install';
+  $config_path = $module_path . '/config_templates';
 
-  // Create a file storage object for the config directory.
+  // Create a file storage object for the config templates directory.
   $source = new FileStorage($config_path);
 
   // List of configs to update (these already exist from module installation).
