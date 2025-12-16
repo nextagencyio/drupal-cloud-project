@@ -39,10 +39,11 @@ if [ "$ENVIRONMENT" = "prod" ]; then
     COMPOSE_FILE="docker-compose.prod.yml"
     SERVICE_NAME="drupal"
     CONTAINER_NAME="drupal-web"
-    SITE_URL="https://template.decoupled.io"
+    DOMAIN_SUFFIX=${DOMAIN_SUFFIX:-"dcloud.dev"}
+    SITE_URL="https://template.${DOMAIN_SUFFIX}"
     SITE_NAME="Drupal Cloud Production"
-    ADMIN_EMAIL="admin@template.decoupled.io"
-    SITE_EMAIL="noreply@template.decoupled.io"
+    ADMIN_EMAIL="admin@template.${DOMAIN_SUFFIX}"
+    SITE_EMAIL="noreply@template.${DOMAIN_SUFFIX}"
 else
     COMPOSE_FILE="docker-compose.local.yml"
     SERVICE_NAME="drupal"
@@ -90,7 +91,7 @@ else
 
     # Install Drupal core to template multisite
     echo "Installing Drupal core to template site..."
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush site-install \
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush site-install minimal \
         --uri="$SITE_URL" \
         --sites-subdir=template \
         --db-url=mysql://drupal:drupalpass@mysql:3306/template \
@@ -110,7 +111,7 @@ echo "Adding template site to sites.php..."
 if [ "$ENVIRONMENT" = "local" ]; then
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c 'echo "\$sites[\"8888.template.localhost\"] = \"template\";" >> /var/www/html/web/sites/sites.php'
 else
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c 'echo "\$sites[\"template.decoupled.io\"] = \"template\";" >> /var/www/html/web/sites/sites.php'
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c 'echo "\$sites[\"template.dcloud.dev\"] = \"template\";" >> /var/www/html/web/sites/sites.php'
 fi
 echo "Template site added to sites.php"
 
@@ -203,7 +204,7 @@ fi
 
 # Set homepage to dcloud configuration page
 echo "Setting homepage to dcloud configuration page..."
-docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush config:set --uri="$SITE_URL" system.site page.front /admin/config/dcloud/configuration --yes
+docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush config:set --uri="$SITE_URL" system.site page.front /dc-config --yes
 
 # Final cache rebuild to ensure everything is fresh
 echo "Final cache rebuild..."

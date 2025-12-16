@@ -51,3 +51,5 @@ DRUPAL_API_KEY.txt
 # Ignore private configuration files
 /web/sites/*/config/sync/
 private/
+._*
+.env
