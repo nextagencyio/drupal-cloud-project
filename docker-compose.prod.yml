@@ -9,8 +9,6 @@ services:
       - XDEBUG_MODE=${XDEBUG_MODE:-off}
       - VIRTUAL_HOST=*.${DOMAIN_SUFFIX},${DOMAIN_SUFFIX}
       - VIRTUAL_PORT=80
-      - LETSENCRYPT_HOST=*.${DOMAIN_SUFFIX}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - DOMAIN_SUFFIX=${DOMAIN_SUFFIX}
     volumes:
       - drupal_files:/var/www/html/web/sites/default/files
@@ -38,8 +36,6 @@ services:
       - XDEBUG_MODE=${XDEBUG_MODE:-off}
       - VIRTUAL_HOST=${DOMAIN_SUFFIX}
       - VIRTUAL_PORT=80
-      - LETSENCRYPT_HOST=${DOMAIN_SUFFIX}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - DOMAIN_SUFFIX=${DOMAIN_SUFFIX}
     volumes:
       - drupal_files:/var/www/html/web/sites/default/files

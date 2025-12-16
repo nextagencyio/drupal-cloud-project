@@ -106,14 +106,34 @@ else
     echo "Base Drupal installation complete!"
 fi
 
-# Add template site to sites.php for multisite routing
-echo "Adding template site to sites.php..."
+# Create sites.php for multisite routing
+echo "Creating sites.php with template site configuration..."
 if [ "$ENVIRONMENT" = "local" ]; then
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c 'echo "\$sites[\"8888.template.localhost\"] = \"template\";" >> /var/www/html/web/sites/sites.php'
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c 'cat > /var/www/html/web/sites/sites.php << '\''EOF'\''
+<?php
+
+/**
+ * @file
+ * Configuration file for multi-site support and directory aliasing feature.
+ */
+
+\$sites["8888.template.localhost"] = "template";
+EOF
+'
 else
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c 'echo "\$sites[\"template.dcloud.dev\"] = \"template\";" >> /var/www/html/web/sites/sites.php'
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c "cat > /var/www/html/web/sites/sites.php << 'EOF'
+<?php
+
+/**
+ * @file
+ * Configuration file for multi-site support and directory aliasing feature.
+ */
+
+\\\$sites[\"template.${DOMAIN_SUFFIX}\"] = \"template\";
+EOF
+"
 fi
-echo "Template site added to sites.php"
+echo "sites.php created successfully"
 
 # Copy recipes and custom modules to container (only for local - prod should have them in volume)
 if [ "$ENVIRONMENT" = "local" ]; then
@@ -129,28 +149,29 @@ else
     echo "Production mode: assuming recipes and modules are already available in volume"
 fi
 
-# Function to apply recipe using drush recipe command (works with multisite)
+# Function to apply recipe using core PHP recipe script
 apply_recipe() {
     local recipe_name="$1"
     echo "Applying $recipe_name recipe..."
 
-    # Apply the recipe using drush recipe with proper URI
-    if docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush recipe --uri="$SITE_URL" /var/www/html/recipes/$recipe_name --yes; then
+    # Apply the recipe using the core PHP recipe script
+    # Note: Recipe script must be run from web directory and uses the multisite URI from environment
+    if docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c "cd /var/www/html/web && export DRUPAL_MULTISITE_URI=$SITE_URL && php core/scripts/drupal recipe /var/www/html/recipes/$recipe_name"; then
         echo "✅ $recipe_name recipe applied successfully!"
-        
+
         # For dc-admin, set Gin as default theme (in addition to admin)
         if [ "$recipe_name" = "dc-admin" ]; then
             echo "Setting Gin as default theme..."
             docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush config:set --uri="$SITE_URL" system.theme default gin --yes
         fi
-        
+
         # For dc-core, enable custom dcloud modules
         if [ "$recipe_name" = "dc-core" ]; then
             echo "Enabling custom dcloud modules..."
             docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush pm:enable --uri="$SITE_URL" --yes \
                 dc_chatbot dc_config dc_import dc_revalidate dc_usage dc_user_redirect
         fi
-        
+
         return 0
     else
         echo "❌ Failed to apply $recipe_name recipe"
@@ -160,14 +181,15 @@ apply_recipe() {
 
 # Only apply recipes if we did a fresh installation
 if [ "$SKIP_INSTALL" = false ]; then
-    if ! apply_recipe "dc-admin"; then
-        echo "Error: Failed to apply dc-admin recipe"
-        exit 1
-    fi
+    # Apply recipes in correct dependency order:
+    # 1. dc-core: Provides base Drupal functionality (node, taxonomy, etc.)
+    # 2. dc-fields: Adds custom fields
+    # 3. dc-api: GraphQL and API functionality
+    # 4. dc-admin: Admin theme and UI (depends on node from dc-core)
+    # 5. dc-content: Content types (depends on fields and core)
 
-    # Apply recipes in correct order with retry logic
-    if ! apply_recipe "dc-api"; then
-        echo "Error: Failed to apply dc-api recipe"
+    if ! apply_recipe "dc-core"; then
+        echo "Error: Failed to apply dc-core recipe"
         exit 1
     fi
 
@@ -176,8 +198,13 @@ if [ "$SKIP_INSTALL" = false ]; then
         exit 1
     fi
 
-    if ! apply_recipe "dc-core"; then
-        echo "Error: Failed to apply dc-core recipe"
+    if ! apply_recipe "dc-api"; then
+        echo "Error: Failed to apply dc-api recipe"
+        exit 1
+    fi
+
+    if ! apply_recipe "dc-admin"; then
+        echo "Error: Failed to apply dc-admin recipe"
         exit 1
     fi
 
