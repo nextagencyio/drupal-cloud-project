@@ -67,14 +67,7 @@ dependencies:
   # Field modules
   - field_group:field_group
 
-# Themes
-themes:
-  - gin
-  - stark
-
-# Install these modules with the profile
-install:
-  # Custom DC modules (will be moved into profile/modules)
+  # Profile modules (from profile/modules directory)
   - dc_core
   - dc_fields
   - dc_api
@@ -85,3 +78,8 @@ install:
   - dc_revalidate
   - dc_usage
   - dc_user_redirect
+
+# Themes
+themes:
+  - gin
+  - stark
