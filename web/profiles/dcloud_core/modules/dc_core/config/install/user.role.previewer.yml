@@ -5,7 +5,6 @@ dependencies:
   module:
     - content_moderation
     - graphql
-    - graphql_compose_preview
     - node
     - simple_oauth
 _core:
@@ -20,6 +19,5 @@ permissions:
   - 'grant simple_oauth codes'
   - 'view all revisions'
   - 'view any unpublished content'
-  - 'view graphql_compose_preview entity'
   - 'view latest version'
   - 'view own unpublished content'
