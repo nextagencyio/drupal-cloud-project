@@ -6,7 +6,6 @@ core_version_requirement: ^11
 version: 1.0.0
 dependencies:
   - drupal:block
-  - gin:gin
   - gin:gin_login
   - gin:gin_toolbar
   - admin_toolbar:admin_toolbar

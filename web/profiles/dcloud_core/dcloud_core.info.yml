@@ -51,8 +51,7 @@ dependencies:
   - simple_oauth:simple_oauth
   - consumers:consumers
 
-  # Admin experience with Gin theme
-  - gin:gin
+  # Admin experience with Gin theme modules
   - gin:gin_login
   - gin:gin_toolbar
 
