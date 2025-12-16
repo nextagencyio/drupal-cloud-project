@@ -44,7 +44,12 @@ if [ $? -eq 0 ]; then
     ${ACME_SH} --install-cert -d "${DOMAIN}" \
         --key-file "${CERT_PATH}/${DOMAIN}.key" \
         --fullchain-file "${CERT_PATH}/${DOMAIN}.crt"
-    
+
+    # Create default certificate symlinks for nginx-proxy fallback
+    echo "Creating default certificate symlinks..."
+    ln -sf "${DOMAIN}.crt" "${CERT_PATH}/default.crt"
+    ln -sf "${DOMAIN}.key" "${CERT_PATH}/default.key"
+
     echo "SSL setup completed successfully"
 else
     echo "Certificate issuance failed"
