@@ -14,9 +14,9 @@ use Drupal\node\NodeTypeInterface;
 /**
  * Implements hook_help().
  */
-function dcloud_usage_help($route_name, RouteMatchInterface $route_match) {
+function dc_usage_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    case 'help.page.dcloud_usage':
+    case 'help.page.dc_usage':
       return '<p>' . t('Provides usage statistics and tracking for Drupal Cloud spaces.') . '</p>';
   }
 }
@@ -26,7 +26,7 @@ function dcloud_usage_help($route_name, RouteMatchInterface $route_match) {
  *
  * Prevents creation of new entities when limits are reached.
  */
-function dcloud_usage_entity_presave(EntityInterface $entity) {
+function dc_usage_entity_presave(EntityInterface $entity) {
   $limits_service = \Drupal::service('dc_usage.limits');
 
   // Check user limits
@@ -55,7 +55,7 @@ function dcloud_usage_entity_presave(EntityInterface $entity) {
  *
  * Prevents creation of new content types when limit is reached.
  */
-function dcloud_usage_form_node_type_add_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+function dc_usage_form_node_type_add_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $limits_service = \Drupal::service('dc_usage.limits');
 
   if (!$limits_service->canCreateContentType()) {
@@ -81,7 +81,7 @@ function dcloud_usage_form_node_type_add_form_alter(&$form, FormStateInterface $
  *
  * Additional validation when a content type is created (in case form alter is bypassed).
  */
-function dcloud_usage_node_type_insert(NodeTypeInterface $node_type) {
+function dc_usage_node_type_insert(NodeTypeInterface $node_type) {
   $limits_service = \Drupal::service('dc_usage.limits');
 
   // Get current count (including the one just created)
@@ -91,7 +91,7 @@ function dcloud_usage_node_type_insert(NodeTypeInterface $node_type) {
   $limits = $limits_service->getCurrentPlanLimits();
   if ($limits['content_types'] !== -1 && $current_count > $limits['content_types']) {
     // Log a warning
-    \Drupal::logger('dcloud_usage')->warning('Content type @type was created but exceeds plan limit of @limit', [
+    \Drupal::logger('dc_usage')->warning('Content type @type was created but exceeds plan limit of @limit', [
       '@type' => $node_type->id(),
       '@limit' => $limits['content_types'],
     ]);
