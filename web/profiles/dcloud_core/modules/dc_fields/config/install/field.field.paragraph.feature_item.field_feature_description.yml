@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_feature_description
+    - paragraphs.paragraphs_type.feature_item
+  module:
+    - text
+id: paragraph.feature_item.field_feature_description
+field_name: field_feature_description
+entity_type: paragraph
+bundle: feature_item
+label: 'Feature Description'
+description: 'The description of this feature'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

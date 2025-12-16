@@ -1,0 +1,10 @@
+name: 'DC Fields'
+type: module
+description: 'Field configurations for Drupal Cloud content types'
+package: 'Drupal Cloud'
+core_version_requirement: ^11
+version: 1.0.0
+dependencies:
+  - drupal:node
+  - paragraphs:paragraphs
+  - field_group:field_group

@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hero_description
+    - node.type.homepage
+  module:
+    - text
+id: node.homepage.field_hero_description
+field_name: field_hero_description
+entity_type: node
+bundle: homepage
+label: 'Hero Description'
+description: 'The description text displayed in the hero section'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

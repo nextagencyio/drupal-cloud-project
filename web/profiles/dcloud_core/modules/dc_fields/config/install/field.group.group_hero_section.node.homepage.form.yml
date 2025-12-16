@@ -1,0 +1,34 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.homepage.field_hero_description
+    - field.field.node.homepage.field_hero_subtitle
+    - field.field.node.homepage.field_hero_title
+    - field.field.node.homepage.field_primary_cta
+    - field.field.node.homepage.field_secondary_cta
+    - node.type.homepage
+  module:
+    - field_group
+third_party_settings:
+  field_group:
+    group_hero_section:
+      children:
+        - field_hero_title
+        - field_hero_subtitle
+        - field_hero_description
+        - field_primary_cta
+        - field_secondary_cta
+      label: '🎯 Hero Section'
+      region: content
+      parent_name: ''
+      weight: 5
+      format_type: details
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        open: false
+        description: 'Configure the main hero section that appears at the top of the homepage. This is the first thing visitors see.'
+        required_fields: true
+id: node.homepage.form.group_hero_section

@@ -1,16 +1,87 @@
 name: 'Drupal Cloud Core'
 type: profile
-description: 'Drupal Cloud headless CMS configuration with GraphQL, OAuth, and modern content tools.'
-version: VERSION
-core_version_requirement: ^9 || ^10 || ^11
-distribution:
-  name: 'Drupal Cloud Core'
+description: 'Drupal Cloud headless CMS with GraphQL, OAuth, modern content tools, and admin interface.'
+core_version_requirement: ^11
+version: 1.0.0
 
+# Installation profile dependencies (installed in order)
 dependencies:
-  # Drupal Cloud custom modules
-  - dcloud_chatbot
-  - dcloud_config
-  - dcloud_import
-  - dcloud_revalidate
-  - dcloud_usage
-  - dcloud_user_redirect
+  # Core modules for modern Drupal
+  - drupal:ckeditor5
+  - drupal:config
+  - drupal:content_moderation
+  - drupal:help
+  - drupal:datetime
+  - drupal:datetime_range
+  - drupal:field_ui
+  - drupal:file
+  - drupal:image
+  - drupal:link
+  - drupal:media
+  - drupal:media_library
+  - drupal:menu_link_content
+  - drupal:menu_ui
+  - drupal:node
+  - drupal:options
+  - drupal:path
+  - drupal:shortcut
+  - drupal:taxonomy
+  - drupal:block
+
+  # URL and path management
+  - pathauto:pathauto
+  - token:token
+
+  # JSON:API for headless compatibility
+  - drupal:jsonapi
+  - drupal:serialization
+
+  # Decoupled preview iframe for content preview
+  - decoupled_preview_iframe:decoupled_preview_iframe
+
+  # GraphQL modules for modern API
+  - graphql:graphql
+  - graphql_compose:graphql_compose
+  - graphql_compose:graphql_compose_edges
+  - graphql_compose:graphql_compose_image_style
+  - graphql_compose:graphql_compose_menus
+  - graphql_compose:graphql_compose_routes
+
+  # OAuth authentication for headless apps
+  - simple_oauth:simple_oauth
+  - consumers:consumers
+
+  # Admin experience with Gin theme
+  - gin:gin
+  - gin:gin_login
+  - gin:gin_toolbar
+
+  # Admin toolbar for enhanced navigation
+  - admin_toolbar:admin_toolbar
+  - admin_toolbar:admin_toolbar_tools
+
+  # Paragraphs for structured content
+  - paragraphs:paragraphs
+  - entity_reference_revisions:entity_reference_revisions
+
+  # Field modules
+  - field_group:field_group
+
+# Themes
+themes:
+  - gin
+  - stark
+
+# Install these modules with the profile
+install:
+  # Custom DC modules (will be moved into profile/modules)
+  - dc_core
+  - dc_fields
+  - dc_api
+  - dc_admin
+  - dc_chatbot
+  - dc_config
+  - dc_import
+  - dc_revalidate
+  - dc_usage
+  - dc_user_redirect

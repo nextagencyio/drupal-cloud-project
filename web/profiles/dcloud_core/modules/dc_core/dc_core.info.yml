@@ -1,0 +1,6 @@
+name: 'DC Core'
+type: module
+description: 'Core configuration for Drupal Cloud installations'
+package: 'Drupal Cloud'
+core_version_requirement: ^11
+version: 1.0.0

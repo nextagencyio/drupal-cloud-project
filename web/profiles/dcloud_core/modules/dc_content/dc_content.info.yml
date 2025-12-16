@@ -1,0 +1,9 @@
+name: 'DC Content'
+type: module
+description: 'Sample content and demonstration pages for DC installations'
+package: 'Drupal Cloud'
+core_version_requirement: ^11
+version: 1.0.0
+dependencies:
+  - dc_fields
+  - drupal:node

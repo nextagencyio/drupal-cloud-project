@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Drupal Cloud Docker Installation Script
-# This script installs Drupal core and applies dcloud recipes inside Docker containers
+# This script installs Drupal using the dcloud_core installation profile
 # Runs in production mode by default, use --local flag for local development
 
 set -e  # Exit on any error
@@ -89,9 +89,9 @@ else
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/web/sites/template/files
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" chown -R www-data:www-data /var/www/html/web/sites/template
 
-    # Install Drupal core to template multisite
-    echo "Installing Drupal core to template site..."
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush site-install minimal \
+    # Install Drupal using dcloud_core profile
+    echo "Installing Drupal with dcloud_core profile to template site..."
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush site-install dcloud_core \
         --uri="$SITE_URL" \
         --sites-subdir=template \
         --db-url=mysql://drupal:drupalpass@mysql:3306/template \
@@ -103,7 +103,7 @@ else
         --notify=false \
         --yes
 
-    echo "Base Drupal installation complete!"
+    echo "Drupal Cloud installation complete!"
 fi
 
 # Create sites.php for multisite routing
@@ -135,86 +135,8 @@ EOF
 fi
 echo "sites.php created successfully"
 
-# Copy recipes and custom modules to container (only for local - prod should have them in volume)
-if [ "$ENVIRONMENT" = "local" ]; then
-    echo "Copying recipes to container..."
-    docker compose -f "$COMPOSE_FILE" cp ../dcloud/recipes "$SERVICE_NAME":/var/www/html/
-    echo "Recipes copied successfully!"
-    
-    echo "Copying custom dcloud modules..."
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/web/modules/custom
-    docker compose -f "$COMPOSE_FILE" cp ../dcloud/web/modules/custom "$SERVICE_NAME":/var/www/html/web/modules/
-    echo "Custom modules copied successfully!"
-else
-    echo "Production mode: assuming recipes and modules are already available in volume"
-fi
-
-# Function to apply recipe using core PHP recipe script
-apply_recipe() {
-    local recipe_name="$1"
-    echo "Applying $recipe_name recipe..."
-
-    # Apply the recipe using the core PHP recipe script
-    # Note: Recipe script must be run from web directory and uses the multisite URI from environment
-    if docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c "cd /var/www/html/web && export DRUPAL_MULTISITE_URI=$SITE_URL && php core/scripts/drupal recipe /var/www/html/recipes/$recipe_name"; then
-        echo "✅ $recipe_name recipe applied successfully!"
-
-        # For dc-admin, set Gin as default theme (in addition to admin)
-        if [ "$recipe_name" = "dc-admin" ]; then
-            echo "Setting Gin as default theme..."
-            docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush config:set --uri="$SITE_URL" system.theme default gin --yes
-        fi
-
-        # For dc-core, enable custom dcloud modules
-        if [ "$recipe_name" = "dc-core" ]; then
-            echo "Enabling custom dcloud modules..."
-            docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush pm:enable --uri="$SITE_URL" --yes \
-                dc_chatbot dc_config dc_import dc_revalidate dc_usage dc_user_redirect
-        fi
-
-        return 0
-    else
-        echo "❌ Failed to apply $recipe_name recipe"
-        return 1
-    fi
-}
-
-# Only apply recipes if we did a fresh installation
-if [ "$SKIP_INSTALL" = false ]; then
-    # Apply recipes in correct dependency order:
-    # 1. dc-core: Provides base Drupal functionality (node, taxonomy, etc.)
-    # 2. dc-fields: Adds custom fields
-    # 3. dc-api: GraphQL and API functionality
-    # 4. dc-admin: Admin theme and UI (depends on node from dc-core)
-    # 5. dc-content: Content types (depends on fields and core)
-
-    if ! apply_recipe "dc-core"; then
-        echo "Error: Failed to apply dc-core recipe"
-        exit 1
-    fi
-
-    if ! apply_recipe "dc-fields"; then
-        echo "Error: Failed to apply dc-fields recipe"
-        exit 1
-    fi
-
-    if ! apply_recipe "dc-api"; then
-        echo "Error: Failed to apply dc-api recipe"
-        exit 1
-    fi
-
-    if ! apply_recipe "dc-admin"; then
-        echo "Error: Failed to apply dc-admin recipe"
-        exit 1
-    fi
-
-    if ! apply_recipe "dc-content"; then
-        echo "Error: Failed to apply dc-content recipe"
-        exit 1
-    fi
-else
-    echo "Skipping recipe application since template already exists."
-fi
+# Note: Installation profile dcloud_core includes all modules and configuration
+# No need to copy recipes or apply them manually
 
 # Clear caches
 echo "Clearing caches..."
