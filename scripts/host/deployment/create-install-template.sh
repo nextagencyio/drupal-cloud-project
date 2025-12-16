@@ -129,7 +129,7 @@ else
  * Configuration file for multi-site support and directory aliasing feature.
  */
 
-\\\$sites[\"template.${DOMAIN_SUFFIX}\"] = \"template\";
+\$sites[\"template.${DOMAIN_SUFFIX}\"] = \"template\";
 EOF
 "
 fi
