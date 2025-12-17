@@ -14,7 +14,7 @@ label: Previewer
 weight: 3
 is_admin: false
 permissions:
-  - 'access dcloud import api'
+  - 'access dc import api'
   - 'execute graphql_compose_server arbitrary graphql requests'
   - 'grant simple_oauth codes'
   - 'view all revisions'
