@@ -1,7 +1,0 @@
-dc_revalidate.settings:
-  path: '/admin/config/dcloud/revalidation'
-  defaults:
-    _form: '\Drupal\dc_revalidate\Form\DcRevalidateSettingsForm'
-    _title: 'Dc Revalidation Settings'
-  requirements:
-    _permission: 'administer dcloud revalidate'

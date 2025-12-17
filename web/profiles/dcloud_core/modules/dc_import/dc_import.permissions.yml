@@ -1,4 +1,0 @@
-'access dcloud import api':
-  title: 'Access DCloud Import API'
-  description: 'Allow access to the REST API endpoints for importing content via JSON.'
-  restrict access: TRUE

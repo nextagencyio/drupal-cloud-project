@@ -1,3 +1,0 @@
-enabled: false
-frontend_url: 'http://host.docker.internal:3000'
-revalidate_secret: ''

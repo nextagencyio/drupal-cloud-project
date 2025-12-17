@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Drupal Cloud Docker Installation Script
-# This script installs Drupal using the dcloud_core installation profile
+# This script installs Drupal using the dc_core installation profile
 # Runs in production mode by default, use --local flag for local development
 
 set -e  # Exit on any error
@@ -89,9 +89,9 @@ else
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/web/sites/template/files
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" chown -R www-data:www-data /var/www/html/web/sites/template
 
-    # Install Drupal using dcloud_core profile
-    echo "Installing Drupal with dcloud_core profile to template site..."
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush site-install dcloud_core \
+    # Install Drupal using dc_core profile
+    echo "Installing Drupal with dc_core profile to template site..."
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush site-install dc_core \
         --uri="$SITE_URL" \
         --sites-subdir=template \
         --db-url=mysql://drupal:drupalpass@mysql:3306/template \
@@ -135,7 +135,7 @@ EOF
 fi
 echo "sites.php created successfully"
 
-# Note: Installation profile dcloud_core includes all modules and configuration
+# Note: Installation profile dc_core includes all modules and configuration
 # No need to copy recipes or apply them manually
 
 # Clear caches
