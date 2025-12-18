@@ -142,7 +142,7 @@ check_conflicts() {
     
     # Check if target database already exists
     local target_db="drupal_${TARGET_SITE}"
-    if mysql -h mysql -u root -prootpass -e "USE \`${target_db}\`;" 2>/dev/null; then
+    if mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} -e "USE \`${target_db}\`;" 2>/dev/null; then
         log_error "Target database already exists: $target_db"
         conflict_found=true
     fi
@@ -194,20 +194,20 @@ create_target_database() {
 
     # Drop and recreate the target database to ensure clean slate
     log "Dropping existing database if present..."
-    mysql -h mysql -u root -prootpass -e "DROP DATABASE IF EXISTS \`${target_db}\`;" || {
+    mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} -e "DROP DATABASE IF EXISTS \`${target_db}\`;" || {
         log_error "Failed to drop target database: $target_db"
         exit 1
     }
 
     log "Creating fresh target database..."
-    mysql -h mysql -u root -prootpass -e "CREATE DATABASE \`${target_db}\`;" || {
+    mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} -e "CREATE DATABASE \`${target_db}\`;" || {
         log_error "Failed to create target database: $target_db"
         exit 1
     }
 
     # Grant permissions to drupal user on the new database
     log "Granting permissions to drupal user on $target_db..."
-    mysql -h mysql -u root -prootpass -e "
+    mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} -e "
         GRANT ALL PRIVILEGES ON \`${target_db}\`.* TO 'drupal'@'%';
         FLUSH PRIVILEGES;
     " || {
@@ -225,22 +225,22 @@ create_target_database() {
         if [[ ! -f "$backup_file" ]]; then
             log_error "Template backup file not found: $backup_file"
             log "Regenerating template backup..."
-            mysqldump -h mysql -u root -prootpass --single-transaction --quick "$source_db" > "$backup_file" || {
+            mysqldump -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} --single-transaction --quick "$source_db" > "$backup_file" || {
                 log_error "Failed to create template backup"
                 exit 1
             }
         fi
 
         log "Using template backup: $backup_file"
-        mysql -h mysql -u root -prootpass "$target_db" < "$backup_file" || {
+        mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} "$target_db" < "$backup_file" || {
             log_error "Failed to import template backup"
             exit 1
         }
     else
         # For cloning from another space, use mysqldump on-the-fly
         log "Cloning from space $source_db..."
-        mysqldump -h mysql -u root -prootpass --single-transaction --quick "$source_db" | \
-            mysql -h mysql -u root -prootpass "$target_db" || {
+        mysqldump -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} --single-transaction --quick "$source_db" | \
+            mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} "$target_db" || {
             log_error "Failed to clone database from $source_db"
             exit 1
         }
@@ -433,7 +433,7 @@ fix_profile() {
     # Fix any dcloud_core profile references to standard (dcloud_core profile doesn't exist)
     local target_db="drupal_${TARGET_SITE}"
     
-    if mysql -h mysql -u root -prootpass "$target_db" -e "UPDATE config SET data = REPLACE(data, 's:7:\"profile\";s:11:\"dcloud_core\"', 's:7:\"profile\";s:8:\"standard\"') WHERE name = 'core.extension';" 2>/dev/null; then
+    if mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} "$target_db" -e "UPDATE config SET data = REPLACE(data, 's:7:\"profile\";s:11:\"dcloud_core\"', 's:7:\"profile\";s:8:\"standard\"') WHERE name = 'core.extension';" 2>/dev/null; then
         log_success "Installation profile fixed to standard"
     else
         log_warning "Could not fix profile (non-fatal)"
@@ -505,7 +505,7 @@ validate_cloned_site() {
     
     # Check database exists and has tables
     local table_count
-    table_count=$(mysql -h mysql -u root -prootpass -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$target_db';" -N 2>/dev/null || echo "0")
+    table_count=$(mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$target_db';" -N 2>/dev/null || echo "0")
     
     if [[ "$table_count" -gt 0 ]]; then
         log_success "Database has $table_count tables"
