@@ -94,7 +94,7 @@ else
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush site-install dc_core \
         --uri="$SITE_URL" \
         --sites-subdir=template \
-        --db-url=mysql://drupal:drupalpass@mysql:3306/template \
+        --db-url=mysql://drupal:${MYSQL_PASSWORD:-drupalpass}@mysql:3306/template \
         --site-name="$SITE_NAME" \
         --account-name=admin \
         --account-pass=admin \
