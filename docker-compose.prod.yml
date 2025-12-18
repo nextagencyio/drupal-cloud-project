@@ -96,6 +96,7 @@ services:
     image: nginxproxy/acme-companion
     container_name: nginx-letsencrypt
     environment:
+      - DOMAIN_SUFFIX=${DOMAIN_SUFFIX}
       - CF_Token=${CF_Token:-}
       - CF_Account_ID=${CF_Account_ID:-}
       - CF_Zone_ID=${CF_Zone_ID:-}
