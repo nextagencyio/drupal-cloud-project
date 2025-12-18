@@ -274,7 +274,7 @@ update_target_settings() {
 \$databases['default']['default'] = array (
   'database' => '${target_db}',
   'username' => 'drupal',
-  'password' => 'drupalpass',
+  'password' => '${MYSQL_PASSWORD:-drupalpass}',
   'prefix' => '',
   'host' => 'mysql',
   'port' => '3306',
