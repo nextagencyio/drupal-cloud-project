@@ -1,6 +1,6 @@
-# Drupal Cloud - Drupal 11 Codebase
+# Decoupled - Drupal 11 Codebase
 
-Pure Drupal 11 multisite backend for the Drupal Cloud project. This repository contains only the Drupal codebase - custom modules, recipes, and configuration. For deployment infrastructure (Docker, scripts, etc.), see the `dcloud-docker` repository.
+Pure Drupal 11 multisite backend for decoupled.io. This repository contains only the Drupal codebase - custom modules, install profile, and configuration. For deployment infrastructure (Docker, Ansible, scripts, etc.), see the deployment documentation.
 
 ## Overview
 
@@ -10,8 +10,8 @@ This is a headless Drupal 11 installation providing GraphQL and JSON:API endpoin
 - **Multisite Architecture**: Each space gets its own Drupal site
 - **GraphQL API**: Headless CMS with GraphQL Compose
 - **OAuth Authentication**: Simple OAuth for secure API access
-- **Custom Modules**: Purpose-built modules for Drupal Cloud functionality
-- **Drupal Recipes**: Modular installation system
+- **Custom Modules**: Purpose-built modules for decoupled.io functionality
+- **Install Profile**: dc_core profile with modular installation system
 
 ## Project Structure
 
@@ -21,12 +21,6 @@ This is a headless Drupal 11 installation providing GraphQL and JSON:API endpoin
 ├── config/                  # Configuration management
 ├── patches.lock.json        # Composer patches
 ├── private/                 # Private files directory
-├── recipes/                 # Drupal recipes for installation
-│   ├── dcloud-admin/        # Admin interface setup
-│   ├── dcloud-api/          # GraphQL & OAuth setup
-│   ├── dcloud-fields/       # Field configurations
-│   ├── dcloud-core/         # Core functionality
-│   └── dcloud-content/      # Sample content
 ├── vendor/                  # Composer dependencies (gitignored)
 └── web/                     # Drupal docroot
     ├── modules/custom/      # Custom modules
@@ -36,6 +30,8 @@ This is a headless Drupal 11 installation providing GraphQL and JSON:API endpoin
     │   ├── dcloud_revalidate/ # Next.js revalidation
     │   ├── dcloud_usage/    # Usage statistics
     │   └── dcloud_user_redirect/ # Authentication
+    ├── profiles/custom/     # Install profiles
+    │   └── dc_core/         # Core install profile with recipes
     ├── sites/               # Multisite configurations
     └── themes/custom/       # Custom themes
 ```
@@ -135,38 +131,31 @@ User authentication and redirection.
 - Post-login redirects
 - Role-based routing
 
-## Drupal Recipes
+## Install Profile
 
-The project uses Drupal's recipe system for modular installation. All recipes are in `/recipes/`:
+The project uses the **dc_core** install profile which contains Drupal recipes for modular installation. The install profile is located at `web/profiles/custom/dc_core/` and includes:
 
-### 1. dcloud-admin
-Sets up admin interface with Gin theme, admin toolbar, and default configuration.
+### Included Recipes
 
-### 2. dcloud-api
-Configures headless API functionality including GraphQL, GraphQL Compose, Simple OAuth, CORS, and decoupled preview.
+1. **dcloud-admin** - Admin interface with Gin theme and admin toolbar
+2. **dcloud-api** - GraphQL, GraphQL Compose, Simple OAuth, and CORS configuration
+3. **dcloud-fields** - Custom field configurations and paragraph types
+4. **dcloud-core** - Core functionality with custom modules and site settings
+5. **dcloud-content** - Sample content types (Article, Page) and taxonomies
 
-### 3. dcloud-fields
-Adds custom field configurations, reusable fields, paragraph types, and field groups.
+### Installation
 
-### 4. dcloud-core
-Core multisite functionality including custom dcloud modules, site settings, usage tracking, and revalidation.
-
-### 5. dcloud-content
-Sample content types (Article, Page), taxonomy vocabularies, and initial content structure.
-
-### Applying Recipes
-
-Recipes can be applied using Drush or the Drupal recipe CLI:
+The dc_core profile is applied during site installation:
 
 ```bash
-# Using Drush
-drush recipe:apply dcloud-core
+# Install new site with dc_core profile
+drush site:install dc_core --site-name="My Site"
 
-# Using Drupal recipe CLI
-php web/core/scripts/drupal recipe recipes/dcloud-core
+# Or use the install script
+./scripts/install.sh "My Site"
 ```
 
-Apply recipes in order: admin → api → fields → core → content
+The install profile automatically applies all recipes in the correct order during installation.
 
 ## GraphQL API
 
@@ -293,9 +282,9 @@ vendor/bin/phpunit web/modules/custom
 vendor/bin/phpcs --standard=Drupal web/modules/custom
 ```
 
-## Integration with Drupal Cloud Dashboard
+## Integration with decoupled.io Dashboard
 
-The Drupal Cloud dashboard (Next.js app) integrates with this backend via:
+The decoupled.io dashboard (Next.js app) integrates with this backend via:
 
 1. **GraphQL API** for content operations
 2. **OAuth 2.0** for authentication
@@ -309,7 +298,7 @@ OAuth credentials should be configured in the dashboard's `.env` file.
 
 1. Fork the repository
 2. Create a feature branch
-3. Make changes to custom modules or recipes
+3. Make changes to custom modules or install profile
 4. Follow Drupal coding standards
 5. Test thoroughly
 6. Submit a pull request
@@ -324,9 +313,9 @@ OAuth credentials should be configured in the dashboard's `.env` file.
 ## Support
 
 - **Drupal Documentation**: https://www.drupal.org/docs
-- **Drupal Recipes**: https://www.drupal.org/docs/extending-drupal/drupal-recipes
 - **GraphQL Compose**: https://www.drupal.org/project/graphql_compose
 - **Simple OAuth**: https://www.drupal.org/project/simple_oauth
+- **Drupal Install Profiles**: https://www.drupal.org/docs/distributions-and-profiles
 
 ## License
 

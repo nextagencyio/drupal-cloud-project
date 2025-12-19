@@ -1,12 +1,12 @@
 {
-    "name": "nextagencyio/drupal-cloud-project",
+    "name": "nextagencyio/decoupled-project",
     "description": "Drupal Cloud template with GraphQL, OAuth, and Next.js integration for headless CMS development",
     "type": "project",
     "license": "GPL-2.0-or-later",
-    "homepage": "https://github.com/nextagencyio/drupal-cloud-project",
+    "homepage": "https://github.com/nextagencyio/decoupled-project",
     "support": {
-        "docs": "https://github.com/nextagencyio/drupal-cloud-project/blob/main/README.md",
-        "issues": "https://github.com/nextagencyio/drupal-cloud-project/issues"
+        "docs": "https://github.com/nextagencyio/decoupled-project/blob/main/README.md",
+        "issues": "https://github.com/nextagencyio/decoupled-project/issues"
     },
     "keywords": [
         "drupal",
