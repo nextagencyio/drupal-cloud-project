@@ -73,7 +73,8 @@ if [[ -d "/opt/drupalcloud" ]] && [[ ! -d "/Users" ]]; then
     log "Environment: Production (Linux)"
     ENVIRONMENT="production"
     COMPOSE_FILE="docker-compose.prod.yml"
-    PROJECT_ROOT="/opt/drupalcloud"
+    PROJECT_ROOT="/opt/drupalcloud"  # Where upgrade scripts are located
+    MULTISITE_ROOT="/var/www/html"    # Where the running multisite is located
     SERVICE_NAME="drupal"  # Service name in compose file, not container name
 else
     # Mac development
@@ -88,11 +89,13 @@ else
         log_error "Cannot find docker-compose.local.yml"
         exit 1
     fi
+    MULTISITE_ROOT="$PROJECT_ROOT"
     SERVICE_NAME="drupal"
 fi
 
 cd "$PROJECT_ROOT"
-log "Working directory: $PROJECT_ROOT"
+log "Working directory (scripts): $PROJECT_ROOT"
+log "Multisite directory: $MULTISITE_ROOT"
 
 # Create temp directory for export
 TEMP_DIR="/tmp/drupalcloud-export-${SITE_NAME}-${TIMESTAMP}"
@@ -106,6 +109,7 @@ log_step "Exporting database and files from multisite..."
 
 # Export database
 log "Exporting database..."
+cd "$MULTISITE_ROOT"
 docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE_NAME" \
     /var/www/html/vendor/bin/drush --uri="https://${SITE_NAME}.decoupled.io" \
     sql:dump \
@@ -141,6 +145,9 @@ docker compose -f "$COMPOSE_FILE" cp \
     || { log_error "Failed to copy files"; exit 1; }
 
 log_success "Files exported: ${TEMP_DIR}/files.tar.gz"
+
+# Go back to scripts directory for the rest of the upgrade
+cd "$PROJECT_ROOT"
 
 # ============================================================================
 # STEP 2: Create DigitalOcean droplet from template snapshot
