@@ -1,7 +1,7 @@
 name: 'DC API'
 type: module
-description: 'API configurations (GraphQL, JSON:API, OAuth) for Drupal Cloud'
-package: 'Drupal Cloud'
+description: 'API configurations (GraphQL, JSON:API, OAuth) for Decoupled Drupal'
+package: 'Decoupled Drupal'
 core_version_requirement: ^11
 version: 1.0.0
 dependencies:

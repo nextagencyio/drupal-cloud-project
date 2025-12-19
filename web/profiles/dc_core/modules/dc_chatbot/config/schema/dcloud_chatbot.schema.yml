@@ -1,6 +1,6 @@
 block.settings.dc_chatbot_block:
   type: block_settings
-  label: 'Drupal Cloud Chatbot block'
+  label: 'Decoupled Drupal Chatbot block'
   mapping:
     button_text:
       type: label
@@ -20,7 +20,7 @@ block.settings.dc_chatbot_block:
 
 dc_chatbot.settings:
   type: config_object
-  label: 'Drupal Cloud Chatbot settings'
+  label: 'Decoupled Drupal Chatbot settings'
   mapping:
     api_key:
       type: string

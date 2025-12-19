@@ -1,6 +1,6 @@
 {
     "name": "nextagencyio/decoupled-project",
-    "description": "Drupal Cloud template with GraphQL, OAuth, and Next.js integration for headless CMS development",
+    "description": "Decoupled Drupal template with GraphQL, OAuth, and Next.js integration for headless CMS development",
     "type": "project",
     "license": "GPL-2.0-or-later",
     "homepage": "https://github.com/nextagencyio/decoupled-project",

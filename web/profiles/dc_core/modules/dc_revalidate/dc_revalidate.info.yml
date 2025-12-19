@@ -1,7 +1,7 @@
-name: 'Drupal Cloud Revalidate'
+name: 'Decoupled Drupal Revalidate'
 type: module
 description: 'Optional module for triggering Next.js revalidation when nodes are saved'
 core_version_requirement: ^10 || ^11
-package: 'Drupal Cloud'
+package: 'Decoupled Drupal'
 dependencies:
   - drupal:node

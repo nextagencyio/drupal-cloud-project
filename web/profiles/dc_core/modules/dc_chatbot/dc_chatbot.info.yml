@@ -1,7 +1,7 @@
-name: 'Drupal Cloud Chatbot'
+name: 'Decoupled Drupal Chatbot'
 type: module
 description: 'Provides chatbot functionality for DCloud sites with API key authentication'
-package: 'Drupal Cloud'
+package: 'Decoupled Drupal'
 core_version_requirement: ^10 || ^11
 dependencies:
   - drupal:system

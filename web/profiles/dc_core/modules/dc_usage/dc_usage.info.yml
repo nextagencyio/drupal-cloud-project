@@ -1,8 +1,8 @@
-name: 'Drupal Cloud Usage'
+name: 'Decoupled Drupal Usage'
 type: module
-description: 'Provides usage statistics and tracking for Drupal Cloud spaces'
+description: 'Provides usage statistics and tracking for Decoupled Drupal spaces'
 core_version_requirement: ^9 || ^10 || ^11
-package: 'Drupal Cloud'
+package: 'Decoupled Drupal'
 dependencies:
   - drupal:system
   - drupal:node

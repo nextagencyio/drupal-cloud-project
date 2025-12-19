@@ -1,6 +1,6 @@
 name: 'DC Core'
 type: module
-description: 'Core configuration for Drupal Cloud installations'
-package: 'Drupal Cloud'
+description: 'Core configuration for Decoupled Drupal installations'
+package: 'Decoupled Drupal'
 core_version_requirement: ^11
 version: 1.0.0

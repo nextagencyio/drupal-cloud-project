@@ -1,6 +1,6 @@
-name: 'Drupal Cloud Core'
+name: 'Decoupled Drupal Core'
 type: profile
-description: 'Drupal Cloud headless CMS with GraphQL, OAuth, modern content tools, and admin interface.'
+description: 'Decoupled Drupal headless CMS with GraphQL, OAuth, modern content tools, and admin interface.'
 core_version_requirement: ^11
 version: 1.0.0
 

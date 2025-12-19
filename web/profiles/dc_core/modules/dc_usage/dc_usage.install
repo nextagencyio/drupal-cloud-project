@@ -86,7 +86,7 @@ function dc_usage_install() {
   }
   
   // Log installation
-  \Drupal::logger('dc_usage')->info('Drupal Cloud Usage module has been installed.');
+  \Drupal::logger('dc_usage')->info('Decoupled Drupal Usage module has been installed.');
   
   // Set module weight to ensure it loads after core modules
   module_set_weight('dc_usage', 10);
@@ -100,7 +100,7 @@ function dc_usage_uninstall() {
   \Drupal::configFactory()->getEditable('dc_usage.settings')->delete();
   
   // Log uninstallation
-  \Drupal::logger('dc_usage')->info('Drupal Cloud Usage module has been uninstalled.');
+  \Drupal::logger('dc_usage')->info('Decoupled Drupal Usage module has been uninstalled.');
 }
 
 /**
@@ -111,10 +111,10 @@ function dc_usage_requirements($phase) {
 
   if ($phase == 'runtime') {
     $requirements['dc_usage'] = [
-      'title' => t('Drupal Cloud Usage'),
+      'title' => t('Decoupled Drupal Usage'),
       'value' => t('Module is active and tracking usage'),
       'severity' => REQUIREMENT_OK,
-      'description' => t('The Drupal Cloud Usage module is properly installed and functioning.'),
+      'description' => t('The Decoupled Drupal Usage module is properly installed and functioning.'),
     ];
   }
 

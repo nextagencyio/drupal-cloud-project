@@ -1,8 +1,8 @@
 administer dcloud chatbot:
-  title: 'Administer Drupal Cloud Chatbot'
+  title: 'Administer Decoupled Drupal Chatbot'
   description: 'Configure DCloud chatbot settings and API keys'
   restrict access: true
 
 use dcloud chatbot:
-  title: 'Use Drupal Cloud Chatbot'
+  title: 'Use Decoupled Drupal Chatbot'
   description: 'Access the chatbot functionality via API'

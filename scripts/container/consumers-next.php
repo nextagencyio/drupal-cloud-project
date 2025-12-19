@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Create consumers and generate keys for Drupal Cloud Next.js integration.
+ * Create consumers and generate keys for Decoupled Drupal Next.js integration.
  */
 
 use Drupal\Component\Utility\Crypt;
