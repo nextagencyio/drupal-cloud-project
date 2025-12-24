@@ -1,7 +1,7 @@
 name: 'DC Content'
 type: module
 description: 'Sample content and demonstration pages for DC installations'
-package: 'Decoupled Drupal'
+package: Decoupled
 core_version_requirement: ^11
 version: 1.0.0
 dependencies:

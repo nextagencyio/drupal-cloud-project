@@ -1,7 +1,7 @@
 name: 'DC Fields'
 type: module
 description: 'Field configurations for Decoupled Drupal content types'
-package: 'Decoupled Drupal'
+package: Decoupled
 core_version_requirement: ^11
 version: 1.0.0
 dependencies:
