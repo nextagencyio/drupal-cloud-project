@@ -1,0 +1,5 @@
+name: 'Hello World'
+type: module
+description: 'A test module to verify deployment pipeline works end-to-end'
+core_version_requirement: ^10 || ^11
+package: 'Decoupled Cloud'

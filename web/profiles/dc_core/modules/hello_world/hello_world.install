@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Hello World module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function hello_world_install() {
+  \Drupal::messenger()->addStatus(t('Hello World module has been installed successfully!'));
+  \Drupal::logger('hello_world')->notice('Hello World module installed at @time', [
+    '@time' => date('Y-m-d H:i:s'),
+  ]);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function hello_world_uninstall() {
+  \Drupal::messenger()->addStatus(t('Hello World module has been uninstalled.'));
+}
+
+/**
+ * Update hook 10001: Log a test message to verify update hooks run during deployment.
+ */
+function hello_world_update_10001() {
+  $message = t('Hello World update 10001 executed successfully at @time', [
+    '@time' => date('Y-m-d H:i:s'),
+  ]);
+
+  \Drupal::logger('hello_world')->notice($message);
+
+  return $message;
+}
+
+/**
+ * Update hook 10002: Create a state value to verify the update ran.
+ */
+function hello_world_update_10002() {
+  \Drupal::state()->set('hello_world.last_update', [
+    'hook' => '10002',
+    'timestamp' => \Drupal::time()->getRequestTime(),
+    'message' => 'Deployment pipeline verification update',
+  ]);
+
+  return t('Hello World module state updated. Deployment pipeline working correctly!');
+}

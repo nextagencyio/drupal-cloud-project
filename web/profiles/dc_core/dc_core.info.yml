@@ -76,6 +76,7 @@ dependencies:
   - dc_revalidate
   - dc_usage
   - dc_user_redirect
+  - hello_world
 
 # Themes
 themes:
