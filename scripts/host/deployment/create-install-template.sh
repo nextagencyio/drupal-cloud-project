@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Drupal Cloud Docker Installation Script
+# Decoupled Drupal Docker Installation Script
 # This script installs Drupal using the dc_core installation profile
 # Runs in production mode by default, use --local flag for local development
 
@@ -30,7 +30,7 @@ for arg in "$@"; do
 done
 
 echo "=================================================="
-echo "Drupal Cloud Docker Installation Starting..."
+echo "Decoupled Drupal Docker Installation Starting..."
 echo "Environment: $ENVIRONMENT"
 echo "=================================================="
 
@@ -52,7 +52,7 @@ if [ "$ENVIRONMENT" = "prod" ]; then
     fi
 
     SITE_URL="https://template.${DOMAIN_SUFFIX}"
-    SITE_NAME="Drupal Cloud Production"
+    SITE_NAME="Decoupled Drupal"
     ADMIN_EMAIL="admin@template.${DOMAIN_SUFFIX}"
     SITE_EMAIL="noreply@template.${DOMAIN_SUFFIX}"
 else
@@ -60,7 +60,7 @@ else
     SERVICE_NAME="drupal"
     CONTAINER_NAME="drupal-web-local"
     SITE_URL="http://template.localhost:8888"
-    SITE_NAME="Drupal Cloud Local"
+    SITE_NAME="Decoupled Drupal"
     ADMIN_EMAIL="admin@template.localhost"
     SITE_EMAIL="noreply@template.localhost"
 fi
@@ -114,7 +114,7 @@ else
         --notify=false \
         --yes
 
-    echo "Drupal Cloud installation complete!"
+    echo "Decoupled Drupal installation complete!"
 fi
 
 # Create sites.php for multisite routing
@@ -175,7 +175,7 @@ echo "Generating admin login link..."
 LOGIN_URL=$(docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush user:login --uri="$SITE_URL" | tr -d '\r')
 
 echo "=================================================="
-echo "✅ Drupal Cloud installation completed successfully!"
+echo "✅ Decoupled Drupal installation completed successfully!"
 echo "=================================================="
 echo ""
 echo "🌐 Site URL: $SITE_URL"
