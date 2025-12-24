@@ -40,3 +40,19 @@ function dc_config_update_10001() {
 
   return t('Updated Gin theme to use custom dashboard logo.');
 }
+
+/**
+ * Update Gin Login page logo to use custom dashboard logo.
+ */
+function dc_config_update_10002() {
+  $config = \Drupal::configFactory()->getEditable('gin_login.settings');
+
+  // Set custom logo and brand image
+  $config->set('logo.use_default', FALSE);
+  $config->set('logo.path', 'profiles/dc_core/modules/dc_config/images/logo.svg');
+  $config->set('brand_image.use_default', FALSE);
+  $config->set('brand_image.path', 'profiles/dc_core/modules/dc_config/images/logo.svg');
+  $config->save();
+
+  return t('Updated Gin Login page to use custom dashboard logo.');
+}
