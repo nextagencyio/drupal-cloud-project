@@ -20,30 +20,3 @@ function dc_config_page_attachments(array &$attachments) {
     $attachments['#attached']['library'][] = 'dc_config/admin_branding';
   }
 }
-
-/**
- * Implements hook_preprocess_HOOK() for page templates.
- *
- * Set icon_default variable for Gin Login templates.
- */
-function dc_config_preprocess_page(&$variables) {
-  $route = \Drupal::routeMatch()->getRouteName();
-
-  // Only process login/register/password pages
-  if (!in_array($route, ['user.login', 'user.register', 'user.pass'])) {
-    return;
-  }
-
-  $config = \Drupal::config('gin_login.settings');
-  $use_default = $config->get('logo.use_default');
-  $logo_path = $config->get('logo.path');
-
-  // Set icon_default for the template
-  $variables['icon_default'] = $use_default;
-
-  // Set icon_path if custom logo is configured
-  if (!$use_default && !empty($logo_path)) {
-    $fileUrlGenerator = \Drupal::service('file_url_generator');
-    $variables['icon_path'] = $fileUrlGenerator->generateAbsoluteString($logo_path);
-  }
-}
