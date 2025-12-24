@@ -39,7 +39,18 @@ if [ "$ENVIRONMENT" = "prod" ]; then
     COMPOSE_FILE="docker-compose.prod.yml"
     SERVICE_NAME="drupal"
     CONTAINER_NAME="drupal-web"
-    DOMAIN_SUFFIX=${DOMAIN_SUFFIX:-"dcloud.dev"}
+
+    # Load environment variables from .env file for Terraform deployments.
+    if [ -f ".env" ]; then
+        source .env
+    fi
+
+    # DOMAIN_SUFFIX must be set in .env file
+    if [ -z "$DOMAIN_SUFFIX" ]; then
+        echo "Error: DOMAIN_SUFFIX is not set in .env file"
+        exit 1
+    fi
+
     SITE_URL="https://template.${DOMAIN_SUFFIX}"
     SITE_NAME="Drupal Cloud Production"
     ADMIN_EMAIL="admin@template.${DOMAIN_SUFFIX}"
