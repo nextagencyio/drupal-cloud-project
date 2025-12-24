@@ -49,10 +49,13 @@ function dc_config_update_10002() {
 
   // Set custom logo and brand image
   $config->set('logo.use_default', FALSE);
-  $config->set('logo.path', 'profiles/dc_core/modules/dc_config/images/logo.svg');
+  $config->set('logo.path', 'public://logo.svg');
   $config->set('brand_image.use_default', FALSE);
-  $config->set('brand_image.path', 'profiles/dc_core/modules/dc_config/images/logo.svg');
+  $config->set('brand_image.path', 'public://logo.svg');
   $config->save();
+
+  // Set module weight higher than gin_login to ensure our preprocess runs last
+  module_set_weight('dc_config', 10);
 
   return t('Updated Gin Login page to use custom dashboard logo.');
 }
