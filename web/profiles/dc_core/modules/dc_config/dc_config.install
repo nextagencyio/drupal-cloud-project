@@ -26,3 +26,17 @@ function dc_config_uninstall() {
     ->set('page.front', '/user/login')
     ->save();
 }
+
+/**
+ * Update Gin theme logo to use custom dashboard logo.
+ */
+function dc_config_update_10001() {
+  $config = \Drupal::configFactory()->getEditable('gin.settings');
+
+  // Set custom logo
+  $config->set('logo.use_default', FALSE);
+  $config->set('logo.path', 'profiles/dc_core/modules/dc_config/images/logo.svg');
+  $config->save();
+
+  return t('Updated Gin theme to use custom dashboard logo.');
+}
