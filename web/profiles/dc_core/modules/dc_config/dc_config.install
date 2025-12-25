@@ -9,42 +9,22 @@
  * Implements hook_install().
  */
 function dc_config_install() {
-  // Configuration is handled by config/install YAML files.
-  // No additional install tasks needed.
-  \Drupal::messenger()->addStatus(t('Decoupled Drupal configuration has been applied successfully!'));
-}
-
-/**
- * Update Gin Login brand image to use custom background.
- */
-function dc_config_update_9001() {
-  $gin_login_config = \Drupal::configFactory()->getEditable('gin_login.settings');
-  $gin_login_config->set('brand_image.use_default', '0');
-  $gin_login_config->set('brand_image.path', 'profiles/dc_core/modules/dc_config/images/login-background.jpg');
-  $gin_login_config->save();
-
-  return t('Updated Gin Login brand image to use custom background.');
-}
-
-/**
- * Update Gin theme to use custom favicon.
- */
-function dc_config_update_9002() {
+  // Configure Gin theme settings.
   $gin_config = \Drupal::configFactory()->getEditable('gin.settings');
+  $gin_config->set('preset_accent_color', 'dark_purple');
+  $gin_config->set('logo.use_default', false);
+  $gin_config->set('logo.path', 'profiles/dc_core/modules/dc_config/images/logo.svg');
   $gin_config->set('favicon.use_default', false);
   $gin_config->set('favicon.path', 'profiles/dc_core/modules/dc_config/images/favicon.svg');
   $gin_config->save();
 
-  return t('Updated Gin theme to use custom favicon.');
-}
+  // Configure Gin Login settings.
+  $gin_login_config = \Drupal::configFactory()->getEditable('gin_login.settings');
+  $gin_login_config->set('logo.use_default', false);
+  $gin_login_config->set('logo.path', 'profiles/dc_core/modules/dc_config/images/logo.svg');
+  $gin_login_config->set('brand_image.use_default', false);
+  $gin_login_config->set('brand_image.path', 'profiles/dc_core/modules/dc_config/images/login-background.jpg');
+  $gin_login_config->save();
 
-/**
- * Update Gin theme accent color to dark purple.
- */
-function dc_config_update_9003() {
-  $gin_config = \Drupal::configFactory()->getEditable('gin.settings');
-  $gin_config->set('preset_accent_color', 'dark_purple');
-  $gin_config->save();
-
-  return t('Updated Gin theme accent color to dark purple.');
+  \Drupal::messenger()->addStatus(t('Decoupled Drupal configuration has been applied successfully!'));
 }

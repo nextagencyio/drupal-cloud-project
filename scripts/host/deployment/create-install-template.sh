@@ -134,12 +134,16 @@ docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/we
         --site-mail="$SITE_EMAIL" \
         --yes
 
-    # Save admin password to file for reference.
-    echo "$ADMIN_PASSWORD" > /root/.template-admin-password
-    chmod 600 /root/.template-admin-password
-    
-    echo "Drupal installation with dc_core profile complete!"
-    echo "Admin password saved to: /root/.template-admin-password"
+    # Save admin password to file for reference (production only).
+    if [ "$ENVIRONMENT" = "prod" ]; then
+        echo "$ADMIN_PASSWORD" > /root/.template-admin-password
+        chmod 600 /root/.template-admin-password
+        echo "Drupal installation with dc_core profile complete!"
+        echo "Admin password saved to: /root/.template-admin-password"
+    else
+        echo "Drupal installation with dc_core profile complete!"
+        echo "Admin password: $ADMIN_PASSWORD"
+    fi
 
     # Configure trusted_host_patterns for security
     echo "Configuring trusted host patterns for security..."
