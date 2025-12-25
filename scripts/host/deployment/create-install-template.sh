@@ -145,11 +145,11 @@ else
     # Configure trusted_host_patterns for security
     echo "Configuring trusted host patterns for security..."
     if [ "$ENVIRONMENT" = "local" ]; then
-        TRUSTED_HOST_PATTERN="^.+\\\\.localhost\\\$"
+        TRUSTED_HOST_PATTERN="^.+\\\\.localhost$"
     else
         # Escape dots in domain suffix for regex
         ESCAPED_DOMAIN=$(echo "$DOMAIN_SUFFIX" | sed 's/\./\\\\./g')
-        TRUSTED_HOST_PATTERN="^.+\\\\.${ESCAPED_DOMAIN}\\\$"
+        TRUSTED_HOST_PATTERN="^.+\\\\.${ESCAPED_DOMAIN}$"
     fi
 
     # Make settings.php writable, append trusted_host_patterns, then make it read-only again
