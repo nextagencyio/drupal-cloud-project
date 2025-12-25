@@ -12,3 +12,11 @@ function dc_core_update_10001() {
   \Drupal::service('module_installer')->uninstall(['hello_world']);
   return t('Disabled hello_world module.');
 }
+
+/**
+ * Test update hook to verify automated deployments run drush updatedb.
+ */
+function dc_core_update_10002() {
+  \Drupal::logger('dc_core')->notice('Test update hook 10002 executed successfully via automated deployment!');
+  return t('Test update hook executed - automated drush updatedb is working!');
+}
