@@ -82,19 +82,18 @@ fi
 echo "Waiting for database to be ready..."
 sleep 10
 
-# Check if template site already exists
-if docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" test -f /var/www/html/web/sites/template/settings.php; then
-    echo "Template site already exists. Skipping installation..."
-    echo "To reinstall, first remove the template site:"
-    echo "  docker compose -f $COMPOSE_FILE exec $SERVICE_NAME rm -rf /var/www/html/web/sites/template"
-    echo "  docker compose -f $COMPOSE_FILE exec $SERVICE_NAME /var/www/html/vendor/bin/drush sql:drop --uri=$SITE_URL --yes"
-    SKIP_INSTALL=true
-else
-    SKIP_INSTALL=false
+# Always remove existing template site to ensure clean installation
+if docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" test -d /var/www/html/web/sites/template; then
+    echo "Removing existing template site for clean installation..."
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" rm -rf /var/www/html/web/sites/template
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush sql:drop --uri=$SITE_URL --yes 2>/dev/null || true
+fi
 
-    # Create template multisite directory structure
-    echo "Creating template multisite directory..."
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/web/sites/template
+SKIP_INSTALL=false
+
+# Create template multisite directory structure
+echo "Creating template multisite directory..."
+docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/web/sites/template
     # DON'T copy settings.php yet - let drush create it during site-install.
     # Copying default.settings.php here causes Drupal to try to use it before it's configured,
     # which breaks the stream wrapper initialization for public:// during multisite installation.
