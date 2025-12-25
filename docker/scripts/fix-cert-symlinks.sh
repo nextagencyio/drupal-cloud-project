@@ -40,3 +40,4 @@ for domain_dir in ${CERTS_DIR}/*/; do
 done
 
 echo "Certificate symlink fix complete"
+# Last verified: Wed Dec 24 20:37:16 CST 2025
