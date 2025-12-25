@@ -1,5 +1,0 @@
-gin_custom:
-  version: 1.0
-  css:
-    theme:
-      css/gin-custom.css: {}
