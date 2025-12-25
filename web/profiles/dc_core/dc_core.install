@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the dc_core installation profile.
+ */
+
+/**
+ * Disable the hello_world module.
+ */
+function dc_core_update_10001() {
+  \Drupal::service('module_installer')->uninstall(['hello_world']);
+  return t('Disabled hello_world module.');
+}
