@@ -101,6 +101,7 @@ services:
   letsencrypt:
     image: nginxproxy/acme-companion
     container_name: nginx-letsencrypt
+    entrypoint: ["/docker-scripts/letsencrypt-entrypoint.sh"]
     environment:
       - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
       - NGINX_PROXY_CONTAINER=nginx-proxy
@@ -112,6 +113,7 @@ services:
       - nginx_vhost:/etc/nginx/vhost.d
       - nginx_html:/usr/share/nginx/html
       - nginx_acme:/etc/acme.sh
+      - ./docker/scripts:/docker-scripts:ro
     depends_on:
       - nginx
     networks:
