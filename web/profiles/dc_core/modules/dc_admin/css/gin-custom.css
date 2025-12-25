@@ -1,0 +1,19 @@
+/**
+ * Custom Gin admin theme styles for dc_admin module
+ * Resize the logo in the sidebar to match the size of other icons
+ */
+
+/* Target the Gin sidebar logo */
+.gin--vertical-toolbar .gin-sidebar__logo img,
+.gin--classic-toolbar .toolbar-menu__logo img {
+  width: 28px !important;
+  height: 28px !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+}
+
+/* Ensure logo container doesn't add extra padding */
+.gin--vertical-toolbar .gin-sidebar__logo,
+.gin--classic-toolbar .toolbar-menu__logo {
+  padding: 0.5rem !important;
+}
