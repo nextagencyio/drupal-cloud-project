@@ -1,15 +1,18 @@
 services:
   drupal:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: jrcallicott/drupalcloud-drupal:latest
     container_name: drupal-web
     environment:
       - PHP_VERSION=${PHP_VERSION:-8.3}
       - XDEBUG_MODE=${XDEBUG_MODE:-off}
       - VIRTUAL_HOST=*.${DOMAIN_SUFFIX},${DOMAIN_SUFFIX}
       - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=*.${DOMAIN_SUFFIX},${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - DOMAIN_SUFFIX=${DOMAIN_SUFFIX}
+    labels:
+      - "com.github.nginx-proxy.acme.acme_challenge=dns"
+      - "com.github.nginx-proxy.acme.dns_provider=digitalocean"
     volumes:
       - drupal_files:/var/www/html/web/sites/default/files
       - drupal_private:/var/www/html/private
@@ -27,16 +30,19 @@ services:
           memory: 512M
 
   drupal-apex:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: jrcallicott/drupalcloud-drupal:latest
     container_name: drupal-apex
     environment:
       - PHP_VERSION=${PHP_VERSION:-8.3}
       - XDEBUG_MODE=${XDEBUG_MODE:-off}
       - VIRTUAL_HOST=${DOMAIN_SUFFIX}
       - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - DOMAIN_SUFFIX=${DOMAIN_SUFFIX}
+    labels:
+      - "com.github.nginx-proxy.acme.acme_challenge=dns"
+      - "com.github.nginx-proxy.acme.dns_provider=digitalocean"
     volumes:
       - drupal_files:/var/www/html/web/sites/default/files
       - drupal_private:/var/www/html/private
@@ -95,28 +101,24 @@ services:
   letsencrypt:
     image: nginxproxy/acme-companion
     container_name: nginx-letsencrypt
+    entrypoint: ["/docker-scripts/letsencrypt-entrypoint.sh"]
     environment:
-      - DOMAIN_SUFFIX=${DOMAIN_SUFFIX}
-      - CF_Token=${CF_Token:-}
-      - CF_Account_ID=${CF_Account_ID:-}
-      - CF_Zone_ID=${CF_Zone_ID:-}
-      - ACMESH_DNS=dns_cf
       - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
       - NGINX_PROXY_CONTAINER=nginx-proxy
+      - DO_API_KEY=${DIGITALOCEAN_TOKEN:-}
+      - DO_TOKEN=${DIGITALOCEAN_TOKEN:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nginx_certs:/etc/nginx/certs
       - nginx_vhost:/etc/nginx/vhost.d
       - nginx_html:/usr/share/nginx/html
       - nginx_acme:/etc/acme.sh
-      - ./scripts/host/ssl-setup.sh:/app/ssl-setup.sh:ro
-      - ./scripts/host/ssl-renew.sh:/app/ssl-renew.sh:ro
+      - ./docker/scripts:/docker-scripts:ro
     depends_on:
       - nginx
     networks:
       - drupal-network
     restart: unless-stopped
-    command: ["/bin/sh", "-c", "/app/ssl-setup.sh && /app/start.sh"]
 
 volumes:
   drupal_files:

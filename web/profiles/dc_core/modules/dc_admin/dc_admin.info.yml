@@ -1,7 +1,7 @@
 name: 'DC Admin'
 type: module
-description: 'Admin interface configuration with Gin theme for Drupal Cloud'
-package: 'Drupal Cloud'
+description: 'Admin interface configuration with Gin theme for Decoupled Drupal'
+package: Decoupled
 core_version_requirement: ^11
 version: 1.0.0
 dependencies:

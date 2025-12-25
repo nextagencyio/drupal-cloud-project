@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Drupal Cloud Usage module.
+ * Decoupled Drupal Usage module.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -17,7 +17,7 @@ use Drupal\node\NodeTypeInterface;
 function dc_usage_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.dc_usage':
-      return '<p>' . t('Provides usage statistics and tracking for Drupal Cloud spaces.') . '</p>';
+      return '<p>' . t('Provides usage statistics and tracking for Decoupled Drupal spaces.') . '</p>';
   }
 }
 

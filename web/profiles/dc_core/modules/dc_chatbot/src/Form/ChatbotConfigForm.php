@@ -6,7 +6,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Configure Drupal Cloud Chatbot settings.
+ * Configure Decoupled Drupal Chatbot settings.
  */
 class ChatbotConfigForm extends ConfigFormBase {
 
@@ -50,8 +50,8 @@ class ChatbotConfigForm extends ConfigFormBase {
 
     $form['api_url'] = [
       '#type' => 'url',
-      '#title' => $this->t('Drupal Cloud Chatbot API URL'),
-      '#description' => $this->t('The URL endpoint for communicating with Drupal Cloud\'s centralized AI system. This connects your site\'s chatbot to our intelligent response engine.'),
+      '#title' => $this->t('Decoupled Drupal Chatbot API URL'),
+      '#description' => $this->t('The URL endpoint for communicating with Decoupled Drupal\'s centralized AI system. This connects your site\'s chatbot to our intelligent response engine.'),
       '#default_value' => $config->get('api_url', 'http://host.docker.internal:3333/api/chatbot'),
       '#maxlength' => 255,
       '#placeholder' => 'http://host.docker.internal:3333/api/chatbot',

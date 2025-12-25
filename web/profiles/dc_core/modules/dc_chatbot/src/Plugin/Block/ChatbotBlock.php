@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @Block(
  *   id = "dc_chatbot_block",
- *   admin_label = @Translation("Drupal Cloud Chatbot"),
+ *   admin_label = @Translation("Decoupled Drupal Chatbot"),
  *   category = @Translation("DCloud"),
  * )
  */
@@ -163,7 +163,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
       '#button_color' => $block_config['button_color'],
       '#show_on_mobile' => $block_config['show_on_mobile'],
       '#trigger_delay' => $block_config['trigger_delay'],
-      '#welcome_message' => 'Hello! I\'m your Drupal Cloud assistant. How can I help you today?',
+      '#welcome_message' => 'Hello! I\'m your Decoupled Drupal assistant. How can I help you today?',
       '#attached' => [
         'library' => [
           'dc_chatbot/chatbot',
@@ -175,7 +175,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
             'buttonColor' => $block_config['button_color'],
             'showOnMobile' => $block_config['show_on_mobile'],
             'triggerDelay' => $block_config['trigger_delay'] * 1000, // Convert to milliseconds
-            'welcomeMessage' => 'Hello! I\'m your Drupal Cloud assistant. How can I help you today?',
+            'welcomeMessage' => 'Hello! I\'m your Decoupled Drupal assistant. How can I help you today?',
             'spaceId' => $this->getSpaceId(),
             'nextjsApiUrl' => $this->getNextjsApiUrl(),
           ],

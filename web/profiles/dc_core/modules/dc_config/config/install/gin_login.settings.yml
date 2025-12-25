@@ -1,0 +1,5 @@
+logo:
+  use_default: false
+  path: 'profiles/dc_core/modules/dc_config/images/logo.svg'
+brand_image:
+  use_default: true
