@@ -164,7 +164,6 @@ docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/we
 ];' >> /var/www/html/web/sites/template/settings.php"
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" chmod 444 /var/www/html/web/sites/template/settings.php
     echo "Trusted host patterns configured."
-fi
 
 # Add template site to sites.php for multisite routing
 echo "Adding template site to sites.php..."
