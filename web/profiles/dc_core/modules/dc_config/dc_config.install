@@ -36,6 +36,11 @@ function dc_config_install() {
   $gin_login_config->set('brand_image.path', 'profiles/dc_core/modules/dc_config/images/login-background.jpg');
   $gin_login_config->save();
 
+  // Set homepage to /dc-config
+  $site_config = \Drupal::configFactory()->getEditable('system.site');
+  $site_config->set('page.front', '/dc-config');
+  $site_config->save();
+
   \Drupal::messenger()->addStatus(t('Decoupled Drupal configuration has been applied successfully!'));
 }
 

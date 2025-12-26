@@ -56,3 +56,13 @@ function dc_core_update_10003() {
 
   return t('Preview iframe URLs already up to date.');
 }
+
+/**
+ * Set homepage to /dc-config.
+ */
+function dc_core_update_10004() {
+  $config = \Drupal::configFactory()->getEditable('system.site');
+  $config->set('page.front', '/dc-config');
+  $config->save();
+  return t('Set homepage to /dc-config.');
+}
