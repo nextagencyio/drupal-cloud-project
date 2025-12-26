@@ -20,3 +20,39 @@ function dc_core_update_10002() {
   \Drupal::logger('dc_core')->notice('Test update hook 10002 executed successfully via automated deployment!');
   return t('Test update hook executed - automated drush updatedb is working!');
 }
+
+/**
+ * Update preview iframe URLs to dc_core profile location.
+ */
+function dc_core_update_10003() {
+  $config = \Drupal::configFactory()->getEditable('decoupled_preview_iframe.settings');
+
+  if ($config->isNew()) {
+    return t('Decoupled preview iframe not configured, skipping.');
+  }
+
+  $old_path = '/modules/custom/dc_config/preview-setup.html?';
+  $new_path = '/profiles/dc_core/modules/dc_config/preview-setup.html?';
+
+  $redirect_url = $config->get('redirect_url');
+  $preview_url = $config->get('preview_url');
+
+  $updated = FALSE;
+
+  if ($redirect_url === $old_path) {
+    $config->set('redirect_url', $new_path);
+    $updated = TRUE;
+  }
+
+  if ($preview_url === $old_path) {
+    $config->set('preview_url', $new_path);
+    $updated = TRUE;
+  }
+
+  if ($updated) {
+    $config->save();
+    return t('Updated preview iframe URLs to dc_core profile location.');
+  }
+
+  return t('Preview iframe URLs already up to date.');
+}
