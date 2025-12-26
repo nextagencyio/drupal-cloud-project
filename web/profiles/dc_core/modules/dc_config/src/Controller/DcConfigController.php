@@ -277,7 +277,7 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
                     <p>Get your site live in production with one click - no setup required!</p>
                   </div>
                   <div class="dc-config-vercel-deploy">
-                    <a href="https://vercel.com/new/clone?repository-url=https://github.com/nextagencyio/drupal-cloud-starter&project-name=my-app"
+                    <a href="https://vercel.com/new/clone?repository-url=https://github.com/nextagencyio/decoupled-starter&project-name=my-app"
                        target="_blank"
                        class="dc-config-vercel-button-large">
                       <svg width="24" height="24" viewBox="0 0 76 65" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -303,7 +303,7 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
                     <p>Create a new project with our starter template</p>
                   </div>
                   ' . $this->createCodeBlock("# Create new project with starter template
-npx create-drupal-cloud-starter
+npx create-decoupled-starter
 
 # Copy or download the .env.local variables above
 # and add them to your project root
@@ -357,7 +357,7 @@ npm run dev", 'bash', 'Quick Start Commands') . '
             <div class="dc-config-help-links">
               <h4>📚 Resources</h4>
               <ul>
-                <li><a href="https://github.com/nextagencyio/drupal-cloud-starter" target="_blank">Starter Project →</a></li>
+                <li><a href="https://github.com/nextagencyio/decoupled-starter" target="_blank">Starter Project →</a></li>
                 <li><a href="https://nextjs.org/docs" target="_blank">Next.js Docs →</a></li>
                 <li><a href="/admin/config" target="_blank">Drupal Config →</a></li>
               </ul>

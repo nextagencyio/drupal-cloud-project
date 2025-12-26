@@ -161,9 +161,9 @@ if (is_writable($private_path)) {
     'DRUPAL_CLIENT_SECRET=' . $viewerClientSecret,
   ];
 
-// Check to see if ../drupal-cloud-starter/ is writable.
+// Check to see if ../decoupled-starter/ is writable.
 // If so go ahead and update configuration files.
-if (is_writable('../drupal-cloud-starter/')) {
+if (is_writable('../decoupled-starter/')) {
   // Get current domain.
   $host = \Drupal::request()->getSchemeAndHttpHost();
 
@@ -172,17 +172,17 @@ if (is_writable('../drupal-cloud-starter/')) {
     $host = preg_replace('/^http:/', 'https:', $host);
   }
 
-  // If file ../drupal-cloud-starter/.env.example exists copy to
-  // ../drupal-cloud-starter/.env.local.
-  $envFile = '../drupal-cloud-starter/.env.local';
-  $envExampleFile = '../drupal-cloud-starter/.env.example';
+  // If file ../decoupled-starter/.env.example exists copy to
+  // ../decoupled-starter/.env.local.
+  $envFile = '../decoupled-starter/.env.local';
+  $envExampleFile = '../decoupled-starter/.env.example';
   if (file_exists($envExampleFile) && !file_exists($envFile)) {
     copy($envExampleFile, $envFile);
     // Notify the user.
     $messages[] = 'Copied ' . $envExampleFile . ' to ' . $envFile;
   }
 
-  // If file ../drupal-cloud-starter/.env.local exists then update the
+  // If file ../decoupled-starter/.env.local exists then update the
   // credentials.
   if (file_exists($envFile) && !empty($previewerClientId) && !empty($previewerClientSecret)) {
     $envContents = file_get_contents($envFile);
