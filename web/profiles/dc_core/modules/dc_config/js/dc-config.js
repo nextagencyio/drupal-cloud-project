@@ -9,7 +9,7 @@
   /**
    * Copy text to clipboard functionality.
    */
-  Drupal.behaviors.dcloudConfigCopy = {
+  Drupal.behaviors.decoupledConfigCopy = {
     attach: function (context, settings) {
       // Add event listeners to copy buttons
       once('dc-copy', '.dc-config-copy-button', context).forEach(function (button) {
@@ -27,7 +27,7 @@
   /**
    * Download file functionality.
    */
-  Drupal.behaviors.dcloudConfigDownload = {
+  Drupal.behaviors.decoupledConfigDownload = {
     attach: function (context, settings) {
       // Add event listeners to download buttons
       once('dc-download', '.dc-config-download-button', context).forEach(function (button) {
@@ -176,7 +176,7 @@
   /**
    * Generate secrets via AJAX.
    */
-  Drupal.behaviors.dcloudConfigGenerateSecret = {
+  Drupal.behaviors.decoupledConfigGenerateSecret = {
     attach: function (context, settings) {
       // Add event listener to generate secret button
       once('dc-generate-secret', '.dc-config-generate-button', context).forEach(function (button) {

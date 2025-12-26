@@ -1,10 +1,10 @@
 dc_config.admin:
-  path: '/admin/config/dcloud/configuration'
+  path: '/admin/config/decoupled/configuration'
   defaults:
     _controller: '\Drupal\dc_config\Controller\DcConfigController::configPage'
     _title: 'Decoupled Drupal Configuration'
   requirements:
-    _permission: 'administer dcloud configuration'
+    _permission: 'administer decoupled configuration'
 
 dc_config.homepage:
   path: '/dc-config'
@@ -32,8 +32,8 @@ dc_config.generate_secret_ajax:
     _access: 'TRUE'
   methods: [POST]
 
-dcloud.admin_category:
-  path: '/admin/config/dcloud'
+decoupled.admin_category:
+  path: '/admin/config/decoupled'
   defaults:
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
     _title: 'Decoupled Drupal'

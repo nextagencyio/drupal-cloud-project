@@ -4,12 +4,12 @@ The DCloud Import module provides a REST API for importing Drupal content types 
 
 ## API Endpoints
 
-### POST `/api/dcloud-import`
+### POST `/api/decoupled-import`
 Import content types and content from JSON data.
 
 **Authentication Required:** Decoupled Drupal personal access token via `X-DCloud-Token` header.
 
-### GET `/api/dcloud-import/status`
+### GET `/api/decoupled-import/status`
 Get service status and API documentation.
 
 **Authentication:** None required.
@@ -24,7 +24,7 @@ Test endpoint for service health check.
 ### Basic Import Request
 
 ```bash
-curl -X POST https://your-site.com/api/dcloud-import \
+curl -X POST https://your-site.com/api/decoupled-import \
   -H "Content-Type: application/json" \
   -H "X-DCloud-Token: dc_tok_YOUR_ACCESS_TOKEN" \
   -d @import-data.json
@@ -35,7 +35,7 @@ curl -X POST https://your-site.com/api/dcloud-import \
 Test your import without making actual changes by adding the `preview` parameter:
 
 ```bash
-curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
+curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
   -H "Content-Type: application/json" \
   -H "X-DCloud-Token: dc_tok_YOUR_ACCESS_TOKEN" \
   -d @import-data.json
@@ -307,13 +307,13 @@ curl -X POST https://your-site.com/oauth/token \
 ### Check Service Status
 
 ```bash
-curl https://your-site.com/api/dcloud-import/status
+curl https://your-site.com/api/decoupled-import/status
 ```
 
 ### Test Import (Preview Mode)
 
 ```bash
-curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
+curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
   -H "Content-Type: application/json" \
   -H "X-DCloud-Token: dc_tok_YOUR_TOKEN" \
   -d '{"model":[{"bundle":"test","label":"Test Content Type"}]}'
@@ -342,7 +342,7 @@ curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
 Enable preview mode to test imports without making changes:
 
 ```bash
-curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
+curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
   -H "Content-Type: application/json" \
   -H "X-DCloud-Token: dc_tok_YOUR_TOKEN" \
   -d @your-import-file.json
@@ -366,7 +366,7 @@ curl -X POST "https://your-site.com/api/dcloud-import?preview=true" \
 ### Web Interface
 
 Access the administrative interface at:
-`/admin/config/content/dcloud-import`
+`/admin/config/content/decoupled-import`
 
 **Required Permission:** `import dcloud config`
 

@@ -1,5 +1,5 @@
 dc_usage.usage_stats:
-  path: '/api/dcloud/usage'
+  path: '/api/decoupled/usage'
   defaults:
     _controller: '\Drupal\dc_usage\Controller\UsageController::getUsageStats'
     _title: 'Usage Statistics'
@@ -10,7 +10,7 @@ dc_usage.usage_stats:
     no_cache: TRUE
 
 dc_usage.detailed_usage:
-  path: '/api/dcloud/usage/detailed'
+  path: '/api/decoupled/usage/detailed'
   defaults:
     _controller: '\Drupal\dc_usage\Controller\UsageController::getDetailedUsage'
     _title: 'Detailed Usage Statistics'
@@ -21,7 +21,7 @@ dc_usage.detailed_usage:
     no_cache: TRUE
 
 dc_usage.debug:
-  path: '/api/dcloud/usage/debug'
+  path: '/api/decoupled/usage/debug'
   defaults:
     _controller: '\Drupal\dc_usage\Controller\UsageController::debugInfo'
     _title: 'Debug Usage Module'

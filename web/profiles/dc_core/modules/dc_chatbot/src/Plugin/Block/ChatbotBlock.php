@@ -169,7 +169,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
           'dc_chatbot/chatbot',
         ],
         'drupalSettings' => [
-          'dcloudChatbot' => [
+          'decoupledChatbot' => [
             'enabled' => TRUE,
             'buttonPosition' => $block_config['button_position'],
             'buttonColor' => $block_config['button_color'],
@@ -192,7 +192,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    return AccessResult::allowedIfHasPermission($account, 'use dcloud chatbot');
+    return AccessResult::allowedIfHasPermission($account, 'use decoupled chatbot');
   }
 
   /**

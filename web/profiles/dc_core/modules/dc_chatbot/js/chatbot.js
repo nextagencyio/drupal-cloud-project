@@ -9,7 +9,7 @@
   /**
    * Drupal Cloud Chatbot behavior.
    */
-  Drupal.behaviors.dcloudChatbot = {
+  Drupal.behaviors.decoupledChatbot = {
     attach: function (context, settings) {
       const container = context.querySelector('#dc-chatbot-container');
       if (!container || container.dataset.processed) {
@@ -18,7 +18,7 @@
 
       container.dataset.processed = 'true';
 
-      const chatbot = new DCloudChatbot(container, settings.dcloudChatbot || {});
+      const chatbot = new DecoupledChatbot(container, settings.decoupledChatbot || {});
       chatbot.init();
     }
   };
@@ -26,7 +26,7 @@
   /**
    * Drupal Cloud Chatbot class.
    */
-  function DCloudChatbot(container, settings) {
+  function DecoupledChatbot(container, settings) {
     this.container = container;
     this.settings = Object.assign({
       enabled: false,
@@ -57,7 +57,7 @@
     this.inputContainer = container.querySelector('.dc-chatbot-input-container');
   }
 
-  DCloudChatbot.prototype.init = function () {
+  DecoupledChatbot.prototype.init = function () {
     if (!this.settings.enabled) {
       console.log('Drupal Cloud Chatbot: Not enabled, skipping initialization');
       return;
@@ -78,7 +78,7 @@
     this.initializeInitialState();
   };
 
-  DCloudChatbot.prototype.bindEvents = function () {
+  DecoupledChatbot.prototype.bindEvents = function () {
     // Trigger button
     this.trigger.addEventListener('click', (e) => {
       e.preventDefault();
@@ -131,7 +131,7 @@
     });
   };
 
-  DCloudChatbot.prototype.setupAutoTrigger = function () {
+  DecoupledChatbot.prototype.setupAutoTrigger = function () {
     if (this.settings.triggerDelay > 0) {
       setTimeout(() => {
         if (!this.isOpen) {
@@ -141,14 +141,14 @@
     }
   };
 
-  DCloudChatbot.prototype.updateWelcomeTime = function () {
+  DecoupledChatbot.prototype.updateWelcomeTime = function () {
     const welcomeTime = this.messages.querySelector('.dc-chatbot-welcome .message-time');
     if (welcomeTime) {
       welcomeTime.textContent = this.formatTime(new Date());
     }
   };
 
-  DCloudChatbot.prototype.toggle = function () {
+  DecoupledChatbot.prototype.toggle = function () {
     if (this.isOpen) {
       this.close();
     } else {
@@ -156,7 +156,7 @@
     }
   };
 
-  DCloudChatbot.prototype.open = function () {
+  DecoupledChatbot.prototype.open = function () {
     this.panel.classList.add('open');
     this.panel.setAttribute('aria-hidden', 'false');
     this.isOpen = true;
@@ -176,7 +176,7 @@
     this.trigger.setAttribute('aria-expanded', 'true');
   };
 
-  DCloudChatbot.prototype.close = function () {
+  DecoupledChatbot.prototype.close = function () {
     this.panel.classList.remove('open');
     this.panel.setAttribute('aria-hidden', 'true');
     this.isOpen = false;
@@ -192,14 +192,14 @@
     this.trigger.focus();
   };
 
-  DCloudChatbot.prototype.initializeInitialState = function () {
+  DecoupledChatbot.prototype.initializeInitialState = function () {
     // Keep input container visible but disabled initially, enable buttons
     this.inputContainer.classList.remove('hidden');
     this.disableInput();
     this.enableActionButtons();
   };
 
-  DCloudChatbot.prototype.returnToInitialState = function () {
+  DecoupledChatbot.prototype.returnToInitialState = function () {
     // Reset to initial state
     this.currentMode = null;
     this.modelContentStep = null;
@@ -213,7 +213,7 @@
     this.input.value = '';
   };
 
-  DCloudChatbot.prototype.enableActionButtons = function () {
+  DecoupledChatbot.prototype.enableActionButtons = function () {
     const buttons = this.container.querySelectorAll('.chatbot-action-btn');
     buttons.forEach(button => {
       button.disabled = false;
@@ -223,7 +223,7 @@
     this.initialOptions.classList.remove('hidden');
   };
 
-  DCloudChatbot.prototype.disableActionButtons = function () {
+  DecoupledChatbot.prototype.disableActionButtons = function () {
     const buttons = this.container.querySelectorAll('.chatbot-action-btn');
     buttons.forEach(button => {
       button.disabled = true;
@@ -236,12 +236,12 @@
     this.initialOptions.style.display = 'block';
   };
 
-  DCloudChatbot.prototype.hideActionButtons = function () {
+  DecoupledChatbot.prototype.hideActionButtons = function () {
     // Hide the action buttons completely (used after model content completion)
     this.initialOptions.classList.add('hidden');
   };
 
-  DCloudChatbot.prototype.enableInput = function () {
+  DecoupledChatbot.prototype.enableInput = function () {
     this.input.disabled = false;
     this.sendBtn.disabled = false;
     this.input.style.opacity = '1';
@@ -250,7 +250,7 @@
     this.sendBtn.style.pointerEvents = 'auto';
   };
 
-  DCloudChatbot.prototype.disableInput = function () {
+  DecoupledChatbot.prototype.disableInput = function () {
     this.input.disabled = true;
     this.sendBtn.disabled = true;
     this.input.style.opacity = '0.5';
@@ -260,7 +260,7 @@
   };
 
 
-  DCloudChatbot.prototype.handleActionButton = function (action) {
+  DecoupledChatbot.prototype.handleActionButton = function (action) {
     this.currentMode = action;
 
     // Disable buttons and enable input during workflow
@@ -274,20 +274,20 @@
     }
   };
 
-  DCloudChatbot.prototype.startModelContentFlow = function () {
+  DecoupledChatbot.prototype.startModelContentFlow = function () {
     this.modelContentStep = 'description';
     this.addMessage('Describe the content type you want to create (e.g., "blog post with title, body, author, and tags").', 'bot');
     this.input.placeholder = 'Describe your content type...';
     this.input.focus();
   };
 
-  DCloudChatbot.prototype.startQuestionAnswerFlow = function () {
+  DecoupledChatbot.prototype.startQuestionAnswerFlow = function () {
     this.addMessage('I\'m here to help answer your questions about Drupal Cloud! What would you like to know?', 'bot');
     this.input.placeholder = 'Ask your question...';
     this.input.focus();
   };
 
-  DCloudChatbot.prototype.sendMessage = function () {
+  DecoupledChatbot.prototype.sendMessage = function () {
     const message = this.input.value.trim();
     if (!message || this.sendBtn.disabled) {
       return;
@@ -307,7 +307,7 @@
     }
   };
 
-  DCloudChatbot.prototype.handleModelContentMessage = function (message) {
+  DecoupledChatbot.prototype.handleModelContentMessage = function (message) {
     if (this.modelContentStep === 'description') {
       // Process the content description and generate import configuration
       this.callModelContentAPI(message)
@@ -333,7 +333,7 @@
     }
   };
 
-  DCloudChatbot.prototype.handleQuestionAnswerMessage = function (message) {
+  DecoupledChatbot.prototype.handleQuestionAnswerMessage = function (message) {
     // Send to regular chat API
     this.callChatAPI(message)
       .then(response => {
@@ -354,7 +354,7 @@
       });
   };
 
-  DCloudChatbot.prototype.addMessage = function (content, sender, isError = false) {
+  DecoupledChatbot.prototype.addMessage = function (content, sender, isError = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `dc-chatbot-message ${sender}-message${isError ? ' error-message' : ''}`;
 
@@ -389,7 +389,7 @@
     });
   };
 
-  DCloudChatbot.prototype.addMessageWithStartOver = function (content, sender, isError = false) {
+  DecoupledChatbot.prototype.addMessageWithStartOver = function (content, sender, isError = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `dc-chatbot-message ${sender}-message${isError ? ' error-message' : ''}`;
 
@@ -468,7 +468,7 @@
     });
   };
 
-  DCloudChatbot.prototype.startOver = function () {
+  DecoupledChatbot.prototype.startOver = function () {
     // Clear all messages except the welcome message
     const welcomeMessage = this.messages.querySelector('#dc-chatbot-welcome');
     this.messages.innerHTML = '';
@@ -509,7 +509,7 @@
     this.messages.scrollTop = 0;
   };
 
-  DCloudChatbot.prototype.setSendingState = function (sending) {
+  DecoupledChatbot.prototype.setSendingState = function (sending) {
     this.sendBtn.disabled = sending;
     this.input.disabled = sending;
 
@@ -520,7 +520,7 @@
     }
   };
 
-  DCloudChatbot.prototype.showLoading = function () {
+  DecoupledChatbot.prototype.showLoading = function () {
     console.log('Drupal Cloud Chatbot: Showing loading');
     if (this.loading) {
       // Add loading indicator to messages area
@@ -533,7 +533,7 @@
     }
   };
 
-  DCloudChatbot.prototype.hideLoading = function () {
+  DecoupledChatbot.prototype.hideLoading = function () {
     console.log('Drupal Cloud Chatbot: Hiding loading');
     if (this.loading && this.loading.parentNode === this.messages) {
       this.loading.setAttribute('aria-hidden', 'true');
@@ -544,7 +544,7 @@
     }
   };
 
-  DCloudChatbot.prototype.callChatAPI = function (message) {
+  DecoupledChatbot.prototype.callChatAPI = function (message) {
     // Call the local Drupal API endpoint
     return fetch('/api/chat', {
       method: 'POST',
@@ -577,7 +577,7 @@
       });
   };
 
-  DCloudChatbot.prototype.callModelContentAPI = function (contentDescription) {
+  DecoupledChatbot.prototype.callModelContentAPI = function (contentDescription) {
     // For now, use the Drupal endpoint with mode parameter
     return fetch('/api/chat', {
       method: 'POST',
@@ -612,10 +612,10 @@
   };
 
   // Helper method to extract space ID from URL or configuration
-  DCloudChatbot.prototype.getSpaceId = function () {
+  DecoupledChatbot.prototype.getSpaceId = function () {
     // Try to get from drupalSettings first
-    if (drupalSettings.dcloudChatbot && drupalSettings.dcloudChatbot.spaceId) {
-      return drupalSettings.dcloudChatbot.spaceId;
+    if (drupalSettings.decoupledChatbot && drupalSettings.decoupledChatbot.spaceId) {
+      return drupalSettings.decoupledChatbot.spaceId;
     }
 
     // For ddev.site URLs, return the full hostname
@@ -637,11 +637,11 @@
   };
 
   // Helper method to determine Next.js API URL
-  DCloudChatbot.prototype.getNextjsApiUrl = function () {
+  DecoupledChatbot.prototype.getNextjsApiUrl = function () {
     // In development, the Next.js app typically runs on localhost:3333
     // In production, this should be configured via drupalSettings
-    if (drupalSettings.dcloudChatbot && drupalSettings.dcloudChatbot.nextjsApiUrl) {
-      return drupalSettings.dcloudChatbot.nextjsApiUrl;
+    if (drupalSettings.decoupledChatbot && drupalSettings.decoupledChatbot.nextjsApiUrl) {
+      return drupalSettings.decoupledChatbot.nextjsApiUrl;
     }
 
     // Development fallback
@@ -653,7 +653,7 @@
     return 'https://dashboard.' + window.location.hostname.replace(/^[^.]+\./, '');
   };
 
-  DCloudChatbot.prototype.parseMarkdown = function (text) {
+  DecoupledChatbot.prototype.parseMarkdown = function (text) {
     // Escape HTML to prevent XSS
     text = text.replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -755,7 +755,7 @@
     return text;
   };
 
-  DCloudChatbot.prototype.formatTime = function (date) {
+  DecoupledChatbot.prototype.formatTime = function (date) {
     return date.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit'
@@ -763,6 +763,6 @@
   };
 
   // Export for potential external use
-  window.DCloudChatbot = DCloudChatbot;
+  window.DecoupledChatbot = DecoupledChatbot;
 
 })(Drupal, drupalSettings);

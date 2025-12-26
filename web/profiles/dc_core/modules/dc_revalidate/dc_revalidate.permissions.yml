@@ -1,4 +1,4 @@
-administer dcloud revalidate:
+administer decoupled revalidate:
   title: 'Administer Dc Revalidate'
   description: 'Configure Dc revalidation settings'
   restrict access: true
