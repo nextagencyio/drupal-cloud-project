@@ -332,18 +332,22 @@ else
 fi
 
 # ============================================================================
-# STEP 8: Set admin password if provided
+# STEP 8: Set admin password
 # ============================================================================
-if [ -n "$ADMIN_PASSWORD" ]; then
-  log_step "Setting admin password..."
+log_step "Setting admin password..."
 
-  docker compose -f docker-compose.prod.yml exec -T drupal \
-    /var/www/html/vendor/bin/drush --uri=https://${TARGET_SITE}.${DOMAIN_SUFFIX} \
-    user:password admin "$ADMIN_PASSWORD" \
-    || log_error "Warning: Failed to set admin password (non-critical)"
-
-  log_success "Admin password set"
+# Generate random password if not provided
+if [ -z "$ADMIN_PASSWORD" ]; then
+  ADMIN_PASSWORD=$(openssl rand -base64 12 | tr -d "=+/" | cut -c1-16)
+  log "Generated random admin password: $ADMIN_PASSWORD"
 fi
+
+docker compose -f docker-compose.prod.yml exec -T drupal \
+  /var/www/html/vendor/bin/drush --uri=https://${TARGET_SITE}.${DOMAIN_SUFFIX} \
+  user:password admin "$ADMIN_PASSWORD" \
+  || log_error "Warning: Failed to set admin password (non-critical)"
+
+log_success "Admin password set: $ADMIN_PASSWORD"
 
 # ============================================================================
 # STEP 9: Clear cache and run updates
@@ -381,6 +385,19 @@ rm -rf "$TEMP_DIR"
 log_success "Temporary files cleaned up"
 
 # ============================================================================
+# STEP 11: Generate one-time login link
+# ============================================================================
+log_step "Generating one-time login link..."
+
+LOGIN_LINK=$(docker compose -f docker-compose.prod.yml exec -T drupal \
+  /var/www/html/vendor/bin/drush --uri=https://${TARGET_SITE}.${DOMAIN_SUFFIX} \
+  uli --no-interaction 2>/dev/null || echo "")
+
+if [ -n "$LOGIN_LINK" ]; then
+  log_success "One-time login link: $LOGIN_LINK"
+fi
+
+# ============================================================================
 # COMPLETION
 # ============================================================================
 echo ""
@@ -391,6 +408,10 @@ echo -e "  Source: ${CYAN}${SOURCE_DOMAIN} (${SOURCE_IP})${NC}"
 echo -e "  Target: ${CYAN}${TARGET_SITE}.${DOMAIN_SUFFIX}${NC}"
 echo -e "  Database: ${CYAN}${DB_NAME}${NC}"
 echo -e "  Token: ${CYAN}${TARGET_TOKEN}${NC}"
+echo -e "  Admin Password: ${CYAN}${ADMIN_PASSWORD}${NC}"
+if [ -n "$LOGIN_LINK" ]; then
+  echo -e "  Login Link: ${CYAN}${LOGIN_LINK}${NC}"
+fi
 echo -e "${GREEN}==================================================================${NC}"
 echo ""
 echo -e "${GREEN}Site cloned from standalone to multisite successfully! 🚀${NC}"

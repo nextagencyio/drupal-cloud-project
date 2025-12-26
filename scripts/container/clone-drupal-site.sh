@@ -536,17 +536,19 @@ set_admin_password() {
 
     cd "$PROJECT_PATH"
 
-    if [[ -n "$ADMIN_PASSWORD" ]]; then
-        log "Setting custom admin password (${#ADMIN_PASSWORD} characters)..."
+    if [[ -z "$ADMIN_PASSWORD" ]]; then
+        # Generate a random 16-character password if none provided
+        ADMIN_PASSWORD=$(openssl rand -base64 12 | tr -d "=+/" | cut -c1-16)
+        log "Generated random admin password: $ADMIN_PASSWORD"
+    fi
 
-        # Set the admin password using drush
-        if timeout 30 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G user:password admin "$ADMIN_PASSWORD" --no-interaction; then
-            log_success "Admin password set successfully"
-        else
-            log_warning "Failed to set admin password, but site should still work with default password"
-        fi
+    log "Setting admin password (${#ADMIN_PASSWORD} characters)..."
+
+    # Set the admin password using drush
+    if timeout 30 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G user:password admin "$ADMIN_PASSWORD" --no-interaction; then
+        log_success "Admin password set successfully: $ADMIN_PASSWORD"
     else
-        log_warning "No admin password provided, using default password"
+        log_warning "Failed to set admin password"
     fi
 }
 
@@ -586,6 +588,21 @@ EOF
     log_success "Site metadata created"
 }
 
+generate_login_link() {
+    log "Generating one-time login link..."
+
+    local target_uri="${SITE_PROTOCOL}://${TARGET_SITE}.${DOMAIN_SUFFIX}${SITE_URL_SUFFIX}"
+
+    cd "$PROJECT_PATH"
+
+    # Generate one-time login link for admin user
+    if timeout 30 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G uli --no-interaction 2>/dev/null; then
+        log_success "One-time login link generated above"
+    else
+        log_warning "Could not generate one-time login link"
+    fi
+}
+
 # Main execution
 main() {
     # Parse arguments
@@ -618,21 +635,26 @@ main() {
     run_database_updates
     validate_cloned_site
     create_site_metadata
-    
+
     echo
     log_success "Site cloning completed successfully!"
     echo
-    
+
     local final_url="${SITE_PROTOCOL}://${TARGET_SITE}.${DOMAIN_SUFFIX}${SITE_URL_SUFFIX}"
-    
+
     log "Clone Summary:"
     log "  Source Site: $SOURCE_SITE"
     log "  Target Site: $TARGET_SITE"
     log "  Target URL: $final_url"
     log "  Database: drupal_${TARGET_SITE}"
     log "  Site Directory: $TARGET_PATH"
+    log "  Admin Password: $ADMIN_PASSWORD"
     echo
     log_success "Your new site is ready at: $final_url"
+    echo
+
+    # Generate one-time login link
+    generate_login_link
 }
 
 # Show usage if no parameters
