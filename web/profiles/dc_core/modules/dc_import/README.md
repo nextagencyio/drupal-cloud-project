@@ -7,7 +7,7 @@ The DCloud Import module provides a REST API for importing Drupal content types 
 ### POST `/api/dcloud-import`
 Import content types and content from JSON data.
 
-**Authentication Required:** DrupalCloud personal access token via `X-DCloud-Token` header.
+**Authentication Required:** Decoupled Drupal personal access token via `X-DCloud-Token` header.
 
 ### GET `/api/dcloud-import/status`
 Get service status and API documentation.

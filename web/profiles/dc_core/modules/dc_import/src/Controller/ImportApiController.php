@@ -54,9 +54,9 @@ class ImportApiController extends ControllerBase {
       if (!$this->authenticateRequest($request)) {
         return new JsonResponse([
           'success' => false,
-          'error' => 'Authentication required. Please provide a valid DrupalCloud personal access token.',
+          'error' => 'Authentication required. Please provide a valid Decoupled Drupal personal access token.',
           'format' => 'X-DCloud-Token: dc_tok_...',
-          'help' => 'Get your token from the DrupalCloud dashboard at /organization/tokens',
+          'help' => 'Get your token from the Decoupled Drupal dashboard at /organization/tokens',
         ], 401);
       }
 
@@ -129,8 +129,8 @@ class ImportApiController extends ControllerBase {
         'GET /api/dc-import/status' => 'Get service status',
       ],
       'authentication' => [
-        'required' => 'X-DCloud-Token: dc_tok_... (DrupalCloud personal access token) OR OAuth Bearer token',
-        'note' => 'Get your token from the DrupalCloud dashboard at /organization/tokens',
+        'required' => 'X-DCloud-Token: dc_tok_... (Decoupled Drupal personal access token) OR OAuth Bearer token',
+        'note' => 'Get your token from the Decoupled Drupal dashboard at /organization/tokens',
         'oauth' => 'OAuth Bearer tokens supported via Authorization: Bearer <token> header (validated using Drupal OAuth system)',
       ],
       'documentation' => 'See module README for JSON format and examples',

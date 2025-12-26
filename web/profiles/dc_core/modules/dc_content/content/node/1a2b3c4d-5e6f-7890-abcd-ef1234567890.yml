@@ -33,7 +33,7 @@ default:
       value: true
   path:
     -
-      alias: /welcome-to-dcloud
+      alias: /welcome-to-decoupled-drupal
       langcode: en
       pathauto: 0
   body:
