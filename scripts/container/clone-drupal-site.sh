@@ -94,6 +94,18 @@ check_prerequisites() {
         exit 1
     fi
     
+    # Check if required environment variables are set
+    if [[ -z "$MYSQL_PASSWORD" ]]; then
+        log_error "MYSQL_PASSWORD environment variable is not set"
+        log_error "This variable should be set by the calling script or environment"
+        exit 1
+    fi
+    
+    if [[ -z "$MYSQL_ROOT_PASSWORD" ]]; then
+        log_warning "MYSQL_ROOT_PASSWORD not set, using default (not recommended)"
+        MYSQL_ROOT_PASSWORD="rootpass"
+    fi
+    
     # Detect domain suffix and port from environment or .env file
     if [[ -z "$DOMAIN_SUFFIX" ]]; then
         if [[ -f "/var/www/html/.env" ]]; then
@@ -274,7 +286,7 @@ update_target_settings() {
 \$databases['default']['default'] = array (
   'database' => '${target_db}',
   'username' => 'drupal',
-  'password' => '${MYSQL_PASSWORD:-drupalpass}',
+  'password' => '${MYSQL_PASSWORD}',
   'prefix' => '',
   'host' => 'mysql',
   'port' => '3306',
@@ -296,7 +308,7 @@ update_target_settings() {
 
 // Trusted host patterns
 \$settings['trusted_host_patterns'] = [
-  '^$(echo "${TARGET_SITE}.${DOMAIN_SUFFIX}" | sed 's/\./\\\\./g')\$',
+  '^$(echo "${TARGET_SITE}.${DOMAIN_SUFFIX}" | sed 's/\./\\\\./g')$',
 ];
 
 // Skip file system permissions hardening
@@ -538,6 +550,21 @@ set_admin_password() {
     fi
 }
 
+run_database_updates() {
+    log "Running database updates (updb)..."
+
+    local target_uri="${SITE_PROTOCOL}://${TARGET_SITE}.${DOMAIN_SUFFIX}${SITE_URL_SUFFIX}"
+
+    cd "$PROJECT_PATH"
+
+    # Run database updates to catch any schema changes
+    if timeout 60 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G updatedb -y --no-interaction; then
+        log_success "Database updates completed successfully"
+    else
+        log_warning "Database updates failed or no updates available"
+    fi
+}
+
 create_site_metadata() {
     log "Creating site metadata..."
 
@@ -588,6 +615,7 @@ main() {
     set_permissions
     clear_caches
     set_admin_password
+    run_database_updates
     validate_cloned_site
     create_site_metadata
     
