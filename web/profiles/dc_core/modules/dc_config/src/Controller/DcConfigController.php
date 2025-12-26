@@ -303,7 +303,11 @@ NODE_TLS_REJECT_UNAUTHORIZED=0";
                     <p>Create a new project with our starter template</p>
                   </div>
                   ' . $this->createCodeBlock("# Create new project with starter template
-npx create-decoupled-starter
+npx degit nextagencyio/decoupled-starter my-app
+cd my-app
+
+# Install dependencies
+npm install
 
 # Copy or download the .env.local variables above
 # and add them to your project root
