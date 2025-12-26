@@ -35,7 +35,6 @@ default:
     -
       alias: /content-authoring-with-paragraphs
       langcode: en
-      pathauto: 0
   body:
     -
       value: |

@@ -35,7 +35,6 @@ default:
     -
       alias: /api-integration-authentication
       langcode: en
-      pathauto: 0
   body:
     -
       value: "<p>Decoupled Drupal provides secure OAuth2 authentication for your headless applications along with multiple API options.</p>\r\n\r\n<h3>Available APIs</h3>\r\n<ul>\r\n  <li><strong>GraphQL</strong> - Modern, efficient querying with GraphQL Compose</li>\r\n  <li><strong>JSON:API</strong> - RESTful API following JSON:API specification</li>\r\n  <li><strong>Custom Endpoints</strong> - Build your own REST endpoints</li>\r\n</ul>\r\n\r\n<h3>Authentication</h3>\r\n<p>Use OAuth2 with the provided client credentials:</p>\r\n<ul>\r\n  <li>Grant Type: <code>client_credentials</code></li>\r\n  <li>Token Endpoint: <code>/oauth/token</code></li>\r\n  <li>Scope: Read, write, or custom permissions</li>\r\n</ul>\r\n\r\n<h3>Next.js Integration</h3>\r\n<p>Decoupled Drupal includes configuration helpers for Next.js applications. Check the admin interface for generated environment variables and setup instructions.</p>\r\n"

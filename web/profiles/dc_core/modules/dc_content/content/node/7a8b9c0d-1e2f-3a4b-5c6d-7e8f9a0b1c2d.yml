@@ -33,7 +33,6 @@ default:
     -
       alias: /about
       langcode: en
-      pathauto: 0
   body:
     -
       value: |

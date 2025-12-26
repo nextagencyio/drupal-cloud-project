@@ -35,7 +35,6 @@ default:
     -
       alias: /welcome-to-decoupled-drupal
       langcode: en
-      pathauto: 0
   body:
     -
       value: |

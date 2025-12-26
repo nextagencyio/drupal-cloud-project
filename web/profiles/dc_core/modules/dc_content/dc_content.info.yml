@@ -7,3 +7,4 @@ version: 1.0.0
 dependencies:
   - dc_fields
   - drupal:node
+  - default_content:default_content

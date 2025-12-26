@@ -33,7 +33,6 @@ default:
     -
       alias: /homepage
       langcode: en
-      pathauto: 0
   field_cta_description:
     -
       value: 'Join thousands of developers building amazing web experiences with Decoupled Drupal.'
