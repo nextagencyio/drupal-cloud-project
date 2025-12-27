@@ -36,7 +36,7 @@ function dc_core_install() {
 
   $previewerData = [
     'client_id' => $previewerClientId,
-    'secret' => $previewerClientSecret,
+    'client_secret' => $previewerClientSecret,
     'label' => 'Next.js Frontend',
     'user_id' => 1,
     'third_party' => TRUE,
@@ -51,7 +51,7 @@ function dc_core_install() {
 
   $viewerData = [
     'client_id' => $viewerClientId,
-    'secret' => $viewerClientSecret,
+    'client_secret' => $viewerClientSecret,
     'label' => 'Next.js Viewer',
     'user_id' => 1,
     'third_party' => TRUE,
@@ -206,7 +206,7 @@ function dc_core_update_10005() {
 
   $previewerData = [
     'client_id' => $previewerClientId,
-    'secret' => $previewerClientSecret,
+    'client_secret' => $previewerClientSecret,
     'label' => 'Next.js Frontend',
     'user_id' => 1,
     'third_party' => TRUE,
@@ -221,7 +221,7 @@ function dc_core_update_10005() {
 
   $viewerData = [
     'client_id' => $viewerClientId,
-    'secret' => $viewerClientSecret,
+    'client_secret' => $viewerClientSecret,
     'label' => 'Next.js Viewer',
     'user_id' => 1,
     'third_party' => TRUE,
