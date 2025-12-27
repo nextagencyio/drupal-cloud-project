@@ -1,13 +1,13 @@
-# DCloud Import Module
+# DC Import Module
 
-The DCloud Import module provides a REST API for importing Drupal content types and content from JSON data. This module allows you to programmatically create content types, fields, and content through a simple JSON-based API.
+The DC Import module provides a REST API for importing Drupal content types and content from JSON data. This module allows you to programmatically create content types, fields, and content through a simple JSON-based API.
 
 ## API Endpoints
 
 ### POST `/api/decoupled-import`
 Import content types and content from JSON data.
 
-**Authentication Required:** Decoupled Drupal personal access token via `X-DCloud-Token` header.
+**Authentication Required:** Decoupled Drupal personal access token via `X-DC-Token` header.
 
 ### GET `/api/decoupled-import/status`
 Get service status and API documentation.
@@ -26,7 +26,7 @@ Test endpoint for service health check.
 ```bash
 curl -X POST https://your-site.com/api/decoupled-import \
   -H "Content-Type: application/json" \
-  -H "X-DCloud-Token: dc_tok_YOUR_ACCESS_TOKEN" \
+  -H "X-DC-Token: dc_tok_YOUR_ACCESS_TOKEN" \
   -d @import-data.json
 ```
 
@@ -37,7 +37,7 @@ Test your import without making actual changes by adding the `preview` parameter
 ```bash
 curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
   -H "Content-Type: application/json" \
-  -H "X-DCloud-Token: dc_tok_YOUR_ACCESS_TOKEN" \
+  -H "X-DC-Token: dc_tok_YOUR_ACCESS_TOKEN" \
   -d @import-data.json
 ```
 
@@ -315,7 +315,7 @@ curl https://your-site.com/api/decoupled-import/status
 ```bash
 curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
   -H "Content-Type: application/json" \
-  -H "X-DCloud-Token: dc_tok_YOUR_TOKEN" \
+  -H "X-DC-Token: dc_tok_YOUR_TOKEN" \
   -d '{"model":[{"bundle":"test","label":"Test Content Type"}]}'
 ```
 
@@ -344,7 +344,7 @@ Enable preview mode to test imports without making changes:
 ```bash
 curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
   -H "Content-Type: application/json" \
-  -H "X-DCloud-Token: dc_tok_YOUR_TOKEN" \
+  -H "X-DC-Token: dc_tok_YOUR_TOKEN" \
   -d @your-import-file.json
 ```
 
@@ -376,5 +376,5 @@ Grant import access to users at:
 `/admin/people/permissions`
 
 Available permissions:
-- **Import DCloud Configuration** - Required for both UI and API access to import content types and configuration
-- **Access DCloud Import API** - Legacy permission (deprecated, use "Import DCloud Configuration" instead)
+- **Import DC Configuration** - Required for both UI and API access to import content types and configuration
+- **Access DC Import API** - Legacy permission (deprecated, use "Import DC Configuration" instead)
