@@ -51,7 +51,7 @@ function dc_core_install() {
  * Helper function to generate OAuth2 RSA keypair.
  */
 function _dc_core_generate_oauth_keys() {
-  $site_path = \Drupal::service('site.path');
+  $site_path = \Drupal::getContainer()->getParameter('site.path');
   $oauth_dir = DRUPAL_ROOT . '/' . $site_path . '/files/private/oauth';
 
   // Create directory if it doesn't exist
