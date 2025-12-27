@@ -185,7 +185,6 @@ function dc_core_update_10005() {
   }
 
   // 3. Grant GraphQL permissions to anonymous users
-  use Drupal\user\Entity\Role;
   $role = Role::load('anonymous');
   if ($role) {
     $role->grantPermission('execute graphql_compose_server arbitrary graphql requests');
