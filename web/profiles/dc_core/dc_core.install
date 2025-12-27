@@ -7,6 +7,8 @@
 
 use Drupal\consumers\Entity\Consumer;
 use Drupal\user\Entity\Role;
+use Drupal\Component\Utility\Crypt;
+use Drupal\Component\Utility\Random;
 
 /**
  * Implements hook_install().
@@ -15,28 +17,54 @@ function dc_core_install() {
   // 1. Generate OAuth2 RSA keypair for JWT token signing
   _dc_core_generate_oauth_keys();
 
-  // 2. Create OAuth consumer for Next.js frontend authentication.
-  // This consumer is used by the decoupled Next.js app to authenticate
-  // with Drupal's GraphQL API using OAuth2 client credentials flow.
-  $existing = \Drupal::entityTypeManager()
-    ->getStorage('consumer')
-    ->loadByProperties(['client_id' => 'Ew0Pjy5txQPjoZnXiB86-tAIc9n9G8lwFTIi5q-_4hw']);
+  // 2. Create OAuth consumers for Next.js frontend authentication.
+  // Delete existing consumers before creating new ones to avoid conflicts.
+  $random = new Random();
+  $consumerStorage = \Drupal::entityTypeManager()->getStorage('consumer');
 
-  if (empty($existing)) {
-    $consumer = Consumer::create([
-      'label' => 'Next.js Frontend',
-      'client_id' => 'Ew0Pjy5txQPjoZnXiB86-tAIc9n9G8lwFTIi5q-_4hw',
-      'secret' => 'bruwoges',
-      'is_default' => FALSE,
-      'confidential' => TRUE,
-      'owner_id' => 1, // Admin user
-      'user_id' => 1,
-      'roles' => [],
-    ]);
-    $consumer->save();
-
-    \Drupal::logger('dc_core')->notice('Created OAuth consumer for Next.js frontend authentication.');
+  $existing_consumers = $consumerStorage->loadByProperties([
+    'label' => ['Next.js Frontend', 'Next.js Viewer']
+  ]);
+  foreach ($existing_consumers as $consumer) {
+    $consumer->delete();
+    \Drupal::logger('dc_core')->notice('Deleted existing consumer: ' . $consumer->label());
   }
+
+  // Generate random OAuth credentials for Next.js Frontend (Previewer)
+  $previewerClientId = Crypt::randomBytesBase64();
+  $previewerClientSecret = $random->word(8);
+
+  $previewerData = [
+    'client_id' => $previewerClientId,
+    'secret' => $previewerClientSecret,
+    'label' => 'Next.js Frontend',
+    'user_id' => 1,
+    'third_party' => TRUE,
+    'is_default' => FALSE,
+  ];
+
+  $consumerStorage->create($previewerData)->save();
+
+  // Generate random OAuth credentials for Next.js Viewer
+  $viewerClientId = Crypt::randomBytesBase64();
+  $viewerClientSecret = $random->word(8);
+
+  $viewerData = [
+    'client_id' => $viewerClientId,
+    'secret' => $viewerClientSecret,
+    'label' => 'Next.js Viewer',
+    'user_id' => 1,
+    'third_party' => TRUE,
+    'is_default' => FALSE,
+  ];
+
+  $consumerStorage->create($viewerData)->save();
+
+  \Drupal::logger('dc_core')->notice('Created OAuth consumers with random credentials.');
+  \Drupal::logger('dc_core')->notice('Next.js Frontend - DRUPAL_CLIENT_ID=' . $previewerClientId);
+  \Drupal::logger('dc_core')->notice('Next.js Frontend - DRUPAL_CLIENT_SECRET=' . $previewerClientSecret);
+  \Drupal::logger('dc_core')->notice('Next.js Viewer - DRUPAL_CLIENT_ID=' . $viewerClientId);
+  \Drupal::logger('dc_core')->notice('Next.js Viewer - DRUPAL_CLIENT_SECRET=' . $viewerClientSecret);
 
   // 3. Grant GraphQL permissions to anonymous users (needed for OAuth)
   $role = Role::load('anonymous');
@@ -51,49 +79,44 @@ function dc_core_install() {
  * Helper function to generate OAuth2 RSA keypair.
  */
 function _dc_core_generate_oauth_keys() {
-  $site_path = \Drupal::getContainer()->getParameter('site.path');
-  $oauth_dir = DRUPAL_ROOT . '/' . $site_path . '/files/private/oauth';
+  $request = \Drupal::request();
+  $site_path = \Drupal\Core\DrupalKernel::findSitePath($request);
 
-  // Create directory if it doesn't exist
-  if (!file_exists($oauth_dir)) {
-    mkdir($oauth_dir, 0755, TRUE);
+  // Use relative path for private directory
+  $private_path = DRUPAL_ROOT . '/' . $site_path . '/private';
+
+  // Ensure private directory exists and is writable
+  if (!is_dir($private_path)) {
+    mkdir($private_path, 0755, TRUE);
   }
 
-  $private_key_path = $oauth_dir . '/private.key';
-  $public_key_path = $oauth_dir . '/public.key';
-
-  // Generate keys if they don't exist
-  if (!file_exists($private_key_path) || !file_exists($public_key_path)) {
-    // Generate private key
-    $config = [
-      'private_key_bits' => 2048,
-      'private_key_type' => OPENSSL_KEYTYPE_RSA,
-    ];
-    $res = openssl_pkey_new($config);
-    openssl_pkey_export($res, $private_key);
-
-    // Generate public key
-    $public_key_details = openssl_pkey_get_details($res);
-    $public_key = $public_key_details['key'];
-
-    // Save keys to files
-    file_put_contents($private_key_path, $private_key);
-    file_put_contents($public_key_path, $public_key);
-
-    // Set permissions
-    chmod($private_key_path, 0600);
-    chmod($public_key_path, 0644);
-
-    \Drupal::logger('dc_core')->notice('Generated OAuth2 RSA keypair.');
-  }
-
-  // Configure simple_oauth to use these keys
+  // Configure OAuth settings with relative key paths (critical for simple_oauth)
   $config = \Drupal::configFactory()->getEditable('simple_oauth.settings');
-  $config->set('public_key', $public_key_path);
-  $config->set('private_key', $private_key_path);
+  $config->set('public_key', $site_path . '/private/public.key');
+  $config->set('private_key', $site_path . '/private/private.key');
   $config->save();
 
-  \Drupal::logger('dc_core')->notice('Configured OAuth2 keys in simple_oauth.settings.');
+  \Drupal::logger('dc_core')->notice('OAuth key paths configured: ' . $site_path . '/private/');
+
+  // Generate keys if private path is writable and keys don't exist
+  if (is_writable($private_path)) {
+    $public_key_path = $private_path . '/public.key';
+    $private_key_path = $private_path . '/private.key';
+
+    if (!file_exists($private_key_path) || !file_exists($public_key_path)) {
+      try {
+        // Use Drupal's simple_oauth key generator service
+        \Drupal::service('simple_oauth.key.generator')->generateKeys($private_path);
+        \Drupal::logger('dc_core')->notice('OAuth keys generated successfully in ' . $private_path);
+      }
+      catch (Exception $e) {
+        \Drupal::logger('dc_core')->error('Error generating OAuth keys: ' . $e->getMessage());
+      }
+    }
+    else {
+      \Drupal::logger('dc_core')->notice('OAuth keys already exist in ' . $private_path);
+    }
+  }
 }
 
 /**
@@ -165,24 +188,52 @@ function dc_core_update_10005() {
   // 1. Generate OAuth2 RSA keypair
   _dc_core_generate_oauth_keys();
 
-  // 2. Create OAuth consumer
-  $existing = \Drupal::entityTypeManager()
-    ->getStorage('consumer')
-    ->loadByProperties(['client_id' => 'Ew0Pjy5txQPjoZnXiB86-tAIc9n9G8lwFTIi5q-_4hw']);
+  // 2. Create OAuth consumers with random credentials
+  $random = new Random();
+  $consumerStorage = \Drupal::entityTypeManager()->getStorage('consumer');
 
-  if (empty($existing)) {
-    $consumer = Consumer::create([
-      'label' => 'Next.js Frontend',
-      'client_id' => 'Ew0Pjy5txQPjoZnXiB86-tAIc9n9G8lwFTIi5q-_4hw',
-      'secret' => 'bruwoges',
-      'is_default' => FALSE,
-      'confidential' => TRUE,
-      'owner_id' => 1, // Admin user
-      'user_id' => 1,
-      'roles' => [],
-    ]);
-    $consumer->save();
+  // Delete existing consumers before creating new ones
+  $existing_consumers = $consumerStorage->loadByProperties([
+    'label' => ['Next.js Frontend', 'Next.js Viewer']
+  ]);
+  foreach ($existing_consumers as $consumer) {
+    $consumer->delete();
   }
+
+  // Generate random OAuth credentials for Next.js Frontend
+  $previewerClientId = Crypt::randomBytesBase64();
+  $previewerClientSecret = $random->word(8);
+
+  $previewerData = [
+    'client_id' => $previewerClientId,
+    'secret' => $previewerClientSecret,
+    'label' => 'Next.js Frontend',
+    'user_id' => 1,
+    'third_party' => TRUE,
+    'is_default' => FALSE,
+  ];
+
+  $consumerStorage->create($previewerData)->save();
+
+  // Generate random OAuth credentials for Next.js Viewer
+  $viewerClientId = Crypt::randomBytesBase64();
+  $viewerClientSecret = $random->word(8);
+
+  $viewerData = [
+    'client_id' => $viewerClientId,
+    'secret' => $viewerClientSecret,
+    'label' => 'Next.js Viewer',
+    'user_id' => 1,
+    'third_party' => TRUE,
+    'is_default' => FALSE,
+  ];
+
+  $consumerStorage->create($viewerData)->save();
+
+  \Drupal::logger('dc_core')->notice('Next.js Frontend - DRUPAL_CLIENT_ID=' . $previewerClientId);
+  \Drupal::logger('dc_core')->notice('Next.js Frontend - DRUPAL_CLIENT_SECRET=' . $previewerClientSecret);
+  \Drupal::logger('dc_core')->notice('Next.js Viewer - DRUPAL_CLIENT_ID=' . $viewerClientId);
+  \Drupal::logger('dc_core')->notice('Next.js Viewer - DRUPAL_CLIENT_SECRET=' . $viewerClientSecret);
 
   // 3. Grant GraphQL permissions to anonymous users
   $role = Role::load('anonymous');
@@ -191,5 +242,5 @@ function dc_core_update_10005() {
     $role->save();
   }
 
-  return t('Configured OAuth2 authentication for Next.js frontend.');
+  return t('Configured OAuth2 authentication for Next.js frontend. Check logs for OAuth credentials.');
 }
