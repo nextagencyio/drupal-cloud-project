@@ -1,4 +1,4 @@
-/* Drupal Cloud Configuration Page Styles - Modern Full-Width Layout */
+/* Decoupled Drupal Configuration Page Styles - Modern Full-Width Layout */
 
 /* Reset and base styles */
 * {
@@ -700,7 +700,7 @@
   height: 64px;
 }
 
-/* Change "Drupal Cloud" to "Decoupled Drupal" */
+/* Change "Decoupled Drupal" to "Decoupled Drupal" */
 .dc-config-logo-text::before {
   content: 'Decoupled Drupal';
   font-size: 2rem;

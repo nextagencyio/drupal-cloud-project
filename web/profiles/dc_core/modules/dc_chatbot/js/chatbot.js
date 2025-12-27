@@ -1,13 +1,13 @@
 /**
  * @file
- * Drupal Cloud Chatbot JavaScript functionality.
+ * Decoupled Drupal Chatbot JavaScript functionality.
  */
 
 (function (Drupal, drupalSettings) {
   'use strict';
 
   /**
-   * Drupal Cloud Chatbot behavior.
+   * Decoupled Drupal Chatbot behavior.
    */
   Drupal.behaviors.decoupledChatbot = {
     attach: function (context, settings) {
@@ -24,7 +24,7 @@
   };
 
   /**
-   * Drupal Cloud Chatbot class.
+   * Decoupled Drupal Chatbot class.
    */
   function DecoupledChatbot(container, settings) {
     this.container = container;
@@ -59,11 +59,11 @@
 
   DecoupledChatbot.prototype.init = function () {
     if (!this.settings.enabled) {
-      console.log('Drupal Cloud Chatbot: Not enabled, skipping initialization');
+      console.log('Decoupled Drupal Chatbot: Not enabled, skipping initialization');
       return;
     }
 
-    console.log('Drupal Cloud Chatbot: Initializing...', this.settings);
+    console.log('Decoupled Drupal Chatbot: Initializing...', this.settings);
 
     // Initialize loading indicator - detach from DOM initially
     if (this.loading && this.loading.parentNode) {
@@ -282,7 +282,7 @@
   };
 
   DecoupledChatbot.prototype.startQuestionAnswerFlow = function () {
-    this.addMessage('I\'m here to help answer your questions about Drupal Cloud! What would you like to know?', 'bot');
+    this.addMessage('I\'m here to help answer your questions about Decoupled Drupal! What would you like to know?', 'bot');
     this.input.placeholder = 'Ask your question...';
     this.input.focus();
   };
@@ -521,7 +521,7 @@
   };
 
   DecoupledChatbot.prototype.showLoading = function () {
-    console.log('Drupal Cloud Chatbot: Showing loading');
+    console.log('Decoupled Drupal Chatbot: Showing loading');
     if (this.loading) {
       // Add loading indicator to messages area
       this.messages.appendChild(this.loading);
@@ -534,7 +534,7 @@
   };
 
   DecoupledChatbot.prototype.hideLoading = function () {
-    console.log('Drupal Cloud Chatbot: Hiding loading');
+    console.log('Decoupled Drupal Chatbot: Hiding loading');
     if (this.loading && this.loading.parentNode === this.messages) {
       this.loading.setAttribute('aria-hidden', 'true');
       this.loading.style.display = 'none';

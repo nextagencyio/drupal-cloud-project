@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Drupal Cloud Docker Deployment Script
+# Decoupled Drupal Docker Deployment Script
 # This script handles git pull and setup on the server
 
 set -e
@@ -55,7 +55,7 @@ REPO_URL="git@github.com:nextagencyio/drupal-cloud-docker.git"
 
 # Main deployment function
 deploy() {
-    log "Starting Drupal Cloud Docker deployment..."
+    log "Starting Decoupled Drupal Docker deployment..."
     log "Project directory: $PROJECT_DIR"
     log "SSH key path: $SSH_KEY_PATH"
 

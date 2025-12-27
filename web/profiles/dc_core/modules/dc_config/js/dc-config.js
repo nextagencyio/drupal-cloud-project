@@ -1,6 +1,6 @@
 /**
  * @file
- * JavaScript functionality for Drupal Cloud configuration page.
+ * JavaScript functionality for Decoupled Drupal configuration page.
  */
 
 (function (Drupal) {
