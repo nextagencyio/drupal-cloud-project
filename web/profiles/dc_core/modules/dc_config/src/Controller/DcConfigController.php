@@ -213,6 +213,15 @@ class DcConfigController extends ControllerBase {
     global $base_url;
     $site_url = $base_url ?: \Drupal::request()->getSchemeAndHttpHost();
 
+    // Determine if this is a local development environment.
+    $host = parse_url($site_url, PHP_URL_HOST);
+    $is_local = (strpos($host, 'localhost') !== FALSE || strpos($host, '127.0.0.1') !== FALSE || strpos($host, '.local') !== FALSE);
+
+    // Use HTTPS for production URLs.
+    if (!$is_local && parse_url($site_url, PHP_URL_SCHEME) === 'http') {
+      $site_url = str_replace('http://', 'https://', $site_url);
+    }
+
     // Prepare code blocks.
     $env_content = "# Required - Drupal backend URL
 NEXT_PUBLIC_DRUPAL_BASE_URL=" . $site_url . "
@@ -223,10 +232,15 @@ DRUPAL_CLIENT_ID=" . $client_id . "
 DRUPAL_CLIENT_SECRET=" . $client_secret . "
 
 # Required for On-demand Revalidation
-DRUPAL_REVALIDATE_SECRET=" . $revalidate_secret . "
+DRUPAL_REVALIDATE_SECRET=" . $revalidate_secret;
 
-# Allow self-signed certificates for development (DDEV)
+    // Only include NODE_TLS_REJECT_UNAUTHORIZED for local development.
+    if ($is_local) {
+      $env_content .= "
+
+# Allow self-signed certificates for development
 NODE_TLS_REJECT_UNAUTHORIZED=0";
+    }
 
     $npm_run_dev = "npm run dev";
 
