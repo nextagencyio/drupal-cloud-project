@@ -82,8 +82,8 @@ function _dc_core_generate_oauth_keys() {
   $request = \Drupal::request();
   $site_path = \Drupal\Core\DrupalKernel::findSitePath($request);
 
-  // Use relative path for private directory
-  $private_path = DRUPAL_ROOT . '/' . $site_path . '/private';
+  // Use Drupal's standard private files directory
+  $private_path = DRUPAL_ROOT . '/' . $site_path . '/files/private/oauth';
 
   // Ensure private directory exists and is writable
   if (!is_dir($private_path)) {
@@ -92,11 +92,11 @@ function _dc_core_generate_oauth_keys() {
 
   // Configure OAuth settings with relative key paths (critical for simple_oauth)
   $config = \Drupal::configFactory()->getEditable('simple_oauth.settings');
-  $config->set('public_key', $site_path . '/private/public.key');
-  $config->set('private_key', $site_path . '/private/private.key');
+  $config->set('public_key', $site_path . '/files/private/oauth/public.key');
+  $config->set('private_key', $site_path . '/files/private/oauth/private.key');
   $config->save();
 
-  \Drupal::logger('dc_core')->notice('OAuth key paths configured: ' . $site_path . '/private/');
+  \Drupal::logger('dc_core')->notice('OAuth key paths configured: ' . $site_path . '/files/private/oauth/');
 
   // Generate keys if private path is writable and keys don't exist
   if (is_writable($private_path)) {
