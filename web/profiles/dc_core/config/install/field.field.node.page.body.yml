@@ -19,5 +19,7 @@ default_value_callback: ''
 settings:
   display_summary: true
   required_summary: false
-  allowed_formats: {  }
+  allowed_formats:
+    - full_html
+    - basic_html
 field_type: text_with_summary
