@@ -6,6 +6,7 @@
  */
 
 use Drupal\consumers\Entity\Consumer;
+use Drupal\user\Entity\Role;
 
 /**
  * Implements hook_install().
@@ -38,7 +39,6 @@ function dc_core_install() {
   }
 
   // 3. Grant GraphQL permissions to anonymous users (needed for OAuth)
-  use Drupal\user\Entity\Role;
   $role = Role::load('anonymous');
   if ($role) {
     $role->grantPermission('execute graphql_compose_server arbitrary graphql requests');
