@@ -1,4 +1,4 @@
-name: 'DC Fields'
+name: 'Decoupled Drupal Fields'
 type: module
 description: 'Field configurations for Decoupled Drupal content types'
 package: Decoupled

@@ -1,4 +1,4 @@
-name: 'DC Content'
+name: 'Decoupled Drupal Content'
 type: module
 description: 'Sample content and demonstration pages for DC installations'
 package: Decoupled
