@@ -82,18 +82,19 @@ fi
 echo "Waiting for database to be ready..."
 sleep 10
 
-# Always remove existing template site to ensure clean installation
-if docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" test -d /var/www/html/web/sites/template; then
-    echo "Removing existing template site for clean installation..."
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" rm -rf /var/www/html/web/sites/template
-    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush sql:drop --uri=$SITE_URL --yes 2>/dev/null || true
-fi
+# Check if template site already exists
+if docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" test -f /var/www/html/web/sites/template/settings.php; then
+    echo "Template site already exists. Skipping installation..."
+    echo "To reinstall, first remove the template site:"
+    echo "  docker compose -f $COMPOSE_FILE exec $SERVICE_NAME rm -rf /var/www/html/web/sites/template"
+    echo "  docker compose -f $COMPOSE_FILE exec $SERVICE_NAME /var/www/html/vendor/bin/drush sql:drop --uri=$SITE_URL --yes"
+    SKIP_INSTALL=true
+else
+    SKIP_INSTALL=false
 
-SKIP_INSTALL=false
-
-# Create template multisite directory structure
-echo "Creating template multisite directory..."
-docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/web/sites/template
+    # Create template multisite directory structure
+    echo "Creating template multisite directory..."
+    docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/web/sites/template
     # DON'T copy settings.php yet - let drush create it during site-install.
     # Copying default.settings.php here causes Drupal to try to use it before it's configured,
     # which breaks the stream wrapper initialization for public:// during multisite installation.
@@ -134,25 +135,21 @@ docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/we
         --site-mail="$SITE_EMAIL" \
         --yes
 
-    # Save admin password to file for reference (production only).
-    if [ "$ENVIRONMENT" = "prod" ]; then
-        echo "$ADMIN_PASSWORD" > /root/.template-admin-password
-        chmod 600 /root/.template-admin-password
-        echo "Drupal installation with dc_core profile complete!"
-        echo "Admin password saved to: /root/.template-admin-password"
-    else
-        echo "Drupal installation with dc_core profile complete!"
-        echo "Admin password: $ADMIN_PASSWORD"
-    fi
+    # Save admin password to file for reference.
+    echo "$ADMIN_PASSWORD" > /root/.template-admin-password
+    chmod 600 /root/.template-admin-password
+    
+    echo "Drupal installation with dc_core profile complete!"
+    echo "Admin password saved to: /root/.template-admin-password"
 
     # Configure trusted_host_patterns for security
     echo "Configuring trusted host patterns for security..."
     if [ "$ENVIRONMENT" = "local" ]; then
-        TRUSTED_HOST_PATTERN="^.+\\\\.localhost$"
+        TRUSTED_HOST_PATTERN="^.+\\\\.localhost\\\$"
     else
         # Escape dots in domain suffix for regex
         ESCAPED_DOMAIN=$(echo "$DOMAIN_SUFFIX" | sed 's/\./\\\\./g')
-        TRUSTED_HOST_PATTERN="^.+\\\\.${ESCAPED_DOMAIN}$"
+        TRUSTED_HOST_PATTERN="^.+\\\\.${ESCAPED_DOMAIN}\\\$"
     fi
 
     # Make settings.php writable, append trusted_host_patterns, then make it read-only again
@@ -164,6 +161,7 @@ docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" mkdir -p /var/www/html/we
 ];' >> /var/www/html/web/sites/template/settings.php"
     docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" chmod 444 /var/www/html/web/sites/template/settings.php
     echo "Trusted host patterns configured."
+fi
 
 # Add template site to sites.php for multisite routing
 echo "Adding template site to sites.php..."
@@ -181,6 +179,13 @@ echo "Template site added to sites.php"
 # Clear caches
 echo "Clearing caches..."
 docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html/vendor/bin/drush cache:rebuild --uri="$SITE_URL"
+
+# Fix template directory permissions to allow OAuth key generation
+# Drupal sets sites/template to read-only after installation, preventing the
+# OAuth key generator from creating the private directory
+echo "Fixing template directory permissions for OAuth setup..."
+docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" chmod -R 755 /var/www/html/web/sites/template
+docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" chown -R www-data:www-data /var/www/html/web/sites/template
 
 # Check if consumers-next script exists and run it
 echo "Setting up OAuth consumers..."
@@ -205,6 +210,7 @@ LOGIN_URL=$(docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" /var/www/html
 
 echo "=================================================="
 echo "✅ Decoupled Drupal installation completed successfully!"
+echo "Template site installed successfully"
 echo "=================================================="
 echo ""
 echo "🌐 Site URL: $SITE_URL"
