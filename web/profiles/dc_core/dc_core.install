@@ -193,11 +193,12 @@ function dc_core_update_10005() {
   $consumerStorage = \Drupal::entityTypeManager()->getStorage('consumer');
 
   // Delete existing consumers before creating new ones
-  $existing_consumers = $consumerStorage->loadByProperties([
-    'label' => ['Next.js Frontend', 'Next.js Viewer']
-  ]);
-  foreach ($existing_consumers as $consumer) {
-    $consumer->delete();
+  $labels_to_delete = ['Next.js Frontend', 'Next.js Viewer'];
+  foreach ($labels_to_delete as $label) {
+    $existing_consumers = $consumerStorage->loadByProperties(['label' => $label]);
+    foreach ($existing_consumers as $consumer) {
+      $consumer->delete();
+    }
   }
 
   // Generate random OAuth credentials for Next.js Frontend
