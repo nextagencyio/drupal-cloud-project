@@ -469,12 +469,23 @@ regenerate_oauth_keys() {
     # 3. Create new OAuth consumers with unique credentials
     log "Running consumers-next.php to regenerate OAuth keys..."
 
-    if timeout 120 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
-        php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction 2>&1 | tee /tmp/oauth-regen.log; then
+    # Enable pipefail to catch errors in piped commands
+    set -o pipefail
+
+    # Run consumers-next.php and capture both output and exit code
+    timeout 120 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
+        php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction 2>&1 | tee /tmp/oauth-regen.log
+    oauth_exit_code=$?
+
+    # Disable pipefail after capturing
+    set +o pipefail
+
+    # Check both exit code and log content for errors
+    if [[ $oauth_exit_code -eq 0 ]] && ! grep -q "Drupal::.*container.*not initialized\|Exception\|Error\|Fatal" /tmp/oauth-regen.log; then
         log_success "OAuth keys regenerated successfully via consumers-next.php"
         log "New site now has unique OAuth keys in: $TARGET_PATH/files/private/oauth/"
     else
-        log_warning "Failed to regenerate OAuth keys via drush script (exit code: $?)"
+        log_warning "Failed to regenerate OAuth keys via drush script (exit code: $oauth_exit_code)"
         log "Output: $(cat /tmp/oauth-regen.log 2>/dev/null || echo 'No output')"
         log "Attempting manual OAuth configuration update..."
 
