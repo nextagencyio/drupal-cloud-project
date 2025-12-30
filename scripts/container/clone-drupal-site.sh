@@ -452,25 +452,81 @@ fix_profile() {
     fi
 }
 
+regenerate_oauth_keys() {
+    log "Regenerating OAuth keys for new site..."
+
+    local target_uri="${SITE_PROTOCOL}://${TARGET_SITE}.${DOMAIN_SUFFIX}${SITE_URL_SUFFIX}"
+
+    cd "$PROJECT_PATH"
+
+    # Create private directory for OAuth keys
+    mkdir -p "$TARGET_PATH/files/private/oauth"
+    chown -R www-data:www-data "$TARGET_PATH/files/private"
+    chmod -R 755 "$TARGET_PATH/files/private"
+
+    # Run consumers-next.php script to regenerate OAuth keys and update config
+    # This script will:
+    # 1. Update simple_oauth.settings config with correct paths for this site
+    # 2. Generate new unique OAuth keys in sites/{TARGET_SITE}/files/private/oauth/
+    # 3. Create new OAuth consumers with unique credentials
+    if timeout 60 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
+        php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction 2>&1; then
+        log_success "OAuth keys regenerated successfully"
+        log "New site now has unique OAuth keys in: $TARGET_PATH/files/private/oauth/"
+    else
+        log_warning "Failed to regenerate OAuth keys via drush script"
+        log "Attempting manual OAuth key path update..."
+
+        # Fallback: Manually update OAuth key paths in database
+        local target_db="drupal_${TARGET_SITE}"
+        local new_public_key="sites/${TARGET_SITE}/files/private/oauth/public.key"
+        local new_private_key="sites/${TARGET_SITE}/files/private/oauth/private.key"
+
+        # Update simple_oauth.settings config in database
+        mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} "$target_db" <<SQL
+UPDATE config
+SET data = REPLACE(
+    REPLACE(
+        data,
+        's:10:"public_key";s:33:"sites/template/files/private/oauth/public.key"',
+        's:10:"public_key";s:${#new_public_key}:"${new_public_key}"'
+    ),
+    's:11:"private_key";s:34:"sites/template/files/private/oauth/private.key"',
+    's:11:"private_key";s:${#new_private_key}:"${new_private_key}"'
+)
+WHERE name = 'simple_oauth.settings';
+SQL
+
+        # Generate keys manually using drush
+        if timeout 30 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
+            php:eval "\\Drupal::service('simple_oauth.key.generator')->generateKeys('$TARGET_PATH/files/private/oauth');" \
+            --no-interaction 2>&1; then
+            log_success "OAuth keys generated manually"
+        else
+            log_error "Failed to generate OAuth keys - site may not support OAuth authentication"
+        fi
+    fi
+}
+
 set_permissions() {
     log "Setting proper permissions..."
-    
+
     # Set ownership for the entire site
     chown -R www-data:www-data "$TARGET_PATH"
-    
+
     # Set directory permissions
     find "$TARGET_PATH" -type d -exec chmod 755 {} \;
-    
+
     # Set file permissions
     find "$TARGET_PATH" -type f -exec chmod 644 {} \;
-    
+
     # Make files directory writable for uploads
     chmod 775 "$TARGET_PATH/files"
     find "$TARGET_PATH/files" -type d -exec chmod 775 {} \;
-    
+
     # Protect settings.php
     chmod 644 "$TARGET_PATH/settings.php"
-    
+
     log_success "Permissions set correctly"
 }
 
@@ -627,6 +683,7 @@ main() {
     clone_site_structure
     create_target_database
     update_target_settings
+    regenerate_oauth_keys
     fix_profile
     update_sites_php
     set_permissions

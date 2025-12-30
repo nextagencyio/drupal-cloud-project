@@ -19,8 +19,8 @@ $previewerClientSecret = '';
 $request = \Drupal::request();
 $site_path = DrupalKernel::findSitePath($request);
 
-// Use absolute path for private directory.
-$private_path = DRUPAL_ROOT . '/' . $site_path . '/private';
+// Use absolute path for private directory (OAuth keys stored in files/private/oauth/).
+$private_path = DRUPAL_ROOT . '/' . $site_path . '/files/private/oauth';
 
 // Ensure private directory exists and is writable.
 if (!is_dir($private_path)) {
@@ -30,10 +30,10 @@ if (!is_dir($private_path)) {
 // Configure OAuth settings with key paths (always set these).
 try {
   $config = \Drupal::configFactory()->getEditable('simple_oauth.settings');
-  $config->set('public_key', $site_path . '/private/public.key');
-  $config->set('private_key', $site_path . '/private/private.key');
+  $config->set('public_key', $site_path . '/files/private/oauth/public.key');
+  $config->set('private_key', $site_path . '/files/private/oauth/private.key');
   $config->save();
-  $messages[] = 'OAuth key paths configured: ' . $site_path . '/private/';
+  $messages[] = 'OAuth key paths configured: ' . $site_path . '/files/private/oauth/';
 }
 catch (Exception $e) {
   $messages[] = 'Error configuring OAuth key paths: ' . $e->getMessage();
