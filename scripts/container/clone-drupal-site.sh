@@ -232,19 +232,17 @@ create_target_database() {
 
     # For template source, use the pre-made backup
     if [[ "$SOURCE_SITE" == "template" ]]; then
-        local backup_file="/var/backups/template-backup.sql"
+        local backup_file="/opt/backup/template.sql.gz"
 
         if [[ ! -f "$backup_file" ]]; then
             log_error "Template backup file not found: $backup_file"
-            log "Regenerating template backup..."
-            mysqldump -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} --single-transaction --quick "$source_db" > "$backup_file" || {
-                log_error "Failed to create template backup"
-                exit 1
-            }
+            log "Template backup should be created by deployment process"
+            log "Please ensure template site is installed and backup is generated"
+            exit 1
         fi
 
         log "Using template backup: $backup_file"
-        mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} "$target_db" < "$backup_file" || {
+        gunzip < "$backup_file" | mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-rootpass} "$target_db" || {
             log_error "Failed to import template backup"
             exit 1
         }
