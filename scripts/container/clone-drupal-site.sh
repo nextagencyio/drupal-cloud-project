@@ -72,9 +72,9 @@ validate_params() {
         exit 1
     fi
     
-    # Validate token format
-    if [[ ! "$TARGET_TOKEN" =~ ^space_tok_[0-9a-fA-F]{54}$ ]]; then
-        log_error "TARGET_SPACE_TOKEN format is invalid. Expected: space_tok_[54 hex chars]"
+    # Validate token format (58 hex characters)
+    if [[ ! "$TARGET_TOKEN" =~ ^space_tok_[0-9a-fA-F]{58}$ ]]; then
+        log_error "TARGET_SPACE_TOKEN format is invalid. Expected: space_tok_[58 hex chars]"
         exit 1
     fi
 }
