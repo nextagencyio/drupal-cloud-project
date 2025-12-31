@@ -45,12 +45,14 @@ $expected_public_key = $site_path . '/files/private/oauth/public.key';
 $expected_private_key = $site_path . '/files/private/oauth/private.key';
 
 if ($saved_public_key !== $expected_public_key || $saved_private_key !== $expected_private_key) {
-  $error_msg = "OAuth config verification FAILED!\n";
+  // Output detailed error to stderr so it appears in GitHub Actions logs
+  $error_msg = "\n❌ OAuth config verification FAILED!\n";
   $error_msg .= "Expected public_key: $expected_public_key\n";
   $error_msg .= "Actual public_key: $saved_public_key\n";
   $error_msg .= "Expected private_key: $expected_private_key\n";
   $error_msg .= "Actual private_key: $saved_private_key\n";
-  throw new \Exception($error_msg);
+  fwrite(STDERR, $error_msg);
+  throw new \Exception("OAuth config verification failed - config was not saved correctly");
 }
 
 $messages[] = 'OAuth key paths configured and verified: ' . $site_path . '/files/private/oauth/';
