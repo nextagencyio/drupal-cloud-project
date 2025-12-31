@@ -470,9 +470,12 @@ regenerate_oauth_keys() {
     log "Running consumers-next.php to regenerate OAuth keys..."
 
     # Run consumers-next.php and capture output
+    # Temporarily disable 'set -e' to allow capturing exit code and running fallback logic
+    set +e
     timeout 120 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
         php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction > /tmp/oauth-regen.log 2>&1
     oauth_exit_code=$?
+    set -e
 
     # Check if script succeeded by looking for the specific Drupal container error
     # (ignore normal drush warnings/errors that don't indicate failure)
