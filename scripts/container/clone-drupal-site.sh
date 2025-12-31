@@ -451,38 +451,42 @@ fix_profile() {
 }
 
 regenerate_oauth_keys() {
-    log "Regenerating OAuth keys for new site..."
+    # Regenerate OAuth keys for this site using simple drush commands
+    # OAuth consumers (client_id/client_secret) are already managed via the dc-config page
+    # We only need to generate unique RSA keys and configure the paths
+    log "Generating unique OAuth keys for site..."
 
     local target_uri="${SITE_PROTOCOL}://${TARGET_SITE}.${DOMAIN_SUFFIX}${SITE_URL_SUFFIX}"
 
     cd "$PROJECT_PATH"
 
-    # Create private directory for OAuth keys
-    mkdir -p "$TARGET_PATH/files/private/oauth"
-    chown -R www-data:www-data "$TARGET_PATH/files/private"
-    chmod -R 755 "$TARGET_PATH/files/private"
+    # Create OAuth directory if it doesn't exist
+    local oauth_dir="$TARGET_PATH/files/private/oauth"
+    mkdir -p "$oauth_dir"
+    chown -R www-data:www-data "$oauth_dir"
+    chmod -R 755 "$oauth_dir"
 
-    # Run consumers-next.php script to regenerate OAuth keys and update config
-    # This script will:
-    # 1. Update simple_oauth.settings config with correct paths for this site
-    # 2. Generate new unique OAuth keys in sites/{TARGET_SITE}/files/private/oauth/
-    # 3. Create new OAuth consumers with unique credentials
-    log "Running consumers-next.php to regenerate OAuth keys..."
-
-    # Run consumers-next.php and capture output
-    timeout 120 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
-        php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction > /tmp/oauth-regen.log 2>&1
-    oauth_exit_code=$?
-
-    # Check if script succeeded by looking for the specific Drupal container error
-    # (ignore normal drush warnings/errors that don't indicate failure)
-    if [[ $oauth_exit_code -eq 0 ]] && ! grep -qi "Drupal::.*container.*not initialized" /tmp/oauth-regen.log; then
-        log_success "OAuth keys regenerated successfully via consumers-next.php"
-        log "New site now has unique OAuth keys in: $TARGET_PATH/files/private/oauth/"
+    # Step 1: Generate unique RSA key pair in site-specific directory
+    log "Generating RSA key pair..."
+    if timeout 60 "$DRUSH_PATH" --uri="$target_uri" simple-oauth:generate-keys "$oauth_dir" --no-interaction 2>&1; then
+        log_success "OAuth keys generated in: $oauth_dir"
     else
-        log_error "Failed to regenerate OAuth keys (exit code: $oauth_exit_code)"
-        log_error "Output: $(cat /tmp/oauth-regen.log 2>/dev/null || echo 'No output')"
-        log_error "Site creation failed - OAuth regeneration is required for proper site operation"
+        log_error "Failed to generate OAuth keys"
+        return 1
+    fi
+
+    # Step 2: Configure simple_oauth to use the site-specific key paths
+    local public_key_path="sites/${TARGET_SITE}/files/private/oauth/public.key"
+    local private_key_path="sites/${TARGET_SITE}/files/private/oauth/private.key"
+
+    log "Configuring OAuth key paths..."
+    if timeout 30 "$DRUSH_PATH" --uri="$target_uri" config-set simple_oauth.settings public_key "$public_key_path" -y 2>&1 && \
+       timeout 30 "$DRUSH_PATH" --uri="$target_uri" config-set simple_oauth.settings private_key "$private_key_path" -y 2>&1; then
+        log_success "OAuth configuration complete"
+        log "Public key: $public_key_path"
+        log "Private key: $private_key_path"
+    else
+        log_error "Failed to configure OAuth key paths"
         return 1
     fi
 }
