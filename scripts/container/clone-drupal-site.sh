@@ -470,12 +470,9 @@ regenerate_oauth_keys() {
     log "Running consumers-next.php to regenerate OAuth keys..."
 
     # Run consumers-next.php and capture output
-    # Temporarily disable 'set -e' to allow capturing exit code and running fallback logic
-    set +e
     timeout 120 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
         php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction > /tmp/oauth-regen.log 2>&1
     oauth_exit_code=$?
-    set -e
 
     # Check if script succeeded by looking for the specific Drupal container error
     # (ignore normal drush warnings/errors that don't indicate failure)
@@ -483,46 +480,10 @@ regenerate_oauth_keys() {
         log_success "OAuth keys regenerated successfully via consumers-next.php"
         log "New site now has unique OAuth keys in: $TARGET_PATH/files/private/oauth/"
     else
-        log_warning "Failed to regenerate OAuth keys via drush script (exit code: $oauth_exit_code)"
-        log "Output: $(cat /tmp/oauth-regen.log 2>/dev/null || echo 'No output')"
-        log "Attempting manual OAuth configuration update..."
-
-        # Fallback: Use drush config:set to update OAuth key paths
-        local new_public_key="sites/${TARGET_SITE}/files/private/oauth/public.key"
-        local new_private_key="sites/${TARGET_SITE}/files/private/oauth/private.key"
-
-        # Update OAuth config using drush (more reliable than SQL)
-        if timeout 30 "$DRUSH_PATH" --uri="$target_uri" config:set simple_oauth.settings public_key "$new_public_key" -y 2>&1 && \
-           timeout 30 "$DRUSH_PATH" --uri="$target_uri" config:set simple_oauth.settings private_key "$new_private_key" -y 2>&1; then
-            log_success "OAuth key paths updated via drush config:set"
-        else
-            log_error "Failed to update OAuth config - will retry one more time"
-            sleep 2
-            # Final attempt with more verbose output
-            if timeout 30 "$DRUSH_PATH" --uri="$target_uri" config:set simple_oauth.settings public_key "$new_public_key" -y --debug 2>&1 && \
-               timeout 30 "$DRUSH_PATH" --uri="$target_uri" config:set simple_oauth.settings private_key "$new_private_key" -y --debug 2>&1; then
-                log_success "OAuth key paths updated on retry"
-            else
-                log_error "Failed to update OAuth key paths after multiple attempts"
-            fi
-        fi
-
-        # Generate keys manually using drush if they don't exist
-        if [ ! -f "$TARGET_PATH/files/private/oauth/public.key" ] || [ ! -f "$TARGET_PATH/files/private/oauth/private.key" ]; then
-            log "Generating OAuth keys manually..."
-            if timeout 60 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
-                php:eval "\\Drupal::service('simple_oauth.key.generator')->generateKeys('$TARGET_PATH/files/private/oauth');" \
-                --no-interaction 2>&1; then
-                log_success "OAuth keys generated manually"
-            else
-                log_error "Failed to generate OAuth keys - site may not support OAuth authentication"
-            fi
-        else
-            log "OAuth keys already exist in $TARGET_PATH/files/private/oauth/"
-        fi
-
-        # Clear cache to ensure config changes take effect
-        timeout 30 "$DRUSH_PATH" --uri="$target_uri" cr 2>&1 || log_warning "Failed to clear cache"
+        log_error "Failed to regenerate OAuth keys (exit code: $oauth_exit_code)"
+        log_error "Output: $(cat /tmp/oauth-regen.log 2>/dev/null || echo 'No output')"
+        log_error "Site creation failed - OAuth regeneration is required for proper site operation"
+        return 1
     fi
 }
 
