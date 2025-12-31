@@ -469,19 +469,14 @@ regenerate_oauth_keys() {
     # 3. Create new OAuth consumers with unique credentials
     log "Running consumers-next.php to regenerate OAuth keys..."
 
-    # Enable pipefail to catch errors in piped commands
-    set -o pipefail
-
-    # Run consumers-next.php and capture both output and exit code
+    # Run consumers-next.php and capture output
     timeout 120 "$DRUSH_PATH" --uri="$target_uri" --define=memory_limit=1G \
-        php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction 2>&1 | tee /tmp/oauth-regen.log
+        php:script "$PROJECT_PATH/scripts/container/consumers-next.php" --no-interaction > /tmp/oauth-regen.log 2>&1
     oauth_exit_code=$?
 
-    # Disable pipefail after capturing
-    set +o pipefail
-
-    # Check both exit code and log content for errors
-    if [[ $oauth_exit_code -eq 0 ]] && ! grep -q "Drupal::.*container.*not initialized\|Exception\|Error\|Fatal" /tmp/oauth-regen.log; then
+    # Check if script succeeded by looking for the specific Drupal container error
+    # (ignore normal drush warnings/errors that don't indicate failure)
+    if [[ $oauth_exit_code -eq 0 ]] && ! grep -qi "Drupal::.*container.*not initialized" /tmp/oauth-regen.log; then
         log_success "OAuth keys regenerated successfully via consumers-next.php"
         log "New site now has unique OAuth keys in: $TARGET_PATH/files/private/oauth/"
     else
