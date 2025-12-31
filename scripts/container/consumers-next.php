@@ -28,16 +28,32 @@ if (!is_dir($private_path)) {
 }
 
 // Configure OAuth settings with key paths (always set these).
-try {
-  $config = \Drupal::configFactory()->getEditable('simple_oauth.settings');
-  $config->set('public_key', $site_path . '/files/private/oauth/public.key');
-  $config->set('private_key', $site_path . '/files/private/oauth/private.key');
-  $config->save();
-  $messages[] = 'OAuth key paths configured: ' . $site_path . '/files/private/oauth/';
+// Clear config cache first to avoid stale data from template database
+\Drupal::service('config.factory')->clearStaticCache();
+
+$config = \Drupal::configFactory()->getEditable('simple_oauth.settings');
+$config->set('public_key', $site_path . '/files/private/oauth/public.key');
+$config->set('private_key', $site_path . '/files/private/oauth/private.key');
+$config->save(TRUE);
+
+// Verify the config was actually saved by reading it back
+$verification = \Drupal::config('simple_oauth.settings');
+$saved_public_key = $verification->get('public_key');
+$saved_private_key = $verification->get('private_key');
+
+$expected_public_key = $site_path . '/files/private/oauth/public.key';
+$expected_private_key = $site_path . '/files/private/oauth/private.key';
+
+if ($saved_public_key !== $expected_public_key || $saved_private_key !== $expected_private_key) {
+  $error_msg = "OAuth config verification FAILED!\n";
+  $error_msg .= "Expected public_key: $expected_public_key\n";
+  $error_msg .= "Actual public_key: $saved_public_key\n";
+  $error_msg .= "Expected private_key: $expected_private_key\n";
+  $error_msg .= "Actual private_key: $saved_private_key\n";
+  throw new \Exception($error_msg);
 }
-catch (Exception $e) {
-  $messages[] = 'Error configuring OAuth key paths: ' . $e->getMessage();
-}
+
+$messages[] = 'OAuth key paths configured and verified: ' . $site_path . '/files/private/oauth/';
 
 // Generate keys if private path is writable and keys don't exist.
 if (is_writable($private_path)) {
