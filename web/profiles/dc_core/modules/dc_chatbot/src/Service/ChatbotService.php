@@ -177,7 +177,7 @@ class ChatbotService {
         'method' => 'POST',
         'header' => [
           'Content-Type: application/json',
-          'User-Agent: DCloud-Chatbot/1.0',
+          'User-Agent: Decoupled-Chatbot/1.0',
           'X-API-Key: ' . $apiKey,
           'Origin: ' . $origin,
         ],

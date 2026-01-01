@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @Block(
  *   id = "dc_chatbot_block",
  *   admin_label = @Translation("Decoupled Drupal Chatbot"),
- *   category = @Translation("DCloud"),
+ *   category = @Translation("Decoupled"),
  * )
  */
 class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface {
@@ -203,7 +203,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
    */
   protected function getSpaceId() {
     // Try to get from environment variable or settings
-    $space_id = getenv('DCLOUD_SPACE_ID');
+    $space_id = getenv('DECOUPLED_SPACE_ID');
     if ($space_id) {
       return $space_id;
     }
@@ -250,7 +250,7 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
     // Production fallback - determine dashboard URL based on current domain
     $parts = explode('.', $host);
     if (count($parts) >= 2) {
-      // Extract root domain (e.g., from site.dcloud.dev -> dcloud.dev)
+      // Extract root domain (e.g., from site.decoupled.dev -> decoupled.dev)
       $root_domain = implode('.', array_slice($parts, 1));
       return 'https://dashboard.' . $root_domain;
     }

@@ -70,7 +70,7 @@ class UsageLimitsService {
    */
   protected function getCurrentPlan() {
     // Get plan from environment variable or default to starter
-    $plan = getenv('DCLOUD_PLAN');
+    $plan = getenv('DECOUPLED_PLAN');
     if (!$plan || !isset($this->planLimits[$plan])) {
       return 'starter';
     }

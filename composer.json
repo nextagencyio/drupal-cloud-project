@@ -57,8 +57,7 @@
         "drupal/paragraphs": "^1.18",
         "drupal/pathauto": "^1.13",
         "drupal/simple_oauth": "5.2.x-dev",
-        "drush/drush": "^13.6",
-        "nextagencyio/json_import": "1.x-dev"
+        "drush/drush": "^13.6"
     },
     "conflict": {
         "drupal/drupal": "*"

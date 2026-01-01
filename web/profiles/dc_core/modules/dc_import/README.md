@@ -14,7 +14,7 @@ Get service status and API documentation.
 
 **Authentication:** None required.
 
-### GET `/dcloud-test`
+### GET `/dc-test`
 Test endpoint for service health check.
 
 **Authentication:** None required.
@@ -218,7 +218,7 @@ The module supports various Drupal field types:
 1. **Enable OAuth 2.0 modules** in your Drupal site
 2. **Create an OAuth client** at `/admin/config/services/consumer`
 3. **Grant permissions** to users who need API access:
-   - `import dcloud config` - Required for import endpoint and UI access
+   - `import dc config` - Required for import endpoint and UI access
 4. **Obtain access token** using OAuth 2.0 flow
 
 ### Example Token Request
@@ -326,7 +326,7 @@ curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
 1. **401 Unauthorized**
    - Verify your access token is valid
    - Check token hasn't expired
-   - Ensure user has `import dcloud config` permission
+   - Ensure user has `import dc config` permission
 
 2. **400 Bad Request - Invalid JSON**
    - Validate JSON syntax using a JSON validator
@@ -368,7 +368,7 @@ curl -X POST "https://your-site.com/api/decoupled-import?preview=true" \
 Access the administrative interface at:
 `/admin/config/content/decoupled-import`
 
-**Required Permission:** `import dcloud config`
+**Required Permission:** `import dc config`
 
 ### Permissions
 

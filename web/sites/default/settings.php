@@ -872,100 +872,100 @@ $databases['default']['default'] = array (
   'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
 );
 $settings['config_sync_directory'] = 'sites/default/files/config_zubBsSgzFlRqzEIdJ4v_zmTWIzD0zx-ol2oAvzVFLQdm70yNSd6Mleh4TkcgzmOlqM6m4d7PaQ/sync';
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template.localhost$',
 ];
-/* DCLOUD END TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
 
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template\.localhost$'
 ];
-/* DCLOUD END TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
 
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template\.localhost$'
 ];
-/* DCLOUD END TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
 
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template\.localhost$'
 ];
-/* DCLOUD END TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
 
-/* DCLOUD BEGIN TRUSTED_HOSTS */
+/* DECOUPLED BEGIN TRUSTED_HOSTS */
 if (!isset($settings) || !is_array($settings)) { $settings = []; }
 $settings['trusted_host_patterns'] = [
   '^template\.localhost$'
 ];
-/* DCLOUD END TRUSTED_HOSTS */
+/* DECOUPLED END TRUSTED_HOSTS */
 $databases['default']['default'] = array (
   'database' => 'drupal',
   'username' => 'drupal',

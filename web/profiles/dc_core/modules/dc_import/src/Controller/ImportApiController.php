@@ -3,7 +3,7 @@
 namespace Drupal\dc_import\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\json_import\Service\DrupalContentImporter;
+use Drupal\dc_import\Service\DrupalContentImporter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,14 +16,14 @@ class ImportApiController extends ControllerBase {
   /**
    * The Drupal content importer service.
    *
-   * @var \Drupal\json_import\Service\DrupalContentImporter
+   * @var \Drupal\dc_import\Service\DrupalContentImporter
    */
   protected $importer;
 
   /**
    * Constructs a new ImportApiController.
    *
-   * @param \Drupal\json_import\Service\DrupalContentImporter $importer
+   * @param \Drupal\dc_import\Service\DrupalContentImporter $importer
    *   The Drupal content importer service.
    */
   public function __construct(DrupalContentImporter $importer) {
@@ -35,7 +35,7 @@ class ImportApiController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('json_import.importer')
+      $container->get('dc_import.importer')
     );
   }
 
@@ -122,7 +122,7 @@ class ImportApiController extends ControllerBase {
   public function status() {
     return new JsonResponse([
       'success' => true,
-      'service' => 'DCloud Import API',
+      'service' => 'Decoupled Import API',
       'version' => '1.0.0',
       'endpoints' => [
         'POST /api/dc-import' => 'Import content models and data',
@@ -148,9 +148,9 @@ class ImportApiController extends ControllerBase {
    */
   private function authenticateRequest(Request $request) {
     // Development mode bypass for .ddev.site domains (first check for easier development)
-    $skipAuth = getenv('DCLOUD_SKIP_AUTH') === 'true' ||
+    $skipAuth = getenv('DECOUPLED_SKIP_AUTH') === 'true' ||
                 \Drupal::state()->get('dc_import.skip_auth', FALSE) ||
-                ($request->headers->get('X-DCloud-Dev-Mode') === 'true' && str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site')) ||
+                ($request->headers->get('X-Decoupled-Dev-Mode') === 'true' && str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site')) ||
                 str_contains($_SERVER['HTTP_HOST'] ?? '', '.ddev.site'); // Auto-skip for all DDEV sites
                 
     if ($skipAuth) {
@@ -193,7 +193,7 @@ class ImportApiController extends ControllerBase {
    */
   private function validatePlatformToken($token) {
         // Get platform URL from environment or settings
-    $platformUrl = getenv('DCLOUD_PLATFORM_URL') ?:
+    $platformUrl = getenv('DECOUPLED_PLATFORM_URL') ?:
                    \Drupal::state()->get('dc_import.platform_url', 'https://dashboard.decoupled.io');
 
     // For local development, support localhost

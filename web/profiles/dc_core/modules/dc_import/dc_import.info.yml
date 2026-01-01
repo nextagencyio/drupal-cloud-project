@@ -1,7 +1,5 @@
 name: Decoupled Drupal Content Import
-description: 'REST API for importing Drupal model and content from concise JSON using json_import module.'
+description: 'REST API for importing Drupal model and content from concise JSON.'
 type: module
 core_version_requirement: ^10 || ^11
 package: Decoupled
-dependencies:
-  - json_import:json_import
