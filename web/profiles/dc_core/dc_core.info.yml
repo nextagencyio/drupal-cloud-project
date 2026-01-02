@@ -10,6 +10,7 @@ dependencies:
   - drupal:ckeditor5
   - drupal:config
   - drupal:content_moderation
+  - drupal:dblog
   - drupal:help
   - drupal:datetime
   - drupal:datetime_range

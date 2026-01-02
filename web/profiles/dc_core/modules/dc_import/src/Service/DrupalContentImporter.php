@@ -560,7 +560,7 @@ class DrupalContentImporter {
         $placeholder_path = \Drupal::service('extension.list.module')->getPath('drupalx_ai') . '/files/card.png';
         if (!file_exists($placeholder_path)) {
           // Fallback to json_import placeholder if drupalx_ai one doesn't exist
-          $placeholder_path = \Drupal::service('extension.list.module')->getPath('json_import') . '/resources/placeholder.png';
+          $placeholder_path = \Drupal::service('extension.list.module')->getPath('dc_import') . '/resources/placeholder.png';
         }
 
         if (file_exists($placeholder_path)) {
@@ -1344,11 +1344,11 @@ class DrupalContentImporter {
   private function handleImageFieldValue(array $value, string $field_id) {
     $uri = $value['uri'] ?? NULL;
     if (!$uri) {
-      \Drupal::logger('json_import')->warning('No URI provided for image field @field_id', ['@field_id' => $field_id]);
+      \Drupal::logger('dc_import')->warning('No URI provided for image field @field_id', ['@field_id' => $field_id]);
       return NULL;
     }
 
-    \Drupal::logger('json_import')->info('Processing image field @field_id with URI: @uri', [
+    \Drupal::logger('dc_import')->info('Processing image field @field_id with URI: @uri', [
       '@field_id' => $field_id,
       '@uri' => $uri
     ]);
@@ -1393,7 +1393,7 @@ class DrupalContentImporter {
     }
 
     if (!$source_path || !file_exists($source_path)) {
-      \Drupal::logger('json_import')->warning('Image source not found or accessible: @path for field @field_id', [
+      \Drupal::logger('dc_import')->warning('Image source not found or accessible: @path for field @field_id', [
         '@path' => $source_path,
         '@field_id' => $field_id
       ]);
@@ -1428,7 +1428,7 @@ class DrupalContentImporter {
       ]);
       $file->save();
 
-      \Drupal::logger('json_import')->info('Successfully created file entity ID @file_id for field @field_id', [
+      \Drupal::logger('dc_import')->info('Successfully created file entity ID @file_id for field @field_id', [
         '@file_id' => $file->id(),
         '@field_id' => $field_id
       ]);
@@ -1443,7 +1443,7 @@ class DrupalContentImporter {
       ];
     }
 
-    \Drupal::logger('json_import')->warning('Failed to copy file to destination for field @field_id', ['@field_id' => $field_id]);
+    \Drupal::logger('dc_import')->warning('Failed to copy file to destination for field @field_id', ['@field_id' => $field_id]);
     return NULL;
   }
 

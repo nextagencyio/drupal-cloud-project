@@ -92,7 +92,7 @@ class JsonSchemaValidator {
    */
   private function loadSchema(): ?object {
     // First try to load from local file
-    $module_path = \Drupal::service('extension.list.module')->getPath('json_import');
+    $module_path = \Drupal::service('extension.list.module')->getPath('dc_import');
     $local_path = \Drupal::root() . '/' . $module_path . '/resources/schema.json';
     
     if (is_readable($local_path)) {
