@@ -166,24 +166,25 @@ class ImportForm extends FormBase {
     try {
       $result = $this->contentImporter->import($data);
 
-      if ($result['success']) {
+      // Check if import was successful (has summary array)
+      if (isset($result['summary']) && is_array($result['summary'])) {
         $this->messenger()->addStatus($this->t('Content imported successfully!'));
 
-        // Show detailed results.
-        if (!empty($result['content_types'])) {
-          $this->messenger()->addStatus($this->t('Content types created: @count', [
-            '@count' => count($result['content_types']),
-          ]));
+        // Show summary messages
+        foreach ($result['summary'] as $message) {
+          $this->messenger()->addStatus($message);
         }
-        if (!empty($result['vocabularies'])) {
-          $this->messenger()->addStatus($this->t('Vocabularies created: @count', [
-            '@count' => count($result['vocabularies']),
-          ]));
-        }
-        if (!empty($result['content'])) {
-          $this->messenger()->addStatus($this->t('Content items created: @count', [
-            '@count' => count($result['content']),
-          ]));
+
+        // Show warnings if any (limit to first 5)
+        if (!empty($result['warnings'])) {
+          foreach (array_slice($result['warnings'], 0, 5) as $warning) {
+            $this->messenger()->addWarning($warning);
+          }
+          if (count($result['warnings']) > 5) {
+            $this->messenger()->addWarning($this->t('... and @count more warnings', [
+              '@count' => count($result['warnings']) - 5,
+            ]));
+          }
         }
       }
       else {
