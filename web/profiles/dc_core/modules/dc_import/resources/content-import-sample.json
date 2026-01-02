@@ -126,11 +126,6 @@
           "label": "Specifications",
           "type": "string[]",
           "description": "Technical specifications"
-        },
-        {
-          "id": "category",
-          "label": "Product Category",
-          "type": "term(product_category)[]"
         }
       ]
     }
@@ -228,10 +223,6 @@
             "alt": "Wireless Charger Pro with phone charging",
             "title": "In Use"
           }
-        ],
-        "category": [
-          "electronics",
-          "accessories"
         ]
       }
     }
