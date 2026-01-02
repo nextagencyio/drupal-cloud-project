@@ -54,26 +54,37 @@ class ImportForm extends FormBase {
     ];
 
     // Sample JSON for demonstration
-    $sample_json = file_get_contents(__DIR__ . '/../../resources/content-import-sample.json');
+    $sample_json_path = __DIR__ . '/../../resources/content-import-sample.json';
+    $sample_json = '';
 
-    $form['sample'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Example Import JSON'),
-      '#description' => $this->t('Click to view a complete example showing all supported field types and patterns. Copy and paste this into the field below to test the import functionality.'),
-      '#open' => FALSE,
-    ];
+    if (file_exists($sample_json_path) && is_readable($sample_json_path)) {
+      $sample_json = file_get_contents($sample_json_path);
+      if ($sample_json === FALSE) {
+        $sample_json = '';
+        \Drupal::logger('dc_import')->error('Failed to read sample JSON file');
+      }
+    }
 
-    $form['sample']['json_sample'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Sample JSON'),
-      '#default_value' => $sample_json,
-      '#rows' => 20,
-      '#attributes' => [
-        'readonly' => 'readonly',
-        'style' => 'font-family: monospace; font-size: 12px;',
-      ],
-      '#description' => $this->t('This sample demonstrates: article content type with images, dates, tags; product content type with pricing and inventory; paragraph entities for structured content. Copy this JSON to test the import functionality.'),
-    ];
+    if (!empty($sample_json)) {
+      $form['sample'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Example Import JSON'),
+        '#description' => $this->t('Click to view a complete example showing all supported field types and patterns. Copy and paste this into the field below to test the import functionality.'),
+        '#open' => FALSE,
+      ];
+
+      $form['sample']['json_sample'] = [
+        '#type' => 'textarea',
+        '#title' => $this->t('Sample JSON'),
+        '#default_value' => $sample_json,
+        '#rows' => 20,
+        '#attributes' => [
+          'readonly' => 'readonly',
+          'style' => 'font-family: monospace; font-size: 12px;',
+        ],
+        '#description' => $this->t('This sample demonstrates: news_article content type with images, dates, tags; product content type with pricing and inventory; paragraph entities for structured content. Copy this JSON to test the import functionality.'),
+      ];
+    }
 
     $form['json_file'] = [
       '#type' => 'file',
