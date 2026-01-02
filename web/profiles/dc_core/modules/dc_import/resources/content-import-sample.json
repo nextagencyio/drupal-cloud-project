@@ -136,12 +136,7 @@
       "type": "paragraph.content_block",
       "values": {
         "block_title": "Introduction",
-        "block_content": "<p>This is an <strong>example content block</strong> with formatted text.</p>",
-        "block_image": {
-          "uri": "${DRUPAL_BASE_URL}/modules/custom/dc_import/resources/placeholder.png",
-          "alt": "Content block illustration",
-          "title": "Block Image"
-        }
+        "block_content": "<p>This is an <strong>example content block</strong> with formatted text.</p>"
       }
     },
     {
@@ -160,23 +155,6 @@
           "Build frontend with Next.js, React, or Vue",
           "Connect via GraphQL or REST API",
           "Deploy frontend and backend independently"
-        ],
-        "featured_image": {
-          "uri": "${DRUPAL_BASE_URL}/modules/custom/dc_import/resources/placeholder.png",
-          "alt": "Decoupled Drupal architecture diagram",
-          "title": "Architecture Overview"
-        },
-        "gallery": [
-          {
-            "uri": "${DRUPAL_BASE_URL}/modules/custom/dc_import/resources/placeholder.png",
-            "alt": "Screenshot of content management interface",
-            "title": "CMS Interface"
-          },
-          {
-            "uri": "${DRUPAL_BASE_URL}/modules/custom/dc_import/resources/placeholder.png",
-            "alt": "Frontend application example",
-            "title": "Frontend App"
-          }
         ],
         "tags": [
           "drupal",
@@ -211,18 +189,6 @@
           "Size: 4 x 4 x 0.5 inches",
           "Weight: 3.2 oz",
           "Color: Matte Black"
-        ],
-        "product_images": [
-          {
-            "uri": "${DRUPAL_BASE_URL}/modules/custom/dc_import/resources/placeholder.png",
-            "alt": "Wireless Charger Pro front view",
-            "title": "Product Front"
-          },
-          {
-            "uri": "${DRUPAL_BASE_URL}/modules/custom/dc_import/resources/placeholder.png",
-            "alt": "Wireless Charger Pro with phone charging",
-            "title": "In Use"
-          }
         ]
       }
     }
@@ -244,11 +210,11 @@
     "image_format": {
       "description": "Images require full URLs with Drupal domain, not relative paths",
       "example": {
-        "uri": "${DRUPAL_BASE_URL}/modules/custom/dc_import/resources/placeholder.png",
+        "uri": "https://example.com/path/to/image.png",
         "alt": "Descriptive alt text for accessibility",
         "title": "Image title"
       },
-      "note": "Replace ${DRUPAL_BASE_URL} with actual Drupal URL from .env.local"
+      "note": "Use full URLs to publicly accessible images"
     },
     "content_references": {
       "description": "Reference other content items using @id syntax",
