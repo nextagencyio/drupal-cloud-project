@@ -1,22 +1,22 @@
 {
   "model": [
     {
-      "bundle": "article",
+      "bundle": "news_article",
       "description": "Blog articles and news posts with rich media and categorization",
-      "label": "Article",
+      "label": "News Article",
       "body": true,
       "fields": [
         {
           "id": "summary",
           "label": "Summary",
           "type": "string",
-          "description": "Short text field (max 255 chars) for article preview"
+          "description": "Short text field (max 255 chars) for news_article preview"
         },
         {
           "id": "featured_image",
           "label": "Featured Image",
           "type": "image",
-          "description": "Single image upload for article hero"
+          "description": "Single image upload for news_article hero"
         },
         {
           "id": "published_date",
@@ -151,7 +151,7 @@
     },
     {
       "id": "article1",
-      "type": "node.article",
+      "type": "node.news_article",
       "path": "/articles/getting-started-with-drupal",
       "values": {
         "title": "Getting Started with Decoupled Drupal",
