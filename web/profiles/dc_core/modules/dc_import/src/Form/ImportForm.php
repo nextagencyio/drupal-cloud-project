@@ -34,7 +34,7 @@ class ImportForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('dc_import.content_importer')
+      $container->get('dc_import.importer')
     );
   }
 
@@ -53,6 +53,28 @@ class ImportForm extends FormBase {
       '#markup' => '<p>' . $this->t('Upload a JSON file to import content types, taxonomy vocabularies, and content into your Drupal site.') . '</p>',
     ];
 
+    // Sample JSON for demonstration
+    $sample_json = file_get_contents(__DIR__ . '/../../resources/content-import-sample.json');
+
+    $form['sample'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Example Import JSON'),
+      '#description' => $this->t('Click to view a complete example showing all supported field types and patterns. Copy and paste this into the field below to test the import functionality.'),
+      '#open' => FALSE,
+    ];
+
+    $form['sample']['json_sample'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Sample JSON'),
+      '#default_value' => $sample_json,
+      '#rows' => 20,
+      '#attributes' => [
+        'readonly' => 'readonly',
+        'style' => 'font-family: monospace; font-size: 12px;',
+      ],
+      '#description' => $this->t('This sample demonstrates: article content type with images, dates, tags; product content type with pricing and inventory; paragraph entities for structured content. Copy this JSON to test the import functionality.'),
+    ];
+
     $form['json_file'] = [
       '#type' => 'file',
       '#title' => $this->t('JSON Import File'),
@@ -66,8 +88,11 @@ class ImportForm extends FormBase {
     $form['json_text'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Or paste JSON directly'),
-      '#description' => $this->t('Paste your JSON content here if you prefer not to upload a file.'),
+      '#description' => $this->t('Paste your JSON content here if you prefer not to upload a file. Try copying the example above to test!'),
       '#rows' => 10,
+      '#attributes' => [
+        'style' => 'font-family: monospace;',
+      ],
     ];
 
     $form['actions'] = [
