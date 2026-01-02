@@ -73,6 +73,12 @@ function dc_core_install() {
     $role->save();
     \Drupal::logger('dc_core')->notice('Granted GraphQL permissions to anonymous role.');
   }
+
+  // 4. Configure mail system to use Resend HTTP API
+  $config = \Drupal::configFactory()->getEditable('system.mail');
+  $config->set('interface.default', 'resend_mail');
+  $config->save();
+  \Drupal::logger('dc_core')->notice('Mail system configured to use Resend HTTP API.');
 }
 
 /**

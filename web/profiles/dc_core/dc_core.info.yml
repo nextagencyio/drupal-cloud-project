@@ -74,6 +74,7 @@ dependencies:
   - dc_config
   - dc_content
   - dc_import
+  - dc_mail
   - dc_revalidate
   - dc_usage
   - dc_user_redirect
