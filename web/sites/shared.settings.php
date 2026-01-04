@@ -40,8 +40,10 @@ if (extension_loaded('redis')) {
   $settings['redis_compress_length'] = 100;
   $settings['redis_compress_level'] = 1;
 
-  // Use phpredis library for better performance
-  $settings['cache_prefix'] = 'drupal_';
+  // Use site-specific cache prefix to avoid multisite conflicts
+  // Extract site name from $site_path (e.g., 'sites/example' -> 'example')
+  $site_name = basename($site_path);
+  $settings['cache_prefix'] = 'drupal_' . $site_name . '_';
 }
 
 /**
