@@ -56,6 +56,7 @@
         "drupal/graphql_compose": "^2.2",
         "drupal/paragraphs": "^1.18",
         "drupal/pathauto": "^1.13",
+        "drupal/redis": "^1.8",
         "drupal/simple_oauth": "5.2.x-dev",
         "drush/drush": "^13.6"
     },
