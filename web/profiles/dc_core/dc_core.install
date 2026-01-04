@@ -79,6 +79,14 @@ function dc_core_install() {
   $config->set('interface.default', 'resend_mail');
   $config->save();
   \Drupal::logger('dc_core')->notice('Mail system configured to use Resend HTTP API.');
+
+  // 5. Enable performance settings (page caching and CSS/JS aggregation)
+  $performance_config = \Drupal::configFactory()->getEditable('system.performance');
+  $performance_config->set('cache.page.max_age', 86400); // 1 day
+  $performance_config->set('css.preprocess', TRUE);
+  $performance_config->set('js.preprocess', TRUE);
+  $performance_config->save();
+  \Drupal::logger('dc_core')->notice('Performance settings enabled: page cache (1 day), CSS/JS aggregation.');
 }
 
 /**
@@ -250,4 +258,45 @@ function dc_core_update_10005() {
   }
 
   return t('Configured OAuth2 authentication for Next.js frontend. Check logs for OAuth credentials.');
+}
+
+/**
+ * Enable performance settings: page caching and CSS/JS aggregation.
+ */
+function dc_core_update_10006() {
+  $config = \Drupal::configFactory()->getEditable('system.performance');
+
+  // Enable page caching with 1 day max age (86400 seconds)
+  $config->set('cache.page.max_age', 86400);
+
+  // Enable CSS aggregation
+  $config->set('css.preprocess', TRUE);
+
+  // Enable JavaScript aggregation
+  $config->set('js.preprocess', TRUE);
+
+  $config->save();
+
+  // Ensure css/js directories exist and are writable
+  $css_dir = DRUPAL_ROOT . '/sites/default/files/css';
+  $js_dir = DRUPAL_ROOT . '/sites/default/files/js';
+
+  if (!is_dir($css_dir)) {
+    mkdir($css_dir, 0775, TRUE);
+  }
+  if (!is_dir($js_dir)) {
+    mkdir($js_dir, 0775, TRUE);
+  }
+
+  // Set ownership to www-data (UID 33 in Docker container)
+  if (is_dir($css_dir)) {
+    @chmod($css_dir, 0775);
+  }
+  if (is_dir($js_dir)) {
+    @chmod($js_dir, 0775);
+  }
+
+  \Drupal::logger('dc_core')->notice('Enabled performance settings: page cache (1 day), CSS aggregation, JS aggregation');
+
+  return t('Enabled performance settings: page cache (1 day), CSS/JS aggregation.');
 }
