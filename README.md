@@ -1,75 +1,36 @@
 # Decoupled Drupal Project
 
-This is the **production Drupal codebase** for the Decoupled.io platform, featuring the `dc_core` installation profile.
+A Drupal 11 installation featuring the `dc_core` installation profile, designed for headless/decoupled applications. This project can be used standalone or as part of the [decoupled.io](https://decoupled.io) platform.
 
-## 🚨 CRITICAL: This Repo Powers Production
+## Features
 
-**This repository (`nextagencyio/decoupled-project`) is deployed to ALL production droplets.**
+- **Drupal 11** with modern PHP 8.3
+- **dc_core installation profile** - pre-configured for headless/decoupled architecture
+- **Custom modules** for multisite management and API functionality
+- **Docker support** for local development and production
+- **GraphQL API** ready for frontend consumption
 
-- Each production droplet has `/opt/drupalcloud` as a git clone of this repo
-- Code changes pushed here are deployed via Ansible to all production droplets
-- Docker images are pre-built and pulled from Docker Hub (NOT built locally)
+## Getting Started
 
-## Deployment Process
+### 1. Make Changes
 
-### 1. Make Changes Locally
-Edit files in `templates/decoupled-project/` within the `decoupled-dashboard` monorepo:
+Edit Drupal code, modules, themes, or configuration:
+
 ```bash
-cd /Users/jcallicott/nodejs/decoupled-dashboard/templates/decoupled-project
 # Make your changes to Drupal code, modules, themes, etc.
 ```
 
 ### 2. Commit and Push
+
 ```bash
 git add .
 git commit -m "Your commit message"
 git push
 ```
 
-### 3. Deploy to Production
-From the **decoupled-dashboard** repo root:
-```bash
-cd /Users/jcallicott/nodejs/decoupled-dashboard
-gh workflow run deploy-code-changes.yml --repo nextagencyio/decoupled-dashboard
-```
+## Using with decoupled.io
 
-### 4. What Happens During Deployment
-- Ansible connects to all production droplets
-- Runs `git reset --hard origin/main` to pull latest code
-- Checks commit message for `[reinstall-template]` keyword
-- If keyword present: Reinstalls template site, regenerates backup
-- If keyword absent: Skips template reinstall (faster)
-- Runs database updates (`drush updb`) on all sites
-- Clears caches (`drush cr`) on all sites
-
-## Template Reinstall Keyword
-
-Use `[reinstall-template]` in your commit message to trigger a full template reinstall:
-
-```bash
-git commit -m "[reinstall-template] Add new custom module to dc_core profile"
-```
-
-**When to use:**
-- Adding/removing modules from `dc_core.info.yml`
-- Changing installation profile configuration
-- Updating dc_core install hooks
-- Adding new custom modules that need to be enabled by default
-
-**When NOT to use:**
-- Regular code updates to existing modules
-- Theme changes
-- Configuration updates
-- Bug fixes
-
-Without the keyword, deployment only updates code and runs updb/cr (much faster).
-
-## Important Notes
-
-- **DO NOT** use `build:` in `docker-compose.prod.yml` - causes OOM on 1GB droplets
-- Always use `image: jrcallicott/drupalcloud-drupal:latest` for production
-- Docker images must be pre-built and pushed to Docker Hub before deployment
-- Local development uses `templates/decoupled-docker` (separate from this repo)
+If you're using this project with the decoupled.io platform, changes are automatically deployed via GitHub Actions and Ansible. See the [decoupled.io documentation](https://github.com/nextagencyio/decoupled-dashboard) for deployment workflows.
 
 ## Repository Structure
 
@@ -85,9 +46,34 @@ web/
 │       └── settings.php
 └── ...
 
-docker-compose.prod.yml    # Production Docker config (uses pre-built images)
+docker-compose.prod.yml    # Docker configuration
 ```
 
-## Last Updated
+## Installation Profile: dc_core
 
-2025-12-24
+The `dc_core` installation profile provides:
+
+- Pre-configured content types and fields
+- GraphQL API endpoints
+- Multisite management capabilities
+- Optimized for headless/decoupled architecture
+- Custom modules for common decoupled use cases
+
+## Requirements
+
+- PHP 8.3+
+- Drupal 11
+- Composer
+- Docker (optional, for containerized deployment)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under GPL-2.0-or-later, consistent with Drupal core.
