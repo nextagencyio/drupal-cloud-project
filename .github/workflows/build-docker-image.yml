@@ -1,0 +1,57 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'composer.json'
+      - 'composer.lock'
+      - 'web/**'
+      - 'Dockerfile'
+      - 'docker/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Extract commit SHA (short)
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            jrcallicott/drupalcloud-drupal:latest
+            jrcallicott/drupalcloud-drupal:${{ steps.vars.outputs.sha_short }}
+          cache-from: type=registry,ref=jrcallicott/drupalcloud-drupal:latest
+          cache-to: type=inline
+      
+      - name: Image built successfully
+        run: |
+          echo "✅ Docker image built and pushed successfully"
+          echo ""
+          echo "📦 Image tags:"
+          echo "   - jrcallicott/drupalcloud-drupal:latest"
+          echo "   - jrcallicott/drupalcloud-drupal:${{ steps.vars.outputs.sha_short }}"
+          echo ""
+          echo "🚀 Next: Kubernetes deployments will use this image"
+          echo "   Init containers now skip 15+ minute composer install!"
