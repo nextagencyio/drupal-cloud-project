@@ -23,10 +23,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp
-RUN docker-php-ext-install -j$(nproc) pdo_mysql mysqli mbstring xml zip intl bcmath exif soap
-RUN docker-php-ext-install opcache
-RUN docker-php-ext-install -j$(nproc) gd
+# Configure and install GD immediately to ensure flags are applied
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) gd
+
+# Install other PHP extensions
+RUN docker-php-ext-install -j$(nproc) pdo_mysql mysqli mbstring xml zip intl bcmath exif soap opcache
+
+# Install imagick
 RUN pecl install imagick && docker-php-ext-enable imagick
 
 # Install Redis PHP extension for caching
