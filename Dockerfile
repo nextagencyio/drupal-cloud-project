@@ -1,7 +1,7 @@
 # Use official PHP 8.3 with nginx 
 FROM php:8.3-fpm-bookworm
 
-# Install system dependencies
+# Install system dependencies (OPTIMIZED - removed libmagickwand-dev)
 RUN apt-get update && apt-get install -y \
     nginx \
     git \
@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libwebp-dev \
-    libmagickwand-dev \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,13 +26,11 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd
 
-# Install other PHP extensions
-RUN docker-php-ext-install -j$(nproc) pdo_mysql mysqli mbstring xml zip intl bcmath exif soap opcache
-
-# Install imagick
-RUN pecl install imagick && docker-php-ext-enable imagick
+# Install essential PHP extensions only (OPTIMIZED - removed bcmath, exif, soap)
+RUN docker-php-ext-install -j$(nproc) pdo_mysql mysqli mbstring xml zip intl opcache
 
 # Install Redis PHP extension for caching
+# Note: imagick removed to save 50-80MB (GD handles most image needs)
 RUN pecl install redis \
     && docker-php-ext-enable redis
 
@@ -59,7 +56,7 @@ RUN echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "opcache.jit_buffer_size=0" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "apc.enabled=1" >> /usr/local/etc/php/conf.d/drupal.ini \
-    && echo "apc.shm_size=64M" >> /usr/local/etc/php/conf.d/drupal.ini \
+    && echo "apc.shm_size=32M" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "apc.enable_cli=1" >> /usr/local/etc/php/conf.d/drupal.ini
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
