@@ -37,6 +37,10 @@ RUN pecl install imagick && docker-php-ext-enable imagick
 RUN pecl install redis \
     && docker-php-ext-enable redis
 
+# Install APCu PHP extension for opcode caching
+RUN pecl install apcu \
+    && docker-php-ext-enable apcu
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -53,7 +57,10 @@ RUN echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "opcache.memory_consumption = 192" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "opcache.jit=0" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "opcache.jit_buffer_size=0" >> /usr/local/etc/php/conf.d/drupal.ini \
-    && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/drupal.ini
+    && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/drupal.ini \
+    && echo "apc.enabled=1" >> /usr/local/etc/php/conf.d/drupal.ini \
+    && echo "apc.shm_size=64M" >> /usr/local/etc/php/conf.d/drupal.ini \
+    && echo "apc.enable_cli=1" >> /usr/local/etc/php/conf.d/drupal.ini
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🚀 OPTIMIZATION: Pre-build Drupal with vendor/ directory
