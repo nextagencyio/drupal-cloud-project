@@ -74,19 +74,64 @@ function dc_core_install() {
     \Drupal::logger('dc_core')->notice('Granted GraphQL permissions to anonymous role.');
   }
 
-  // 4. Configure mail system to use Resend HTTP API
-  $config = \Drupal::configFactory()->getEditable('system.mail');
-  $config->set('interface.default', 'resend_mail');
-  $config->save();
-  \Drupal::logger('dc_core')->notice('Mail system configured to use Resend HTTP API.');
+  // 4. Place the Decoupled Drupal Chatbot block in the Gin theme.
+  _dc_core_place_chatbot_block();
+}
 
-  // 5. Enable performance settings (page caching and CSS/JS aggregation)
-  $performance_config = \Drupal::configFactory()->getEditable('system.performance');
-  $performance_config->set('cache.page.max_age', 86400); // 1 day
-  $performance_config->set('css.preprocess', TRUE);
-  $performance_config->set('js.preprocess', TRUE);
-  $performance_config->save();
-  \Drupal::logger('dc_core')->notice('Performance settings enabled: page cache (1 day), CSS/JS aggregation.');
+/**
+ * Helper function to place the chatbot block in the Gin theme.
+ */
+function _dc_core_place_chatbot_block() {
+  // Check if dc_chatbot module is enabled.
+  $moduleHandler = \Drupal::service('module_handler');
+  if (!$moduleHandler->moduleExists('dc_chatbot')) {
+    \Drupal::logger('dc_core')->notice('Skipped chatbot block placement: dc_chatbot module not enabled.');
+    return;
+  }
+
+  // Check if Gin theme is installed.
+  $themeHandler = \Drupal::service('theme_handler');
+  if (!$themeHandler->themeExists('gin')) {
+    \Drupal::logger('dc_core')->notice('Skipped chatbot block placement: Gin theme not installed.');
+    return;
+  }
+
+  // Create the chatbot block for Gin theme.
+  $block_storage = \Drupal::entityTypeManager()->getStorage('block');
+  
+  // Check if the block already exists.
+  $existing_block = $block_storage->loadByProperties([
+    'plugin' => 'dc_chatbot_block',
+    'theme' => 'gin',
+  ]);
+
+  if (!empty($existing_block)) {
+    \Drupal::logger('dc_core')->notice('Chatbot block already exists in Gin theme.');
+    return;
+  }
+
+  // Create the block.
+  $block = $block_storage->create([
+    'id' => 'gin_dc_chatbot',
+    'plugin' => 'dc_chatbot_block',
+    'region' => 'content',
+    'theme' => 'gin',
+    'weight' => 100,
+    'settings' => [
+      'label' => 'Decoupled Drupal Chatbot',
+      'label_display' => '0',
+      'button_text' => 'Chat with us',
+      'button_position' => 'bottom-right',
+      'button_color' => '#007cba',
+      'show_on_mobile' => TRUE,
+      'trigger_delay' => 0,
+    ],
+    'visibility' => [],
+  ]);
+
+  $block->save();
+
+  \Drupal::logger('dc_core')->notice('Placed Decoupled Drupal Chatbot block in Gin theme.');
 }
 
 /**
@@ -261,42 +306,48 @@ function dc_core_update_10005() {
 }
 
 /**
- * Enable performance settings: page caching and CSS/JS aggregation.
+ * TEST UPDATE: Verify deployment pipeline works end-to-end.
  */
 function dc_core_update_10006() {
-  $config = \Drupal::configFactory()->getEditable('system.performance');
+  $timestamp = date('Y-m-d H:i:s');
+  $site_name = \Drupal::config('system.site')->get('name');
+  
+  \Drupal::logger('dc_core')->notice('🚀 TEST UPDATE HOOK 10006 EXECUTED! Site: @site_name at @timestamp', [
+    '@site_name' => $site_name,
+    '@timestamp' => $timestamp,
+  ]);
+  
+  return t('Test update hook 10006 executed successfully! Check logs for confirmation.');
+}
 
-  // Enable page caching with 1 day max age (86400 seconds)
-  $config->set('cache.page.max_age', 86400);
+/**
+ * TEST UPDATE 2: Demonstrate LIVE deployment pipeline.
+ * January 9, 2026 - Testing how code updates flow to all sites.
+ */
+function dc_core_update_10007() {
+  $timestamp = date('Y-m-d H:i:s T');
+  $site_name = \Drupal::config('system.site')->get('name');
+  $machine_name = basename($_SERVER['HTTP_HOST'], '.decoupled.website');
+  
+  $message = sprintf(
+    '🎯 UPDATE HOOK 10007 EXECUTED!\nSite: %s (%s)\nTime: %s\nDeployment test successful!',
+    $site_name,
+    $machine_name,
+    $timestamp
+  );
+  
+  \Drupal::logger('dc_core')->notice($message);
+  
+  // Also write to a file so we can easily see which sites ran it.
+  file_put_contents('/tmp/update-10007-executed.txt', $message . "\n", FILE_APPEND);
+  
+  return t('Update hook 10007 executed! Deployment pipeline verified.');
+}
 
-  // Enable CSS aggregation
-  $config->set('css.preprocess', TRUE);
-
-  // Enable JavaScript aggregation
-  $config->set('js.preprocess', TRUE);
-
-  $config->save();
-
-  // Ensure css/js directories exist and are writable
-  $css_dir = DRUPAL_ROOT . '/sites/default/files/css';
-  $js_dir = DRUPAL_ROOT . '/sites/default/files/js';
-
-  if (!is_dir($css_dir)) {
-    mkdir($css_dir, 0775, TRUE);
-  }
-  if (!is_dir($js_dir)) {
-    mkdir($js_dir, 0775, TRUE);
-  }
-
-  // Set ownership to www-data (UID 33 in Docker container)
-  if (is_dir($css_dir)) {
-    @chmod($css_dir, 0775);
-  }
-  if (is_dir($js_dir)) {
-    @chmod($js_dir, 0775);
-  }
-
-  \Drupal::logger('dc_core')->notice('Enabled performance settings: page cache (1 day), CSS aggregation, JS aggregation');
-
-  return t('Enabled performance settings: page cache (1 day), CSS/JS aggregation.');
+/**
+ * Place the Decoupled Drupal Chatbot block in the Gin theme.
+ */
+function dc_core_update_10008() {
+  _dc_core_place_chatbot_block();
+  return t('Placed Decoupled Drupal Chatbot block in Gin theme (if module enabled).');
 }
