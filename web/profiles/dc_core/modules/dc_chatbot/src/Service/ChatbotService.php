@@ -61,6 +61,7 @@ class ChatbotService {
     ]);
 
     // Try to call the Next.js API first
+    $apiError = null;
     try {
       $nextjsResponse = $this->callNextjsAPI($message, $context);
       if ($nextjsResponse) {
@@ -68,47 +69,44 @@ class ChatbotService {
       }
     }
     catch (\Exception $e) {
-      $this->loggerFactory->get('dc_chatbot')->warning('Next.js API failed, falling back to local: @error', [
-        '@error' => $e->getMessage(),
+      $apiError = $e->getMessage();
+      $this->loggerFactory->get('dc_chatbot')->warning('Next.js API failed: @error', [
+        '@error' => $apiError,
       ]);
     }
 
-    // Fallback to local simple response logic
-    return $this->generateResponse($message, $context);
+    // Return error message instead of fake response
+    return $this->getConnectionErrorMessage($apiError);
   }
 
   /**
-   * Generates a response based on the message.
+   * Returns a user-friendly error message when API connection fails.
    *
-   * @param string $message
-   *   The user message.
-   * @param array $context
-   *   Additional context data.
+   * @param string|null $apiError
+   *   The technical error message from the API call.
    *
    * @return string
-   *   The generated response.
+   *   A user-friendly error message.
    */
-  protected function generateResponse(string $message, array $context = []) {
-    $message_lower = strtolower(trim($message));
-
-    // Simple pattern matching - replace with AI service integration
-    $responses = [
-      'hello' => 'Hello! How can I help you today?',
-      'hi' => 'Hi there! What can I do for you?',
-      'help' => 'I\'m here to help! You can ask me questions about this site or general information.',
-      'bye' => 'Goodbye! Feel free to come back anytime if you need help.',
-      'goodbye' => 'Goodbye! Have a great day!',
-      'thank' => 'You\'re welcome! Is there anything else I can help you with?',
-    ];
-
-    foreach ($responses as $trigger => $response) {
-      if (strpos($message_lower, $trigger) !== FALSE) {
-        return $response;
-      }
+  protected function getConnectionErrorMessage($apiError = null) {
+    $config = $this->configFactory->get('dc_chatbot.settings');
+    $apiKey = $config->get('api_key');
+    
+    // Check for specific error conditions
+    if (empty($apiKey)) {
+      return "⚠️ **Chatbot Configuration Issue**\n\nThe chatbot is not properly configured with an API key. Please contact your site administrator to configure the chatbot settings.";
     }
-
-    // Default response
-    return 'I understand you said: "' . $message . '". I\'m still learning! Can you try rephrasing your question?';
+    
+    if ($apiError && strpos($apiError, 'Failed to connect') !== FALSE) {
+      return "⚠️ **Connection Issue**\n\nI'm currently unable to connect to the AI service. This might be a temporary network issue. Please try again in a moment, or contact support if the problem persists.";
+    }
+    
+    if ($apiError && (strpos($apiError, 'Invalid API key') !== FALSE || strpos($apiError, 'not configured') !== FALSE)) {
+      return "⚠️ **Configuration Issue**\n\nThere's a problem with the chatbot configuration. Please contact your site administrator to resolve this issue.";
+    }
+    
+    // Generic error message
+    return "⚠️ **Service Unavailable**\n\nI'm experiencing technical difficulties right now. Please try again later, or contact support if you need immediate assistance.";
   }
 
   /**
