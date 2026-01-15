@@ -74,8 +74,47 @@ function dc_core_install() {
     \Drupal::logger('dc_core')->notice('Granted GraphQL permissions to anonymous role.');
   }
 
-  // 4. Place the Decoupled Drupal Chatbot block in the Gin theme.
+  // 4. Configure the Decoupled Drupal Chatbot.
+  _dc_core_configure_chatbot();
+
+  // 5. Place the Decoupled Drupal Chatbot block in the Gin theme.
   _dc_core_place_chatbot_block();
+}
+
+/**
+ * Helper function to configure the chatbot settings.
+ */
+function _dc_core_configure_chatbot() {
+  // Check if dc_chatbot module is enabled.
+  $moduleHandler = \Drupal::service('module_handler');
+  if (!$moduleHandler->moduleExists('dc_chatbot')) {
+    \Drupal::logger('dc_core')->notice('Skipped chatbot configuration: dc_chatbot module not enabled.');
+    return;
+  }
+
+  // Detect environment and set appropriate API URL.
+  $request = \Drupal::request();
+  $host = $request->getHost();
+  
+  // Local development: use localhost URLs.
+  $is_local = (
+    strpos($host, 'localhost') !== FALSE || 
+    strpos($host, '.ddev.site') !== FALSE ||
+    strpos($host, '127.0.0.1') !== FALSE
+  );
+  
+  $api_url = $is_local 
+    ? 'http://host.docker.internal:3333/api/chatbot'
+    : 'https://dashboard.decoupled.io/api/chatbot';
+  
+  // Configure chatbot settings.
+  $config = \Drupal::configFactory()->getEditable('dc_chatbot.settings');
+  $config->set('enabled', TRUE);
+  $config->set('api_url', $api_url);
+  // API key will be set by the dashboard via webhook after installation.
+  $config->save();
+  
+  \Drupal::logger('dc_core')->notice('Configured chatbot with API URL: ' . $api_url);
 }
 
 /**
@@ -350,4 +389,12 @@ function dc_core_update_10007() {
 function dc_core_update_10008() {
   _dc_core_place_chatbot_block();
   return t('Placed Decoupled Drupal Chatbot block in Gin theme (if module enabled).');
+}
+
+/**
+ * Configure the Decoupled Drupal Chatbot settings.
+ */
+function dc_core_update_10009() {
+  _dc_core_configure_chatbot();
+  return t('Configured Decoupled Drupal Chatbot with appropriate API URL (if module enabled).');
 }
