@@ -60,13 +60,13 @@ RUN echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/drupal.ini \
     && echo "apc.enable_cli=1" >> /usr/local/etc/php/conf.d/drupal.ini
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# 🚀 OPTIMIZATION: Pre-build Drupal with vendor/ directory
-# This eliminates 15+ minute composer install from init containers!
+# 🚀 ULTRA-OPTIMIZATION: Build code directly at /var/www/html!
+# This eliminates the 48-second copy from init containers entirely!
+# Code runs directly from the image - no copy, no wait, instant startup!
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-# Build code at /opt/drupal-template (for backward compatibility)
-# New deployments can copy from here or run directly from /var/www/html
-WORKDIR /opt/drupal-template
+# Build code directly at runtime location (no copy needed!)
+WORKDIR /var/www/html
 
 # Copy composer files first (better layer caching)
 COPY composer.json composer.lock ./
@@ -84,19 +84,7 @@ COPY . .
 # Run composer post-install scripts
 RUN COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd || true
 
-# Set permissions
-RUN chown -R www-data:www-data /opt/drupal-template
-
-# Also symlink to /var/www/html for new-style deployments
-# This allows both old (copy from /opt) and new (run from /var) to work
-RUN ln -sf /opt/drupal-template /var/www/html-source
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-# Runtime working directory
-WORKDIR /var/www/html
-
-# Create directories
+# Create writable directories
 RUN mkdir -p /var/www/html/web/sites/default/files /var/www/html/private \
     && chown -R www-data:www-data /var/www/html
 
