@@ -7,3 +7,4 @@ This repository automatically triggers Docker image builds in the decoupled-dock
 2. GitHub Actions triggers decoupled-docker image rebuild
 3. Self-hosted runner builds and pushes new image to Docker Hub
 4. New sites automatically use the latest image
+<!-- Test automated build pipeline -->
