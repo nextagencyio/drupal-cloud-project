@@ -88,6 +88,9 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd || true
 RUN mkdir -p /var/www/html/web/sites/default/files /var/www/html/private \
     && chown -R www-data:www-data /var/www/html
 
+# Backup sites/default for init container to copy to emptyDir
+RUN cp -a /var/www/html/web/sites/default /opt/default-site-template
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 # Configure nginx
