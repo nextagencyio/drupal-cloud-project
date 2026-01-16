@@ -1,0 +1,28 @@
+name: Trigger Docker Image Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'web/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'Dockerfile'
+
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Trigger decoupled-docker image build
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
+            https://api.github.com/repos/nextagencyio/decoupled-docker/dispatches \
+            -d '{"event_type":"rebuild-image","client_payload":{"source":"decoupled-project","sha":"${{ github.sha }}"}}'
+          
+          echo "✅ Triggered image rebuild in decoupled-docker repo"
+          echo "View workflow: https://github.com/nextagencyio/decoupled-docker/actions"
