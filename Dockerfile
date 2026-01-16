@@ -64,13 +64,14 @@ RUN echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/drupal.ini \
 # This eliminates 15+ minute composer install from init containers!
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-# Build code in /opt/drupal-template (init containers will copy from here)
+# Build code at /opt/drupal-template (for backward compatibility)
+# New deployments can copy from here or run directly from /var/www/html
 WORKDIR /opt/drupal-template
 
 # Copy composer files first (better layer caching)
 COPY composer.json composer.lock ./
 
-# Pre-install dependencies (15+ minutes, but only once!)
+# Pre-install dependencies (15+ minutes, but only once in image build!)
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
     --no-interaction \
     --no-dev \
@@ -86,6 +87,10 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd || true
 # Set permissions
 RUN chown -R www-data:www-data /opt/drupal-template
 
+# Also symlink to /var/www/html for new-style deployments
+# This allows both old (copy from /opt) and new (run from /var) to work
+RUN ln -sf /opt/drupal-template /var/www/html-source
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 # Runtime working directory
@@ -94,6 +99,8 @@ WORKDIR /var/www/html
 # Create directories
 RUN mkdir -p /var/www/html/web/sites/default/files /var/www/html/private \
     && chown -R www-data:www-data /var/www/html
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 # Configure nginx
 COPY docker/nginx.conf /etc/nginx/sites-available/default
