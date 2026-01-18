@@ -14,10 +14,13 @@ use Drupal\Component\Utility\Random;
  * Implements hook_install().
  */
 function dc_core_install() {
-  // 1. Generate OAuth2 RSA keypair for JWT token signing
+  // 1. Configure mail system to use Resend HTTP API
+  _dc_core_configure_mail_system();
+
+  // 2. Generate OAuth2 RSA keypair for JWT token signing
   _dc_core_generate_oauth_keys();
 
-  // 2. Create OAuth consumers for Next.js frontend authentication.
+  // 3. Create OAuth consumers for Next.js frontend authentication.
   // Delete existing consumers before creating new ones to avoid conflicts.
   $random = new Random();
   $consumerStorage = \Drupal::entityTypeManager()->getStorage('consumer');
