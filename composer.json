@@ -58,6 +58,7 @@
         "drupal/pathauto": "^1.13",
         "drupal/redis": "^1.8",
         "drupal/simple_oauth": "5.2.x-dev",
+        "drupal/smtp": "^1.4",
         "drush/drush": "^13.6"
     },
     "conflict": {

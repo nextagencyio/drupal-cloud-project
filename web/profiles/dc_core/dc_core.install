@@ -79,6 +79,9 @@ function dc_core_install() {
 
   // 5. Place the Decoupled Drupal Chatbot block in the Gin theme.
   _dc_core_place_chatbot_block();
+
+  // 6. Configure mail system to use Resend HTTP API.
+  _dc_core_configure_mail_system();
 }
 
 /**
@@ -171,6 +174,18 @@ function _dc_core_place_chatbot_block() {
   $block->save();
 
   \Drupal::logger('dc_core')->notice('Placed Decoupled Drupal Chatbot block in Gin theme.');
+}
+
+/**
+ * Helper function to configure the mail system to use Resend HTTP API.
+ */
+function _dc_core_configure_mail_system() {
+  // Configure Drupal to use Resend HTTP API for all emails.
+  $config = \Drupal::configFactory()->getEditable('system.mail');
+  $config->set('interface.default', 'resend_mail');
+  $config->save();
+  
+  \Drupal::logger('dc_core')->notice('Configured mail system to use Resend HTTP API (dc_mail module).');
 }
 
 /**
@@ -397,4 +412,12 @@ function dc_core_update_10008() {
 function dc_core_update_10009() {
   _dc_core_configure_chatbot();
   return t('Configured Decoupled Drupal Chatbot with appropriate API URL (if module enabled).');
+}
+
+/**
+ * Configure mail system to use Resend HTTP API.
+ */
+function dc_core_update_10010() {
+  _dc_core_configure_mail_system();
+  return t('Configured mail system to use Resend HTTP API (dc_mail module).');
 }
