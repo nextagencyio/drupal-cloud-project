@@ -424,3 +424,21 @@ function dc_core_update_10010() {
   _dc_core_configure_mail_system();
   return t('Configured mail system to use Resend HTTP API (dc_mail module).');
 }
+
+/**
+ * Fix mail system configuration for existing sites.
+ */
+function dc_core_update_10011() {
+  // Check if dc_mail module is enabled.
+  $moduleHandler = \Drupal::service('module_handler');
+  if (!$moduleHandler->moduleExists('dc_mail')) {
+    return t('Skipped mail configuration: dc_mail module not enabled.');
+  }
+
+  // Set dc_mail as the default mail system.
+  $config = \Drupal::configFactory()->getEditable('system.mail');
+  $config->set('interface.default', 'resend_mail');
+  $config->save();
+
+  return t('Fixed mail system configuration to use resend_mail (Resend HTTP API).');
+}
