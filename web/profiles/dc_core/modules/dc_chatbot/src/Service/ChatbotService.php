@@ -89,20 +89,27 @@ class ChatbotService {
    *   A user-friendly error message.
    */
   protected function getConnectionErrorMessage($apiError = null) {
-    // Check for specific error conditions
+    // Get API key from environment variable
     $apiKey = getenv('CHATBOT_API_KEY');
+
+    // Check for specific error conditions
     if (empty($apiKey)) {
-      return "⚠️ **Chatbot Configuration Issue**\n\nThe CHATBOT_API_KEY environment variable is not set. Please contact your site administrator.";
+      return "⚠️ **Chatbot Configuration Issue**\n\nThe chatbot is not properly configured with an API key. Please contact your site administrator to configure the chatbot settings.";
     }
-    
+
+    // Rate limit exceeded
+    if ($apiError && strpos($apiError, 'RATE_LIMIT_EXCEEDED') !== FALSE) {
+      return "⚠️ **Daily Limit Reached**\n\nYou've reached your daily limit of AI chatbot requests. Your limit will reset tomorrow. Thank you for using the chatbot!";
+    }
+
     if ($apiError && strpos($apiError, 'Failed to connect') !== FALSE) {
       return "⚠️ **Connection Issue**\n\nI'm currently unable to connect to the AI service. This might be a temporary network issue. Please try again in a moment, or contact support if the problem persists.";
     }
-    
+
     if ($apiError && (strpos($apiError, 'Invalid API key') !== FALSE || strpos($apiError, 'not configured') !== FALSE)) {
       return "⚠️ **Configuration Issue**\n\nThere's a problem with the chatbot configuration. Please contact your site administrator to resolve this issue.";
     }
-    
+
     // Generic error message
     return "⚠️ **Service Unavailable**\n\nI'm experiencing technical difficulties right now. Please try again later, or contact support if you need immediate assistance.";
   }
