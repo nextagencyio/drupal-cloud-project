@@ -37,16 +37,18 @@ class ChatbotConfigForm extends ConfigFormBase {
       '#default_value' => $config->get('enabled', FALSE),
     ];
 
-    $form['api_key'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('API Key'),
-      '#description' => $this->t('The API key used to authenticate requests from the Next.js application.'),
-      '#default_value' => $config->get('api_key', ''),
-      '#required' => TRUE,
-      '#maxlength' => 255,
+    // Show API key status from environment variable (read-only)
+    $apiKey = getenv('CHATBOT_API_KEY');
+    $apiKeyStatus = !empty($apiKey)
+      ? $this->t('✅ Configured (from CHATBOT_API_KEY environment variable)')
+      : $this->t('❌ Not configured - CHATBOT_API_KEY environment variable is not set');
+
+    $form['api_key_status'] = [
+      '#type' => 'item',
+      '#title' => $this->t('API Key Status'),
+      '#markup' => '<div class="description">' . $apiKeyStatus . '</div>',
+      '#description' => $this->t('The API key is securely stored as an environment variable and cannot be edited through this form. Contact your system administrator if you need to update it.'),
     ];
-
-
 
     $form['api_url'] = [
       '#type' => 'url',
@@ -65,9 +67,9 @@ class ChatbotConfigForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // API key is now stored in CHATBOT_API_KEY environment variable, not config
     $this->config('dc_chatbot.settings')
       ->set('enabled', $form_state->getValue('enabled'))
-      ->set('api_key', $form_state->getValue('api_key'))
       ->set('api_url', $form_state->getValue('api_url'))
       ->save();
 

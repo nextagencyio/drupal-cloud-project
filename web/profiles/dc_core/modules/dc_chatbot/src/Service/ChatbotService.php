@@ -89,12 +89,10 @@ class ChatbotService {
    *   A user-friendly error message.
    */
   protected function getConnectionErrorMessage($apiError = null) {
-    $config = $this->configFactory->get('dc_chatbot.settings');
-    $apiKey = $config->get('api_key');
-    
     // Check for specific error conditions
+    $apiKey = getenv('CHATBOT_API_KEY');
     if (empty($apiKey)) {
-      return "⚠️ **Chatbot Configuration Issue**\n\nThe chatbot is not properly configured with an API key. Please contact your site administrator to configure the chatbot settings.";
+      return "⚠️ **Chatbot Configuration Issue**\n\nThe CHATBOT_API_KEY environment variable is not set. Please contact your site administrator.";
     }
     
     if ($apiError && strpos($apiError, 'Failed to connect') !== FALSE) {
@@ -158,10 +156,11 @@ class ChatbotService {
       $payload['mode'] = $context['mode'];
     }
 
-    // Get the API key for authentication
-    $apiKey = $config->get('api_key');
+    // Get the API key for authentication from environment variable
+    // This is similar to how RESEND_API_KEY works for dc_mail
+    $apiKey = getenv('CHATBOT_API_KEY');
     if (empty($apiKey)) {
-      throw new \Exception('Chatbot API key is not configured. Please configure the chatbot settings.');
+      throw new \Exception('CHATBOT_API_KEY environment variable is not set.');
     }
 
     // Get the current request to determine origin
