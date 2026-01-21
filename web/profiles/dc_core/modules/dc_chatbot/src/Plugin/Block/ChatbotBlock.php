@@ -151,8 +151,9 @@ class ChatbotBlock extends BlockBase implements ContainerFactoryPluginInterface 
       return [];
     }
 
-    // Don't render if API key is not configured
-    if (empty($config->get('api_key'))) {
+    // Don't render if API key is not configured (check environment variable)
+    $apiKey = getenv('CHATBOT_API_KEY');
+    if (empty($apiKey)) {
       return [];
     }
 
