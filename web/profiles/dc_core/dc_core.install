@@ -442,3 +442,30 @@ function dc_core_update_10011() {
 
   return t('Fixed mail system configuration to use resend_mail (Resend HTTP API).');
 }
+
+/**
+ * Force mail system configuration update (10011 may have been marked as run without executing).
+ */
+function dc_core_update_10012() {
+  // Check if dc_mail module is enabled.
+  $moduleHandler = \Drupal::service('module_handler');
+  if (!$moduleHandler->moduleExists('dc_mail')) {
+    \Drupal::logger('dc_core')->warning('dc_mail module not enabled - cannot configure mail system');
+    return t('Skipped: dc_mail module not enabled.');
+  }
+
+  // Force set dc_mail as the default mail system.
+  $config = \Drupal::configFactory()->getEditable('system.mail');
+  $currentInterface = $config->get('interface.default');
+
+  \Drupal::logger('dc_core')->notice('Current mail interface: @current, setting to resend_mail', [
+    '@current' => $currentInterface ?? 'null',
+  ]);
+
+  $config->set('interface.default', 'resend_mail');
+  $config->save();
+
+  return t('FORCED mail system configuration to resend_mail (was: @old)', [
+    '@old' => $currentInterface ?? 'not set',
+  ]);
+}
