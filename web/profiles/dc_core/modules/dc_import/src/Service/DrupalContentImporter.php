@@ -1606,8 +1606,57 @@ class DrupalContentImporter {
         continue;
       }
 
-      // Skip if value was already provided.
+      // Check if value was provided.
       if (isset($provided_values[$field_id]) && !empty($provided_values[$field_id])) {
+        $provided_value = $provided_values[$field_id];
+
+        $drupal_field_name = 'field_' . $this->sanitizeFieldName($field_id);
+        $title = $provided_values['title'] ?? $bundle;
+
+        // If a string URL was provided for an image field, download it.
+        if (is_string($provided_value) && (strpos($provided_value, 'http://') === 0 || strpos($provided_value, 'https://') === 0)) {
+          $alt_text = ucwords(str_replace('_', ' ', $field_id)) . ' for ' . $title;
+
+          \Drupal::logger('dc_import')->info('Downloading image from URL for field @field_id: @url', [
+            '@field_id' => $field_id,
+            '@url' => $provided_value,
+          ]);
+
+          $image_value = $this->handleImageFieldValue(['uri' => $provided_value, 'alt' => $alt_text], $field_id);
+
+          if ($image_value) {
+            // Check if this is a multi-value field (image[]).
+            if (strpos($field_type, '[]') !== FALSE) {
+              $entity_data[$drupal_field_name] = [$image_value];
+            } else {
+              $entity_data[$drupal_field_name] = $image_value;
+            }
+          }
+        }
+        // Handle array of string URLs for multi-value image fields.
+        elseif (is_array($provided_value) && strpos($field_type, '[]') !== FALSE) {
+          $image_values = [];
+          foreach ($provided_value as $index => $item) {
+            if (is_string($item) && (strpos($item, 'http://') === 0 || strpos($item, 'https://') === 0)) {
+              $alt_text = ucwords(str_replace('_', ' ', $field_id)) . ' ' . ($index + 1) . ' for ' . $title;
+
+              \Drupal::logger('dc_import')->info('Downloading image from URL for field @field_id[@index]: @url', [
+                '@field_id' => $field_id,
+                '@index' => $index,
+                '@url' => $item,
+              ]);
+
+              $image_value = $this->handleImageFieldValue(['uri' => $item, 'alt' => $alt_text], $field_id);
+              if ($image_value) {
+                $image_values[] = $image_value;
+              }
+            }
+          }
+          if (!empty($image_values)) {
+            $entity_data[$drupal_field_name] = $image_values;
+          }
+        }
+        // Otherwise, skip - value was already properly provided.
         continue;
       }
 
