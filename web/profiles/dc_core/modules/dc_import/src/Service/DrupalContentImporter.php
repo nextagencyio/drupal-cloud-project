@@ -1502,13 +1502,22 @@ class DrupalContentImporter {
 
     // Fallback to placeholder image if no external image was fetched.
     if (!$image_data) {
-      $placeholder_path = \Drupal::service('extension.list.module')->getPath('drupalx_ai') . '/files/card.png';
-      if (!file_exists($placeholder_path)) {
-        // Fallback to dc_import placeholder if drupalx_ai one doesn't exist.
+      $placeholder_path = NULL;
+
+      // Try drupalx_ai module's placeholder first (if module exists).
+      if (\Drupal::moduleHandler()->moduleExists('drupalx_ai')) {
+        $placeholder_path = \Drupal::service('extension.list.module')->getPath('drupalx_ai') . '/files/card.png';
+        if (!file_exists($placeholder_path)) {
+          $placeholder_path = NULL;
+        }
+      }
+
+      // Fallback to dc_import placeholder.
+      if (!$placeholder_path) {
         $placeholder_path = \Drupal::service('extension.list.module')->getPath('dc_import') . '/resources/placeholder.png';
       }
 
-      if (file_exists($placeholder_path)) {
+      if ($placeholder_path && file_exists($placeholder_path)) {
         $image_data = file_get_contents($placeholder_path);
         $file_extension = 'png';
       }
