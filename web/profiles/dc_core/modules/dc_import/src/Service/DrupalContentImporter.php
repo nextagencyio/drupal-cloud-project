@@ -35,6 +35,13 @@ class DrupalContentImporter {
   protected $fieldTypeMapper;
 
   /**
+   * Stores field types by bundle for placeholder image generation.
+   *
+   * @var array
+   */
+  protected $fieldTypesByBundle = [];
+
+  /**
    * Constructs a DrupalContentImporter object.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_factory, FieldTypeMapper $field_type_mapper) {
@@ -89,13 +96,25 @@ class DrupalContentImporter {
       }
     }
 
-    // Create bundles.
+    // Create bundles and store field types for placeholder generation.
     foreach ($bundle_defs as $def) {
       $entity_type = $def['entity'] ?? 'node';
       if ($entity_type === 'paragraph') {
         $this->createBundleParagraphConcise($def, $preview_mode, $result);
       } else {
         $this->createBundleNodeConcise($def, $preview_mode, $result);
+      }
+
+      // Store field types for later use during content creation.
+      $bundle = $def['bundle'];
+      $fields = $def['fields'] ?? [];
+      foreach ($fields as $field) {
+        $field_id = $field['id'] ?? $field['label'] ?? NULL;
+        $field_type = $field['type'] ?? 'string';
+        if ($field_id) {
+          $key = "{$entity_type}.{$bundle}.{$field_id}";
+          $this->fieldTypesByBundle[$key] = $field_type;
+        }
       }
     }
 
@@ -525,6 +544,10 @@ class DrupalContentImporter {
       foreach ($values as $field_id => $value) {
         $data['field_' . $this->sanitizeFieldName($field_id)] = $this->mapFieldValueConcise($value, $field_id);
       }
+
+      // Generate placeholder images for empty image fields.
+      $this->fillEmptyImageFields('paragraph', $bundle, $values, $data);
+
       $paragraph = $paragraph_storage->create($data);
       $paragraph->save();
       $title = $values['title'] ?? $item['id'] ?? 'Untitled';
@@ -651,6 +674,10 @@ class DrupalContentImporter {
         $node_data['field_' . $this->sanitizeFieldName($field_id)] = $this->mapFieldValueConcise($value, $field_id);
       }
     }
+
+    // Generate placeholder images for empty image fields.
+    $this->fillEmptyImageFields('node', $bundle, $values, $node_data);
+
     $node = $node_storage->create($node_data);
     $node->save();
 
@@ -1445,6 +1472,164 @@ class DrupalContentImporter {
 
     \Drupal::logger('dc_import')->warning('Failed to copy file to destination for field @field_id', ['@field_id' => $field_id]);
     return NULL;
+  }
+
+  /**
+   * Generates a placeholder image for empty image fields.
+   *
+   * @param string $alt_text
+   *   The alt text to use for the image and filename.
+   * @param string $field_id
+   *   The field ID for logging purposes.
+   *
+   * @return array|null
+   *   The image field value structure, or NULL on failure.
+   */
+  private function generatePlaceholderImage(string $alt_text, string $field_id) {
+    $image_data = NULL;
+    $file_extension = 'png';
+
+    // Try to fetch image from external service (Pexels/Unsplash) if configured.
+    if (\Drupal::hasService('drupalx_ai.image_generator')) {
+      $image_generator = \Drupal::service('drupalx_ai.image_generator');
+      $fetched_image = $image_generator->fetchImage($alt_text);
+
+      if ($fetched_image) {
+        $image_data = $fetched_image['data'];
+        $file_extension = $fetched_image['extension'];
+      }
+    }
+
+    // Fallback to placeholder image if no external image was fetched.
+    if (!$image_data) {
+      $placeholder_path = \Drupal::service('extension.list.module')->getPath('drupalx_ai') . '/files/card.png';
+      if (!file_exists($placeholder_path)) {
+        // Fallback to dc_import placeholder if drupalx_ai one doesn't exist.
+        $placeholder_path = \Drupal::service('extension.list.module')->getPath('dc_import') . '/resources/placeholder.png';
+      }
+
+      if (file_exists($placeholder_path)) {
+        $image_data = file_get_contents($placeholder_path);
+        $file_extension = 'png';
+      }
+    }
+
+    if (!$image_data) {
+      \Drupal::logger('dc_import')->warning('Could not generate placeholder image for field @field_id', ['@field_id' => $field_id]);
+      return NULL;
+    }
+
+    // Create a unique filename.
+    $safe_filename = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($alt_text)) . '_' . uniqid() . '.' . $file_extension;
+    $destination = 'public://ai-generated/' . $safe_filename;
+
+    // Ensure directory exists.
+    $directory = dirname($destination);
+    \Drupal::service('file_system')->prepareDirectory($directory, \Drupal\Core\File\FileSystemInterface::CREATE_DIRECTORY);
+
+    // Save image data to destination.
+    $file_entity = \Drupal::service('file.repository')->writeData(
+      $image_data,
+      $destination,
+      \Drupal\Core\File\FileSystemInterface::EXISTS_REPLACE
+    );
+
+    if ($file_entity) {
+      \Drupal::logger('dc_import')->info('Generated placeholder image for field @field_id (file ID: @file_id)', [
+        '@field_id' => $field_id,
+        '@file_id' => $file_entity->id(),
+      ]);
+
+      return [
+        'target_id' => $file_entity->id(),
+        'alt' => $alt_text,
+        'title' => $alt_text,
+      ];
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Checks if a field type is an image field.
+   *
+   * @param string $field_type
+   *   The field type string from the model (e.g., 'image', 'image[]').
+   *
+   * @return bool
+   *   TRUE if this is an image field type.
+   */
+  private function isImageFieldType(string $field_type): bool {
+    // Match 'image', 'image!', 'image[]', 'image[]!' etc.
+    return preg_match('/^image(\[\])?!?$/', $field_type) === 1;
+  }
+
+  /**
+   * Fills empty image fields with placeholder images.
+   *
+   * @param string $entity_type
+   *   The entity type (e.g., 'node', 'paragraph').
+   * @param string $bundle
+   *   The bundle name.
+   * @param array $provided_values
+   *   The values that were provided in the import JSON.
+   * @param array &$entity_data
+   *   The entity data array to populate with placeholders.
+   */
+  private function fillEmptyImageFields(string $entity_type, string $bundle, array $provided_values, array &$entity_data): void {
+    // Look for image fields defined in the model that weren't provided.
+    foreach ($this->fieldTypesByBundle as $key => $field_type) {
+      // Parse the key: entity_type.bundle.field_id
+      $parts = explode('.', $key, 3);
+      if (count($parts) !== 3) {
+        continue;
+      }
+
+      list($stored_entity_type, $stored_bundle, $field_id) = $parts;
+
+      // Skip if not for this entity type and bundle.
+      if ($stored_entity_type !== $entity_type || $stored_bundle !== $bundle) {
+        continue;
+      }
+
+      // Skip if not an image field.
+      if (!$this->isImageFieldType($field_type)) {
+        continue;
+      }
+
+      // Skip if value was already provided.
+      if (isset($provided_values[$field_id]) && !empty($provided_values[$field_id])) {
+        continue;
+      }
+
+      // Generate placeholder for this image field.
+      $drupal_field_name = 'field_' . $this->sanitizeFieldName($field_id);
+
+      // Skip if already set in entity_data.
+      if (isset($entity_data[$drupal_field_name]) && !empty($entity_data[$drupal_field_name])) {
+        continue;
+      }
+
+      // Generate a descriptive alt text from field_id and title.
+      $title = $provided_values['title'] ?? $bundle;
+      $alt_text = ucwords(str_replace('_', ' ', $field_id)) . ' for ' . $title;
+
+      \Drupal::logger('dc_import')->info('Generating placeholder image for empty field @field_id on @bundle', [
+        '@field_id' => $field_id,
+        '@bundle' => $bundle,
+      ]);
+
+      $placeholder_value = $this->generatePlaceholderImage($alt_text, $field_id);
+
+      if ($placeholder_value) {
+        // Check if this is a multi-value field (image[]).
+        if (strpos($field_type, '[]') !== FALSE) {
+          $entity_data[$drupal_field_name] = [$placeholder_value];
+        } else {
+          $entity_data[$drupal_field_name] = $placeholder_value;
+        }
+      }
+    }
   }
 
 
