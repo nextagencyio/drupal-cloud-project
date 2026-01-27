@@ -707,14 +707,60 @@ class DrupalContentImporter {
     if (is_string($value) && strlen($value) > 1 && $value[0] === '@') {
       return NULL; // Will resolve later.
     }
-    // Handle image field objects with URI (but not link fields).
-    if (is_array($value) && isset($value['uri']) && !isset($value['title'])) {
-      return $this->handleImageFieldValue($value, $field_id);
-    }
+    // Handle image field objects with URI.
+    // Distinguish from link fields by checking if URI looks like an image URL
+    // (http/https URLs, module:// paths, or file paths with image extensions).
+    if (is_array($value) && isset($value['uri'])) {
+      $uri = $value['uri'];
+      $is_image_uri = FALSE;
 
-    // Handle link fields with uri and title.
-    if (is_array($value) && isset($value['uri']) && isset($value['title'])) {
-      return $value; // Link fields can be passed through as-is
+      // Check for external image URLs (http/https)
+      if (strpos($uri, 'http://') === 0 || strpos($uri, 'https://') === 0) {
+        // Check for common image hosting services or image extensions
+        $image_patterns = [
+          'unsplash.com',
+          'pexels.com',
+          'images.',
+          'img.',
+          'cdn.',
+          '.jpg',
+          '.jpeg',
+          '.png',
+          '.gif',
+          '.webp',
+          '.svg',
+        ];
+        foreach ($image_patterns as $pattern) {
+          if (stripos($uri, $pattern) !== FALSE) {
+            $is_image_uri = TRUE;
+            break;
+          }
+        }
+      }
+      // Check for module:// paths or file paths with image extensions
+      elseif (strpos($uri, 'module://') === 0 || strpos($uri, '/') === 0) {
+        $image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+        foreach ($image_extensions as $ext) {
+          if (stripos($uri, $ext) !== FALSE) {
+            $is_image_uri = TRUE;
+            break;
+          }
+        }
+      }
+
+      if ($is_image_uri) {
+        return $this->handleImageFieldValue($value, $field_id);
+      }
+
+      // If not an image URI but has 'alt' property, it's likely still an image field
+      if (isset($value['alt'])) {
+        return $this->handleImageFieldValue($value, $field_id);
+      }
+
+      // Otherwise treat as link field (has uri and title but not image-like)
+      if (isset($value['title'])) {
+        return $value; // Link fields can be passed through as-is
+      }
     }
     // Arrays of scalars -> [{value: item}].
     if (is_array($value)) {
