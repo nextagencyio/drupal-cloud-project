@@ -1445,7 +1445,7 @@ class DrupalContentImporter {
       $filename = basename($uri);
     } elseif (strpos($uri, 'http://') === 0 || strpos($uri, 'https://') === 0) {
       // HTTP/HTTPS URL - download the file
-      $filename = basename(parse_url($uri, PHP_URL_PATH)) ?: 'imported_image_' . uniqid() . '.png';
+      $filename = basename(parse_url($uri, PHP_URL_PATH)) ?: 'imported_image_' . uniqid();
       $temp_file = \Drupal::service('file_system')->tempnam('temporary://', 'import_');
 
       // Download the file
@@ -1458,6 +1458,34 @@ class DrupalContentImporter {
 
       if (copy($uri, $temp_file, $context)) {
         $source_path = $temp_file;
+
+        // Check if filename has a valid image extension, if not detect from MIME type
+        $has_extension = preg_match('/\.(jpe?g|png|gif|webp|svg)$/i', $filename);
+        if (!$has_extension && function_exists('mime_content_type')) {
+          $mime_type = mime_content_type($temp_file);
+          $extension_map = [
+            'image/jpeg' => '.jpg',
+            'image/png' => '.png',
+            'image/gif' => '.gif',
+            'image/webp' => '.webp',
+            'image/svg+xml' => '.svg',
+          ];
+          if (isset($extension_map[$mime_type])) {
+            $filename .= $extension_map[$mime_type];
+            \Drupal::logger('dc_import')->info('Detected MIME type @mime for @uri, adding extension: @filename', [
+              '@mime' => $mime_type,
+              '@uri' => $uri,
+              '@filename' => $filename,
+            ]);
+          } else {
+            // Default to .jpg for unknown image types
+            $filename .= '.jpg';
+            \Drupal::logger('dc_import')->warning('Unknown MIME type @mime for @uri, defaulting to .jpg', [
+              '@mime' => $mime_type,
+              '@uri' => $uri,
+            ]);
+          }
+        }
       }
     } else {
       // Assume it's a local file path
