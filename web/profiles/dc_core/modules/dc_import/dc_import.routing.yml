@@ -27,3 +27,11 @@ dc_import.api_status:
     _controller: '\Drupal\dc_import\Controller\ImportApiController::status'
   requirements:
     _access: 'TRUE'
+
+dc_import.api_oauth_credentials:
+  path: '/api/dc-import/oauth-credentials'
+  defaults:
+    _controller: '\Drupal\dc_import\Controller\ImportApiController::getOAuthCredentials'
+  requirements:
+    _access: 'TRUE'
+  methods: [GET]

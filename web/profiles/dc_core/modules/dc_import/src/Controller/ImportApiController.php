@@ -127,6 +127,7 @@ class ImportApiController extends ControllerBase {
       'endpoints' => [
         'POST /api/dc-import' => 'Import content models and data',
         'GET /api/dc-import/status' => 'Get service status',
+        'GET /api/dc-import/oauth-credentials' => 'Get OAuth credentials for frontend integration',
       ],
       'authentication' => [
         'required' => 'X-Decoupled-Token: dc_tok_... (Decoupled Drupal personal access token) OR OAuth Bearer token',
@@ -261,12 +262,140 @@ class ImportApiController extends ControllerBase {
       
       \Drupal::logger('dc_import')->warning('OAuth token format validation failed - token too short or invalid characters');
       return FALSE;
-      
+
     } catch (\Exception $e) {
       \Drupal::logger('dc_import')->warning('OAuth token validation error: @error', [
         '@error' => $e->getMessage()
       ]);
       return FALSE;
+    }
+  }
+
+  /**
+   * Get OAuth credentials for frontend integration.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The JSON response with OAuth credentials.
+   */
+  public function getOAuthCredentials(Request $request) {
+    // Check authentication
+    if (!$this->authenticateRequest($request)) {
+      return new JsonResponse([
+        'success' => false,
+        'error' => 'Authentication required. Please provide a valid Decoupled Drupal personal access token.',
+        'format' => 'X-Decoupled-Token: dc_tok_...',
+        'help' => 'Get your token from the Decoupled Drupal dashboard at /organization/tokens',
+      ], 401);
+    }
+
+    try {
+      $entityTypeManager = \Drupal::entityTypeManager();
+      $configFactory = \Drupal::configFactory();
+
+      // Get or create the OAuth consumer
+      $consumer_storage = $entityTypeManager->getStorage('consumer');
+      $consumer_storage->resetCache();
+      $consumers = $consumer_storage->loadByProperties(['label' => 'Next.js Frontend']);
+
+      $client_id = '';
+      $client_secret = '';
+
+      if (empty($consumers)) {
+        // Create the OAuth consumer
+        $client_id = \Drupal\Component\Utility\Crypt::randomBytesBase64();
+        $client_secret = (new \Drupal\Component\Utility\Random())->word(8);
+
+        $consumer_data = [
+          'client_id' => $client_id,
+          'secret' => $client_secret,
+          'label' => 'Next.js Frontend',
+          'user_id' => 1,
+          'third_party' => TRUE,
+          'is_default' => FALSE,
+        ];
+
+        // Add roles if the field exists
+        $database = \Drupal::database();
+        if ($database->schema()->tableExists('consumer__roles')) {
+          $consumer_data['roles'] = ['previewer'];
+        }
+
+        $consumer = $consumer_storage->create($consumer_data);
+        $consumer->save();
+
+        \Drupal::logger('dc_import')->info('Created new OAuth consumer for API request');
+      }
+      else {
+        $consumer = reset($consumers);
+        $client_id = $consumer->getClientId();
+
+        // Get or regenerate the secret
+        $stored_secret = $consumer->get('secret')->value;
+
+        // If secret is hashed or empty, generate a new one
+        if (empty($stored_secret) || preg_match('/^\$2[ayb]\$/', $stored_secret)) {
+          $client_secret = (new \Drupal\Component\Utility\Random())->word(8);
+          $consumer->set('secret', $client_secret);
+          $consumer->save();
+          $consumer_storage->resetCache([$consumer->id()]);
+
+          \Drupal::logger('dc_import')->info('Regenerated OAuth client secret via API');
+        }
+        else {
+          $client_secret = $stored_secret;
+        }
+      }
+
+      // Get revalidation secret
+      $revalidate_config = $configFactory->get('dc_revalidate.settings');
+      $revalidate_secret = $revalidate_config->get('revalidate_secret');
+
+      // Generate if not set
+      if (empty($revalidate_secret) || $revalidate_secret === 'not-set') {
+        $revalidate_secret = bin2hex(random_bytes(16));
+        $revalidate_config_editable = $configFactory->getEditable('dc_revalidate.settings');
+        $revalidate_config_editable->set('revalidate_secret', $revalidate_secret);
+        $revalidate_config_editable->save();
+      }
+
+      // Get site URL
+      global $base_url;
+      $site_url = $base_url ?: \Drupal::request()->getSchemeAndHttpHost();
+
+      // Use HTTPS for production
+      $host = parse_url($site_url, PHP_URL_HOST);
+      $is_local = (strpos($host, 'localhost') !== FALSE || strpos($host, '127.0.0.1') !== FALSE || strpos($host, '.local') !== FALSE);
+      if (!$is_local && parse_url($site_url, PHP_URL_SCHEME) === 'http') {
+        $site_url = str_replace('http://', 'https://', $site_url);
+      }
+
+      return new JsonResponse([
+        'success' => true,
+        'credentials' => [
+          'NEXT_PUBLIC_DRUPAL_BASE_URL' => $site_url,
+          'NEXT_IMAGE_DOMAIN' => parse_url($site_url, PHP_URL_HOST),
+          'DRUPAL_CLIENT_ID' => $client_id,
+          'DRUPAL_CLIENT_SECRET' => $client_secret,
+          'DRUPAL_REVALIDATE_SECRET' => $revalidate_secret,
+        ],
+        'env_file' => "# Drupal Backend Configuration\n" .
+          "NEXT_PUBLIC_DRUPAL_BASE_URL=" . $site_url . "\n" .
+          "NEXT_IMAGE_DOMAIN=" . parse_url($site_url, PHP_URL_HOST) . "\n" .
+          "DRUPAL_CLIENT_ID=" . $client_id . "\n" .
+          "DRUPAL_CLIENT_SECRET=" . $client_secret . "\n" .
+          "DRUPAL_REVALIDATE_SECRET=" . $revalidate_secret,
+      ]);
+
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('dc_import')->error('Failed to get OAuth credentials: @message', ['@message' => $e->getMessage()]);
+      return new JsonResponse([
+        'success' => false,
+        'error' => 'Failed to retrieve OAuth credentials: ' . $e->getMessage(),
+      ], 500);
     }
   }
 
